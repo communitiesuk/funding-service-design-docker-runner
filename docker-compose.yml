@@ -1,0 +1,6 @@
+services:
+  fund-store:
+    build: 
+      context: ../funding-service-design-fund-store
+    ports: 
+      - 3001:8080
