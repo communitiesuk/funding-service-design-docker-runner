@@ -6,7 +6,15 @@ services:
     environment:
       - FLASK_ENV=development
     ports: 
-      - 3001:8080
+      - 3002:8080
+  account-store:
+      build: 
+        context: ../funding-service-design-account-store
+      command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+      environment:
+        - FLASK_ENV=development
+      ports: 
+        - 3001:8080
   form-runner:
     build: 
       context: ../funding-service-design-frontend
