@@ -6,6 +6,15 @@ services:
     environment:
       - FLASK_ENV=development
     ports: 
+      - 3001:8080
+    volumes: ['../funding-service-design-fund-store:/app']
+  application-store:
+    build: 
+      context: ../funding-service-design-application-store
+    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    environment:
+      - FLASK_ENV=development
+    ports: 
       - 3002:8080
     volumes: ['../funding-service-design-fund-store:/app']
   account-store:
@@ -14,10 +23,29 @@ services:
       command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
       environment:
         - FLASK_ENV=development
+      volumes: ['../funding-service-design-account-store:/app']
       ports: 
-        - 3001:8080
+        - 3003:8080
+  authenticator:
+      build: 
+        context: ../funding-service-design-authenticator
+      volumes: ['../funding-service-design-authenticator:/app']
+      ports: 
+        - 3004:8080
+      depends_on:
+        - authenticator-data
+  assessment-store:
+      build: 
+        context: ../funding-service-design-assessment-store
+      volumes: ['../funding-service-design-assessment-store:/app']
+      ports: 
+        - 3005:8080
   form-runner:
     build: 
       context: ../funding-service-design-frontend
     ports: 
       - 3009:3009
+  authenticator-data:
+    image: redis
+    ports:
+      - 6379:6379
