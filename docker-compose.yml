@@ -40,6 +40,14 @@ services:
       volumes: ['../funding-service-design-assessment-store:/app']
       ports: 
         - 3005:8080
+  notification:
+      build: 
+        context: ../funding-service-design-notification
+      volumes: ['../funding-service-design-notification:/app']
+      ports: 
+        - 3006:8080
+      environment:
+        GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
   form-runner:
     build: 
       context: ../funding-service-design-frontend
