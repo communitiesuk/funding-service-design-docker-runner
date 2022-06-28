@@ -16,7 +16,7 @@ services:
       - FLASK_ENV=development
     ports: 
       - 3002:8080
-    volumes: ['../funding-service-design-fund-store:/app']
+    volumes: ['../funding-service-design-application-store:/app']
   account-store:
       build: 
         context: ../funding-service-design-account-store
@@ -61,7 +61,6 @@ services:
       - FLASK_ENV=development
       - AUTHENTICATOR_HOST=http://localhost:3004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-
     ports: 
       - 3007:8080
   form-runner:
