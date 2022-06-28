@@ -56,11 +56,13 @@ services:
     volumes: ['../funding-service-design-fund-discovery-frontend:/app']
     command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
     depends_on:
-      - account-store
+      - fund-store
+
     environment:
       - FLASK_ENV=development
       - AUTHENTICATOR_HOST=http://localhost:3004
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - USE_LOCAL_DATA=False
     ports: 
       - 3007:8080
   form-runner:
