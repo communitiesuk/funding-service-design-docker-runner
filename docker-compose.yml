@@ -34,8 +34,13 @@ services:
         - 3004:8080
       depends_on:
         - authenticator-data
+        - account-store
       environment: 
         - REDIS_INSTANCE_URI=redis://authenticator-data:6379
+        - ACCOUNT_STORE_API_HOST=http://account-store:8080
+        - AUTHENTICATOR_HOST=http://localhost:3004
+        - NOTIFICATION_SERVICE_HOST=http://notification:8080
+        - APPLICANT_FRONTEND_HOST=https://www.example.com
   assessment-store:
       build: 
         context: ../funding-service-design-assessment-store
@@ -57,7 +62,6 @@ services:
     command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
     depends_on:
       - fund-store
-
     environment:
       - FLASK_ENV=development
       - AUTHENTICATOR_HOST=http://localhost:3004
