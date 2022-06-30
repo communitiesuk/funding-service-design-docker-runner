@@ -69,6 +69,18 @@ services:
       - USE_LOCAL_DATA=False
     ports: 
       - 3007:8080
+  frontend:
+    build:
+      context: ../funding-service-design-frontend
+      dockerfile: app.dockerfile
+    volumes: ['../funding-service-design-frontend:/app']
+    depends_on:
+      - application-store
+      - form-runner
+    environment:
+      - USE_LOCAL_DATA=False
+      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - FORMS_SERVICE_PUBLIC_HOST=http://localhost:3009
   form-runner:
     build: 
       context: ../funding-service-design-frontend
