@@ -81,6 +81,7 @@ services:
       - USE_LOCAL_DATA=False
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FORMS_SERVICE_PUBLIC_HOST=http://localhost:3009
+      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner:3009
     ports:
       - 3008:8080
   form-runner:
@@ -88,6 +89,9 @@ services:
       context: ../funding-service-design-frontend
     ports: 
       - 3009:3009
+    environment:
+      - LOG_LEVEL=debug
+      - 'NODE_CONFIG={"safelist": ["application-store"]}'
   authenticator-data:
     image: redis
     ports:
