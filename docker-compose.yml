@@ -103,8 +103,11 @@ services:
       - 6379:6379
   assessment-store-data:
       image: postgres
+      volumes:
+        - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
+        - POSTGRES_MULTIPLE_DATABASES=postgres
       ports:
         - 5432:5432
