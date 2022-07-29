@@ -20,7 +20,7 @@ services:
   account-store:
       build: 
         context: ../funding-service-design-account-store
-      command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+      command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
       environment:
         - FLASK_ENV=development
       volumes: ['../funding-service-design-account-store:/app']
@@ -35,6 +35,7 @@ services:
       depends_on:
         - authenticator-data
         - account-store
+        - notification
       environment: 
         - REDIS_INSTANCE_URI=redis://authenticator-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
