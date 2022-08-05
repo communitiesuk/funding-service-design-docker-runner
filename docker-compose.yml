@@ -23,9 +23,12 @@ services:
       command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
       environment:
         - FLASK_ENV=development
+        - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
       volumes: ['../funding-service-design-account-store:/app']
       ports: 
         - 3003:8080
+      depends_on:
+        - database
   authenticator:
       build: 
         context: ../funding-service-design-authenticator
@@ -111,7 +114,7 @@ services:
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=assessment_store
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store
       ports:
         - 5432:5432
   assessment:
