@@ -23,9 +23,12 @@ services:
       command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
       environment:
         - FLASK_ENV=development
+        - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
       volumes: ['../funding-service-design-account-store:/app']
       ports: 
         - 3003:8080
+      depends_on:
+        - database
   authenticator:
       build: 
         context: ../funding-service-design-authenticator
@@ -50,9 +53,9 @@ services:
       ports: 
         - 3005:8080
       environment:
-              - DATABASE_URL=postgresql://postgres:password@assessment-store-data:5432
+        - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
       depends_on: 
-        - assessment-store-data
+        - database
   notification:
       build: 
         context: ../funding-service-design-notification
@@ -104,10 +107,13 @@ services:
     image: redis
     ports:
       - 6379:6379
-  assessment-store-data:
+  database:
       image: postgres
+      volumes:
+        - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store
       ports:
         - 5432:5432
