@@ -50,9 +50,9 @@ services:
       ports: 
         - 3005:8080
       environment:
-              - DATABASE_URL=postgresql://postgres:password@assessment-store-data:5432
+        - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
       depends_on: 
-        - assessment-store-data
+        - database
   notification:
       build: 
         context: ../funding-service-design-notification
@@ -104,14 +104,14 @@ services:
     image: redis
     ports:
       - 6379:6379
-  assessment-store-data:
+  database:
       image: postgres
       volumes:
         - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=postgres
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store
       ports:
         - 5432:5432
   assessment:
