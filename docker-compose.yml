@@ -11,12 +11,15 @@ services:
   application-store:
     build: 
       context: ../funding-service-design-application-store
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
+    depends_on:
+      - database
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - NOTIFICATION_SERVICE_HOST=http://notification-store:8080
+      - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
     ports: 
       - 3002:8080
     volumes: ['../funding-service-design-application-store:/app']
@@ -118,6 +121,6 @@ services:
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store
       ports:
         - 5432:5432
