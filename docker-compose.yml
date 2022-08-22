@@ -11,11 +11,15 @@ services:
   application-store:
     build: 
       context: ../funding-service-design-application-store
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
     environment:
       - FLASK_ENV=development
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
     ports: 
       - 3002:8080
+    depends_on:
+      - database
     volumes: ['../funding-service-design-application-store:/app']
   account-store:
       build: 
@@ -85,10 +89,12 @@ services:
     volumes: ['../funding-service-design-frontend:/app']
     depends_on:
       - application-store
+      - fund-store
       - form-runner
     environment:
       - USE_LOCAL_DATA=False
       - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - FUND_STORE_API_HOST=http://fund-store:8080
       - FORMS_SERVICE_PUBLIC_HOST=http://localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner:3009
       - AUTHENTICATOR_HOST=http://localhost:3004
@@ -102,6 +108,9 @@ services:
       - 3009:3009
     environment:
       - LOG_LEVEL=debug
+      - JWT_AUTH_COOKIE_NAME=fsd_user_token
+      - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/service/magic-links/invalid
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
   authenticator-data:
     image: redis
@@ -114,6 +123,6 @@ services:
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store
       ports:
         - 5432:5432
