@@ -17,7 +17,7 @@ services:
       - FUND_STORE_API_HOST=http://fund-store:8080
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - NOTIFICATION_SERVICE_HOST=http://notification-store:8080
+      - NOTIFICATION_SERVICE_HOST=http://notification:8080
     ports: 
       - 3002:8080
     depends_on:
