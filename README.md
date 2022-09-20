@@ -5,7 +5,7 @@
 *  All funding-service-design apps (listed as `context` keys in [docker-compose.yml](docker-compose.yml) must be checked out in the parent directory on this repository
 
 ## How to run
-* Rename `.env.example` to `.env` and populate
+* Rename `.env.example` to `.env` and ask another team member for the missing secret value
 * `docker compose up`
 * Apps should be running on localhost on the ports in the [docker-compose.yml](docker-compose.yml) `ports` key before the `:`
 
