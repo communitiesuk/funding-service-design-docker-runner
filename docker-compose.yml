@@ -9,7 +9,7 @@ services:
       - 3001:8080
     volumes: ['../funding-service-design-fund-store:/app']
   application-store:
-    build: 
+    build:
       context: ../funding-service-design-application-store
     command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
     environment:
@@ -18,75 +18,76 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-    ports: 
+    ports:
       - 3002:8080
     depends_on:
       - database
     volumes: ['../funding-service-design-application-store:/app']
   account-store:
-      build: 
+      build:
         context: ../funding-service-design-account-store
       command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
       environment:
         - FLASK_ENV=development
         - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
       volumes: ['../funding-service-design-account-store:/app']
-      ports: 
+      ports:
         - 3003:8080
       depends_on:
         - database
   authenticator:
-      build: 
+      build:
         context: ../funding-service-design-authenticator
       volumes: ['../funding-service-design-authenticator:/app']
-      ports: 
+      ports:
         - 3004:8080
       depends_on:
         - authenticator-data
-        - fund-store
         - account-store
         - notification
-      environment: 
+      environment:
         - REDIS_INSTANCE_URI=redis://authenticator-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
         - APPLICATION_STORE_API_HOST=http://application-store:8080
-        - FUND_STORE_API_HOST=http://fund-store:8080
         - AUTHENTICATOR_HOST=http://localhost:3004
         - NOTIFICATION_SERVICE_HOST=http://notification:8080
         - APPLICANT_FRONTEND_HOST=http://localhost:3008
+        - RSA256_PRIVATE_KEY_BASE64=LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlDV3dJQkFBS0JnUUNvbEdzV0FiVzlWUG40Zm9URW8vdXdZRXpBUElDQkRZREc2ZlRacG11VStKclVmZkF6Cjl0aGkxRzQyS0NEQUFsbFMySmRFaUVlMDZzaXpyeURqV3liQnYycXZKTEtpNFlWdEl4b3RjN1lGdStmM0htUFMKMlo4SVNMdCtMVTBjb2JKQVZMREpIekhZWk9idW1jUTFhbEcvTy83TFJHdFQ1clNlTkJZUCtkOUs5d0lEQVFBQgpBb0dBSVZqYXBndklpNTlYbzFSRHB6SlpBMWJKVisyZjdlZGg1ZmM1dkNRemU5Q0JzQzhKYVA0WFo5Vmx4OGpBClVic2xPRUlvQ2lKN0xNcVUwUlovaHZucy9HeEJLdjNZWFI4TjFkY3JmdUVPVm5VK0FsSERUSjdZT2tWZUloeGoKcDAyZnUyNmFKeFpSWDVvZjBCb004U2xYMUM2clpoSVBUek1kTzRpNlhIVnhxZUVDUVFEWTVpMWdaZTZHMm5VZgo3V3ZpWG13SHZxMEh0cWgzRDlVK3UrYUR1Nk1BNjJlQ3hhaWVaYUpQSitsSWtwRGVpU2VOOUVWMWJaVTJNdy9uCnR4cm51OG9qQWtFQXh2aFJjaFg4ZTA5N3FsMndMZk9JUVhZblFtZGZRN3pBM3JSOE5DaEU2dmNxcnpZaDFpeXkKVjhxcXdwbWJRbUphR1ZDbVBtcDhoMWhGbHpiTzJETFhIUUpBQzU2eE9hUGNWbjhublRGRUFWbWJvZ0tXRkg2MQpvY05JWWxjQXIzZ0M4STZyK2ZhSzVRbCsyNHpBMDdGK2IxMmJyK0F4Ukd3OWZTelpJa25OK0RJNFR3SkFKTFlVCmNQUlZqWHJ3MmxKRyszTi9wSFJrY2dBWXQ2clArMGRaMDFYS3dYK3hSSHE4YTRQN3MrOFU2cXJrMXE3RzZQelUKYjVlK09rcXpMRjlVY3RlT2tRSkFlSzZXL0JtMDR5L2ZnSis3VWlIeldzdnozOWdaRFZnblBBQzB3ZmdMTUF2TApna0NjQkttWW9CM2tYUitGSlNlNVZFNlBSRnBjVmc4bmwxWSswNlZCdlE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQ==
+        - RSA256_PUBLIC_KEY_BASE64=LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDb2xHc1dBYlc5VlBuNGZvVEVvL3V3WUV6QQpQSUNCRFlERzZmVFpwbXVVK0pyVWZmQXo5dGhpMUc0MktDREFBbGxTMkpkRWlFZTA2c2l6cnlEald5YkJ2MnF2CkpMS2k0WVZ0SXhvdGM3WUZ1K2YzSG1QUzJaOElTTHQrTFUwY29iSkFWTERKSHpIWVpPYnVtY1ExYWxHL08vN0wKUkd0VDVyU2VOQllQK2Q5Szl3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
+        - FLASK_ENV=development
   assessment-store:
-      build: 
+      build:
         context: ../funding-service-design-assessment-store
       volumes: ['../funding-service-design-assessment-store:/app']
       command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
-      ports: 
+      ports:
         - 3005:8080
       environment:
         - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
-      depends_on: 
+      depends_on:
         - database
   notification:
-      build: 
+      build:
         context: ../funding-service-design-notification
       volumes: ['../funding-service-design-notification:/app']
       ports:
         - 3006:8080
       environment:
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
-  fund-discovery-frontend:
-    build: 
-      context: ../funding-service-design-fund-discovery-frontend
-    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-    depends_on:
-      - fund-store
-    environment:
-      - FLASK_ENV=development
-      - AUTHENTICATOR_HOST=http://localhost:3004
-      - FUND_STORE_API_HOST=http://fund-store:8080
-      - USE_LOCAL_DATA=False
-    ports: 
-      - 3007:8080
+#  fund-discovery-frontend:
+#    build:
+#      context: ../funding-service-design-fund-discovery-frontend
+#    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
+#    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+#    depends_on:
+#      - fund-store
+#    environment:
+#      - FLASK_ENV=development
+#      - AUTHENTICATOR_HOST=http://localhost:3004
+#      - FUND_STORE_API_HOST=http://fund-store:8080
+#      - USE_LOCAL_DATA=False
+#    ports:
+#      - 3007:8080
   frontend:
     build:
       context: ../funding-service-design-frontend
@@ -103,30 +104,38 @@ services:
       - FORMS_SERVICE_PUBLIC_HOST=http://localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner:3009
       - AUTHENTICATOR_HOST=http://localhost:3004
+      - RSA256_PUBLIC_KEY_BASE64=LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDb2xHc1dBYlc5VlBuNGZvVEVvL3V3WUV6QQpQSUNCRFlERzZmVFpwbXVVK0pyVWZmQXo5dGhpMUc0MktDREFBbGxTMkpkRWlFZTA2c2l6cnlEald5YkJ2MnF2CkpMS2k0WVZ0SXhvdGM3WUZ1K2YzSG1QUzJaOElTTHQrTFUwY29iSkFWTERKSHpIWVpPYnVtY1ExYWxHL08vN0wKUkd0VDVyU2VOQllQK2Q5Szl3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
       - FLASK_ENV=development
     ports:
       - 3008:8080
   form-runner:
-    build: 
+    build:
       context: ../funding-service-design-frontend
-      args:
-        # To use branch of digital-form-builder change 'latest' to an alternative tag from https://github.com/communitiesuk/digital-form-builder/pkgs/container/digital-form-builder-dluhc-runner/versions and run 'docker compose build form-runner'
-        - BASE_IMAGE_TAG=latest
-    ports: 
+    ports:
       - 3009:3009
+    depends_on:
+      - form-runner-data
     environment:
+      - SINGLE_REDIS=true
+      - REDIS_HOST=form-runner-data
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=123abc
+      - 'VCAP_SERVICES={"redis":[{"credentials":{"host":"form-runner-data","port":6379,"password":"123abc"}}]}'
       - LOG_LEVEL=debug
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
+      - LOGOUT_URL=http://localhost:3004/sessions/sign-out
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
-      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - RSA256_PUBLIC_KEY_BASE64=LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDb2xHc1dBYlc5VlBuNGZvVEVvL3V3WUV6QQpQSUNCRFlERzZmVFpwbXVVK0pyVWZmQXo5dGhpMUc0MktDREFBbGxTMkpkRWlFZTA2c2l6cnlEald5YkJ2MnF2CkpMS2k0WVZ0SXhvdGM3WUZ1K2YzSG1QUzJaOElTTHQrTFUwY29iSkFWTERKSHpIWVpPYnVtY1ExYWxHL08vN0wKUkd0VDVyU2VOQllQK2Q5Szl3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
-      - CONTACT_US_URL=http://localhost:3008/contact_us
-      - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
-      - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
   authenticator-data:
     image: redis
     ports:
-      - 6379:6379
+      - 6380:6379
+  form-runner-data:
+    image: "redis:alpine"
+    command: redis-server --requirepass 123abc
+    ports:
+      - "6379:6379"
   database:
       image: postgres
       volumes:
