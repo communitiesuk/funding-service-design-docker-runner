@@ -74,20 +74,20 @@ services:
         - 3006:8080
       environment:
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
-#  fund-discovery-frontend:
-#    build:
-#      context: ../funding-service-design-fund-discovery-frontend
-#    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
-#    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-#    depends_on:
-#      - fund-store
-#    environment:
-#      - FLASK_ENV=development
-#      - AUTHENTICATOR_HOST=http://localhost:3004
-#      - FUND_STORE_API_HOST=http://fund-store:8080
-#      - USE_LOCAL_DATA=False
-#    ports:
-#      - 3007:8080
+  fund-discovery-frontend:
+    build:
+      context: ../funding-service-design-fund-discovery-frontend
+    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
+    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    depends_on:
+      - fund-store
+    environment:
+      - FLASK_ENV=development
+      - AUTHENTICATOR_HOST=http://localhost:3004
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - USE_LOCAL_DATA=False
+    ports:
+      - 3007:8080
   frontend:
     build:
       context: ../funding-service-design-frontend
@@ -120,7 +120,6 @@ services:
       - REDIS_HOST=form-runner-data
       - REDIS_PORT=6379
       - REDIS_PASSWORD=123abc
-      - 'VCAP_SERVICES={"redis":[{"credentials":{"host":"form-runner-data","port":6379,"password":"123abc"}}]}'
       - LOG_LEVEL=debug
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - LOGOUT_URL=http://localhost:3004/sessions/sign-out
