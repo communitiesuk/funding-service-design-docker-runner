@@ -129,6 +129,9 @@ services:
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64=LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTkFEQ0JpUUtCZ1FDb2xHc1dBYlc5VlBuNGZvVEVvL3V3WUV6QQpQSUNCRFlERzZmVFpwbXVVK0pyVWZmQXo5dGhpMUc0MktDREFBbGxTMkpkRWlFZTA2c2l6cnlEald5YkJ2MnF2CkpMS2k0WVZ0SXhvdGM3WUZ1K2YzSG1QUzJaOElTTHQrTFUwY29iSkFWTERKSHpIWVpPYnVtY1ExYWxHL08vN0wKUkd0VDVyU2VOQllQK2Q5Szl3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
+      - CONTACT_US_URL=http://localhost:3008/contact_us
+      - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
+      - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
   authenticator-data:
     image: redis
     ports:
