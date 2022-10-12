@@ -74,20 +74,20 @@ services:
         - 3006:8080
       environment:
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
-#  fund-discovery-frontend:
-#    build:
-#      context: ../funding-service-design-fund-discovery-frontend
-#    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
-#    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-#    depends_on:
-#      - fund-store
-#    environment:
-#      - FLASK_ENV=development
-#      - AUTHENTICATOR_HOST=http://localhost:3004
-#      - FUND_STORE_API_HOST=http://fund-store:8080
-#      - USE_LOCAL_DATA=False
-#    ports:
-#      - 3007:8080
+  fund-discovery-frontend:
+    build:
+      context: ../funding-service-design-fund-discovery-frontend
+    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
+    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    depends_on:
+      - fund-store
+    environment:
+      - FLASK_ENV=development
+      - AUTHENTICATOR_HOST=http://localhost:3004
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - USE_LOCAL_DATA=False
+    ports:
+      - 3007:8080
   frontend:
     build:
       context: ../funding-service-design-frontend
@@ -151,17 +151,17 @@ services:
         - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store
       ports:
         - 5432:5432
-#  assessment:
-#    build:
-#      context: ../funding-service-design-assessment
-#    volumes: ['../funding-service-design-assessment:/app']
-#    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-#    depends_on:
-#      - assessment-store
-#    environment:
-#      - FLASK_ENV=development
-#      - FUND_STORE_API_HOST=http://fund-store:8080
-#      - APPLICATION_STORE_API_HOST=http://application-store:8080
-#      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
-#    ports:
-#      - 3010:8080
+  assessment:
+    build:
+      context: ../funding-service-design-assessment
+    volumes: ['../funding-service-design-assessment:/app']
+    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    depends_on:
+      - assessment-store
+    environment:
+      - FLASK_ENV=development
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
+    ports:
+      - 3010:8080
