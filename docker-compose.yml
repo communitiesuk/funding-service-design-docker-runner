@@ -124,6 +124,9 @@ services:
       - CONTACT_US_URL=http://localhost:3008/contact_us
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
+      # Uncomment this to test file uploads once credentials are set in .env
+      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   authenticator-data:
     image: redis
     ports:
