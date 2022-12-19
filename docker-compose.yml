@@ -148,6 +148,7 @@ services:
     command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
     depends_on:
       - assessment-store
+      - fund-store
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
