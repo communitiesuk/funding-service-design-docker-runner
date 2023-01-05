@@ -63,6 +63,7 @@ services:
         - 3005:8080
       environment:
         - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
+        - APPLICATION_STORE_API_HOST=http://application-store:8080
       depends_on: 
         - database
   notification:
