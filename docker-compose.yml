@@ -74,20 +74,6 @@ services:
         - 3006:8080
       environment:
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
-  fund-discovery-frontend:
-    build: 
-      context: ../funding-service-design-fund-discovery-frontend
-    volumes: ['../funding-service-design-fund-discovery-frontend:/app']
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-    depends_on:
-      - fund-store
-    environment:
-      - FLASK_ENV=development
-      - AUTHENTICATOR_HOST=http://localhost:3004
-      - FUND_STORE_API_HOST=http://fund-store:8080
-      - USE_LOCAL_DATA=False
-    ports: 
-      - 3007:8080
   frontend:
     build:
       context: ../funding-service-design-frontend
