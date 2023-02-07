@@ -54,6 +54,11 @@ services:
         - AUTHENTICATOR_HOST=http://localhost:3004
         - NOTIFICATION_SERVICE_HOST=http://notification:8080
         - APPLICANT_FRONTEND_HOST=http://localhost:3008
+        - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
+        #  Uncomment to test Azure AD locally once credentials are set in .env
+        # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID:?err}
+        # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET:?err}
+        # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID:?err}
   assessment-store:
       build: 
         context: ../funding-service-design-assessment-store
@@ -142,5 +147,6 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - AUTHENTICATOR_HOST=http://localhost:3004
     ports: 
       - 3010:8080
