@@ -23,3 +23,14 @@ To run the e2e tests against the docker runner, set the following env vars:
         export TARGET_URL_FRONTEND=http://localhost:3008
         export TARGET_URL_AUTHENTICATOR=http://localhost:3004
         export TARGET_URL_FORM_RUNNER=http://localhost:3009
+
+# Scripts
+## reset-all-repos
+Shell script to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps. Also optionally 'resets' the postgres image by forcefully removing it - useful if your local migrations get out of sync with the code or you need to start with a blank DB.
+
+        scripts/reset-all-repos.sh -wm /path/to/workspace/dir
+
+Where
+- w: if supplied, will wipe the postgres image
+- m: if supplied, will reset all repos to main
+- path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
