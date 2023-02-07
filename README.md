@@ -26,6 +26,16 @@ To run the e2e tests against the docker runner, set the following env vars:
 
 ## Debugging
 
+All the services in docker-compose now include the following in their config:
+
+`command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]`
+
+    ports:
+      - <unique debug port>:5678
+      - <another port>:8080
+
+The use of `debugpy` starts a debug listener on port `5678` - this is then running whether you connect to it or not. If you want to attach a debugger to that listener, follow instructions below. Each service must expose the debug listener on port 5678 to its own unique port, otherwise they will clash.
+
 To attach a debugger in VS Code for a particular service, add the following to the `launch.json` for your chosen app, making sure the port matches the exposed debug port in `docker-compose.yml`.
 
         {
