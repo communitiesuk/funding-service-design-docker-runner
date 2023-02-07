@@ -23,3 +23,24 @@ To run the e2e tests against the docker runner, set the following env vars:
         export TARGET_URL_FRONTEND=http://localhost:3008
         export TARGET_URL_AUTHENTICATOR=http://localhost:3004
         export TARGET_URL_FORM_RUNNER=http://localhost:3009
+
+## Debugging
+
+To attach a debugger in VS Code for a particular service, add the following to the `launch.json` for your chosen app, making sure the port matches the exposed debug port in `docker-compose.yml`.
+
+        {
+            "name": "Python: Remote Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5684
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true
+        },
