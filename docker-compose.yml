@@ -3,20 +3,20 @@ services:
     build: 
       context: ../funding-service-design-fund-store
     # command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
         - FLASK_ENV=development
         - force_opens_R2W3=2023-01-01 12:00:00
         - force_deadline_R2W3=2023-03-01 12:00:00
     ports: 
       - 3001:8080
-      - 5678:5678
+      - 5686:5678
     volumes: ['../funding-service-design-fund-store:/app']      
   application-store:
     build: 
       context: ../funding-service-design-application-store
     # command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask db upgrade && flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask db upgrade && flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -33,7 +33,7 @@ services:
     build: 
       context: ../funding-service-design-account-store
     # command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
@@ -48,7 +48,7 @@ services:
       context: ../funding-service-design-authenticator
     volumes: ['../funding-service-design-authenticator:/app']
 
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     ports: 
       - 3004:8080
       - 5681:5678
@@ -69,20 +69,20 @@ services:
     build: 
       context: ../funding-service-design-assessment-store
     volumes: ['../funding-service-design-assessment-store:/app']
-    # command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask db upgrade && flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     ports: 
       - 3005:8080
       - 5682:5678
     environment:
       - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
       - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - PYTHONUNBUFFERED=1
     depends_on: 
       - database
   notification:
     build: 
       context: ../funding-service-design-notification
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     volumes: ['../funding-service-design-notification:/app']
     ports:
       - 3006:8080
@@ -93,7 +93,7 @@ services:
     build:
       context: ../funding-service-design-frontend
       dockerfile: app.dockerfile
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     volumes: ['../funding-service-design-frontend:/app']
     depends_on:
       - application-store
@@ -150,7 +150,7 @@ services:
       context: ../funding-service-design-assessment
     volumes: ['../funding-service-design-assessment:/app']
     # command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --no-reload --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     depends_on:
       - assessment-store
       - fund-store
