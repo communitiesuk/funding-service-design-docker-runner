@@ -151,5 +151,9 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
+      # Uncomment this to test file uploads once credentials are set in .env
+      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
     ports: 
       - 3010:8080
