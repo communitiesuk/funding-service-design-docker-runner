@@ -42,12 +42,12 @@ services:
       ports: 
         - 3004:8080
       depends_on:
-        - authenticator-data
         - fund-store
         - account-store
         - notification
+        - redis-data
       environment: 
-        - REDIS_INSTANCE_URI=redis://authenticator-data:6379
+        - REDIS_INSTANCE_URI=redis://redis-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
         - APPLICATION_STORE_API_HOST=http://application-store:8080
         - FUND_STORE_API_HOST=http://fund-store:8080
@@ -119,7 +119,7 @@ services:
       # Uncomment this to test file uploads once credentials are set in .env
       # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-  authenticator-data:
+  redis-data:
     image: redis
     ports:
       - 6379:6379
@@ -141,6 +141,8 @@ services:
     depends_on:
       - assessment-store
       - fund-store
+      - account-store
+      - redis-data
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -148,6 +150,7 @@ services:
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
+      - REDIS_INSTANCE_URI=redis://redis-data:6379
       # Uncomment this to test file uploads once credentials are set in .env
       # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
