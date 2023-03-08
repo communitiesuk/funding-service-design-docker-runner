@@ -8,7 +8,7 @@
 * Copy `.env.example` to `.env` and ask another team member for the missing secret value
 * `docker compose up`
 * Apps should be running on localhost on the ports in the [docker-compose.yml](docker-compose.yml) `ports` key before the `:`
-* Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up` or just running `docker compose up --build` on its own.
+* Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up`.
 
 ## Troubleshooting
 * Check you have the `main` branch and latest revision of each repo checked out
