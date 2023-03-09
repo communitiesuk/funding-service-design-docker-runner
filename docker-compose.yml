@@ -82,7 +82,7 @@ services:
   frontend:
     build:
       context: ../funding-service-design-frontend
-      dockerfile: app.dockerfile
+      dockerfile: Dockerfile
     volumes: ['../funding-service-design-frontend:/app']
     depends_on:
       - application-store
@@ -101,7 +101,8 @@ services:
       - 3008:8080
   form-runner:
     build: 
-      context: ../digital-form-builder/fsd_config
+      context: ../digital-form-builder
+      dockerfile: ./fsd_config/Dockerfile
       args:
         # To use branch of digital-form-builder change 'latest' to an alternative tag from https://github.com/communitiesuk/digital-form-builder/pkgs/container/digital-form-builder-dluhc-runner/versions and run 'docker compose build form-runner'
         - BASE_IMAGE_TAG=latest
