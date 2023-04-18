@@ -88,6 +88,7 @@ services:
       - application-store
       - fund-store
       - form-runner
+      - redis-data
     environment:
       - USE_LOCAL_DATA=False
       - APPLICATION_STORE_API_HOST=http://application-store:8080
@@ -97,6 +98,7 @@ services:
       - AUTHENTICATOR_HOST=http://localhost:3004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - FLASK_ENV=development
+      - REDIS_INSTANCE_URI=redis://redis-data:6379
     ports:
       - 3008:8080
   form-runner:
