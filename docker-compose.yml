@@ -2,16 +2,17 @@ services:
   fund-store:
     build: 
       context: ../funding-service-design-fund-store
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
     ports: 
       - 3001:8080
+      - 5681:5678
     volumes: ['../funding-service-design-fund-store:/app']
   application-store:
     build: 
       context: ../funding-service-design-application-store
-    command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -20,6 +21,7 @@ services:
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
     ports: 
       - 3002:8080
+      - 5683:5678
     depends_on:
       - database
     volumes: ['../funding-service-design-application-store:/app']
@@ -39,8 +41,10 @@ services:
       build: 
         context: ../funding-service-design-authenticator
       volumes: ['../funding-service-design-authenticator:/app']
+      command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
       ports: 
         - 3004:8080
+        - 5684:5678
       depends_on:
         - fund-store
         - account-store
@@ -84,6 +88,7 @@ services:
       context: ../funding-service-design-frontend
       dockerfile: Dockerfile
     volumes: ['../funding-service-design-frontend:/app']
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]   
     depends_on:
       - application-store
       - fund-store
@@ -101,6 +106,7 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     ports:
       - 3008:8080
+      - 5688:5678
   form-runner:
     build: 
       context: ../digital-form-builder
