@@ -50,7 +50,7 @@ To then expose the debug port 5678 to allow a debugger interface to connect, eac
         ports:
                 - 5681:5678
 
-This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json for the particular app you want to debug, where port matches the one exposed in docker-compose.
+This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json for the particular app you want to debug, where port matches the one exposes in docker-compose.
 
 
         {
