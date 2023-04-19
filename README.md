@@ -11,7 +11,7 @@
 * Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up`.
 
 ## Troubleshooting
-* Check you have the `main` branch and latest revision of each repo checked out
+* Check you have the `main` branch and latest revision of each repo checked out - see `reset-all-repos` script below
 * If dependencies have changed you may need to rebuild the docker images using `docker compose build`
 * To run an individual app rather than all of them, run `docker compose up appname` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml) 
 * If you get an error about a database not existing, try running `docker compose down` followed by `docker compose up` this will remove and re-create any existing containers and volumes allowing the new databases to be created.
@@ -35,3 +35,44 @@ Where
 - w: if supplied, will wipe the postgres image
 - m: if supplied, will reset all repos to main
 - path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
+
+# Running in debug mode (VS Code)
+The containers in the docker runner can be run with python in debug mode to allow a debugger to connect. This gives instructions for connecting VS Code.
+
+Each app in docker-compose has the following value for `command`, which makes the debugger run:
+
+        command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+
+The 'no-debugger' part relates to the flask debugger, it's useful to remove this option if you want to see the stack traces for things like jinja template errors.
+
+To then expose the debug port 5678 to allow a debugger interface to connect, each app also needs a (unique) port mapping:
+
+        ports:
+                - 5681:5678
+
+This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json for the particular app you want to debug, where port matches the one exposes in docker-compose.
+
+
+        {
+            "name": "Docker runner",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5681
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "."
+                }
+            ],
+            "justMyCode": true
+        }
+
+Save your launch.json, navigate to the debug view and select this new configuration from the drop down, then click the green triangle button to connect the debugger. Add some breakpoints and you should be able to step through the code executing in the docker runner.
+
+## Gotchas
+- If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - you environment may have different ports already in use.
+- If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a change the `pathMappings` element in the launch.json may need tweaking.
+
