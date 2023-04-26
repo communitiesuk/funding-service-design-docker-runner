@@ -2,9 +2,10 @@ services:
   fund-store:
     build: 
       context: ../funding-service-design-fund-store
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
+      - FORCE_OPEN=True
     ports: 
       - 3001:8080
       - 5681:5678
@@ -12,7 +13,7 @@ services:
   application-store:
     build: 
       context: ../funding-service-design-application-store
-    command: ["sh", "-c", "flask db upgrade && pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -42,7 +43,7 @@ services:
       build: 
         context: ../funding-service-design-authenticator
       volumes: ['../funding-service-design-authenticator:/app']
-      command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
       ports: 
         - 3004:8080
         - 5684:5678
@@ -92,7 +93,7 @@ services:
       context: ../funding-service-design-frontend
       dockerfile: Dockerfile
     volumes: ['../funding-service-design-frontend:/app']
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]   
     depends_on:
       - application-store
       - fund-store
