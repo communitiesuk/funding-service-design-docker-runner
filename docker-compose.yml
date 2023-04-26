@@ -103,7 +103,7 @@ services:
       context: ../funding-service-design-frontend
       dockerfile: Dockerfile
     volumes: ['../funding-service-design-frontend:/app']
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]   
     depends_on:
       - application-store
       - fund-store
