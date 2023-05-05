@@ -5,10 +5,12 @@ services:
     command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
     environment:
       - FLASK_ENV=development
-      - FORCE_OPEN=True
+      - DATABASE_URL=postgresql://postgres:password@database:5432/fund_store
     ports: 
       - 3001:8080
       - 5681:5678
+    depends_on: 
+      - database
     volumes: ['../funding-service-design-fund-store:/app']
   application-store:
     build: 
@@ -144,7 +146,7 @@ services:
       restart: always
       environment:
         - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store
+        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store
       ports:
         - 5432:5432
   assessment:
