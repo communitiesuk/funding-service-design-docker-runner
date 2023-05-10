@@ -109,6 +109,7 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     ports:
       - 3008:8080
+      - 5688:5678
   form-runner:
     build: 
       context: ../digital-form-builder
