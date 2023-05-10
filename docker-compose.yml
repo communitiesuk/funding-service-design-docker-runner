@@ -2,7 +2,7 @@ services:
   fund-store:
     build: 
       context: ../funding-service-design-fund-store
-    command: ['flask', 'run', '--host', '0.0.0.0', '--port', '8080']
+    command: bash -c "flask db upgrade && flask run -p 8080 -h 0.0.0.0"
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/fund_store
