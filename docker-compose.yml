@@ -59,6 +59,9 @@ services:
         # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID:?err}
         # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET:?err}
         # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID:?err}
+        #  Uncomment to test authentication locally once credentials are set in .env
+        - RSA256_PRIVATE_KEY_BASE64=${RSA256_PRIVATE_KEY_BASE64}
+        - RSA256_PUBLIC_KEY_BASE64=${RSA256_PUBLIC_KEY_BASE64}
   assessment-store:
       build: 
         context: ../funding-service-design-assessment-store
