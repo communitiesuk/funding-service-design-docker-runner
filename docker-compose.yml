@@ -39,7 +39,7 @@ services:
   account-store:
       build: 
         context: ../funding-service-design-account-store
-      command: ["sh", "-c", "flask db upgrade && pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
       environment:
         - FLASK_ENV=development
         - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
@@ -79,7 +79,7 @@ services:
       build: 
         context: ../funding-service-design-assessment-store
       volumes: ['../funding-service-design-assessment-store:/app']
-      command: ["sh", "-c", "flask db upgrade && pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
+      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
       ports: 
         - 3005:8080
         - 5685:5678
@@ -92,7 +92,7 @@ services:
       build: 
         context: ../funding-service-design-notification
       volumes: ['../funding-service-design-notification:/app']
-      command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
+      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
       ports:
         - 3006:8080
         - 5686:5678
@@ -162,7 +162,7 @@ services:
     build: 
       context: ../funding-service-design-assessment
     volumes: ['../funding-service-design-assessment:/app']
-    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
     depends_on:
       - assessment-store
       - fund-store
