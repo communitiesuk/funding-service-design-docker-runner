@@ -41,7 +41,7 @@ The containers in the docker runner can be run with python in debug mode to allo
 
 Each app in docker-compose has the following value for `command`, which makes the debugger run:
 
-        command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+        command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
 
 The 'no-debugger' part relates to the flask debugger, it's useful to remove this option if you want to see the stack traces for things like jinja template errors.
 
@@ -50,7 +50,7 @@ To then expose the debug port 5678 to allow a debugger interface to connect, eac
         ports:
                 - 5681:5678
 
-This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json for the particular app you want to debug, where port matches the one exposes in docker-compose.
+This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json (if not already present) for the particular app you want to debug, where port matches the one exposes in docker-compose.
 
 
         {
@@ -74,5 +74,5 @@ Save your launch.json, navigate to the debug view and select this new configurat
 
 ## Gotchas
 - If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - you environment may have different ports already in use.
-- If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a change the `pathMappings` element in the launch.json may need tweaking.
+- If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking.
 
