@@ -10,7 +10,7 @@ services:
       - 3001:8080
       - 5681:5678
     depends_on: 
-      - database
+    - database
     volumes: ['../funding-service-design-fund-store:/app']
   application-store:
     build: 
@@ -121,7 +121,7 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     ports:
       - 3008:8080
-      - 5687:5678
+      - 5688:5678
   form-runner:
     build: 
       context: ../digital-form-builder
