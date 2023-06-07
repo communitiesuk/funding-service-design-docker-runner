@@ -182,4 +182,4 @@ services:
       # - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
     ports: 
       - 3010:8080
-      - 5688:5678
+      - 5689:5678
