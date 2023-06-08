@@ -129,8 +129,10 @@ services:
       args:
         # To use branch of digital-form-builder change 'latest' to an alternative tag from https://github.com/communitiesuk/digital-form-builder/pkgs/container/digital-form-builder-dluhc-runner/versions and run 'docker compose build form-runner'
         - BASE_IMAGE_TAG=latest
+    command: yarn runner startdebug
     ports: 
       - 3009:3009
+      - 9228:9228
     environment:
       - LOG_LEVEL=debug
       - JWT_AUTH_COOKIE_NAME=fsd_user_token

@@ -37,6 +37,7 @@ Where
 - path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
 
 # Running in debug mode (VS Code)
+## Python Apps
 The containers in the docker runner can be run with python in debug mode to allow a debugger to connect. This gives instructions for connecting VS Code.
 
 Each app in docker-compose has the following value for `command`, which makes the debugger run:
@@ -72,7 +73,12 @@ This allows you to then configure your chosen debugger (in this case VS code) to
 
 Save your launch.json, navigate to the debug view and select this new configuration from the drop down, then click the green triangle button to connect the debugger. Add some breakpoints and you should be able to step through the code executing in the docker runner.
 
+## Form Runner
+The form runner also runs in debug mode in docker compose, using the command `yarn runner startdebug`. There is a launch config inside the digital-form-builder repo called 'Docker Runner forms' - navigate to the debug view, select this configuration and launch the debugger. You can then set breakpoints in the typescript code to step through the runner code.
+
+The debugger for the form-runner uses `nodemon` on port `9228` which is then exposed from the runner.
+
 ## Gotchas
-- If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - you environment may have different ports already in use.
-- If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking.
+- If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - your environment may have different ports already in use.
+- If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking (aka `localRoot` for the form-runner config).
 
