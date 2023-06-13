@@ -22,10 +22,7 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-      # Uncomment to test AWS locally once credentials are set in .env
-      # You can grab these for dev with:
-      #   cf t -s sandbox
-      #   cf env funding-service-design-application-store-dev
+      # Set credentials in .env - see README
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
@@ -72,9 +69,9 @@ services:
         - APPLICANT_FRONTEND_HOST=http://localhost:3008
         - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
         #  Uncomment to test Azure AD locally once credentials are set in .env
-        - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
-        - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
-        - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
+        # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
+        # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
+        # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
   assessment-store:
       build: 
         context: ../funding-service-design-assessment-store
@@ -97,6 +94,7 @@ services:
         - 3006:8080
         - 5686:5678
       environment:
+        # Set key in .env - see README
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
   frontend:
     build:
@@ -143,7 +141,7 @@ services:
       - FEEDBACK_LINK=http://localhost:3008/feedback
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
-      # Uncomment this to test file uploads once credentials are set in .env
+      # Set credentials in .env - see README
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   redis-data:
@@ -179,7 +177,7 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-      # Uncomment this to test file uploads once credentials are set in .env
+      # Set credentials in .env - see README
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
