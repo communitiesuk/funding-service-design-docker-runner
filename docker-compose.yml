@@ -26,10 +26,10 @@ services:
       # You can grab these for dev with:
       #   cf t -s sandbox
       #   cf env funding-service-design-application-store-dev
-      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      # - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
-      # - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_REGION=${AWS_REGION}
     ports:
       - 3002:8080
       - 5682:5678
@@ -72,9 +72,9 @@ services:
         - APPLICANT_FRONTEND_HOST=http://localhost:3008
         - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
         #  Uncomment to test Azure AD locally once credentials are set in .env
-        # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
-        # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
-        # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
+        - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
+        - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
+        - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
   assessment-store:
       build: 
         context: ../funding-service-design-assessment-store
@@ -144,8 +144,8 @@ services:
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
       # Uncomment this to test file uploads once credentials are set in .env
-      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
   redis-data:
     image: redis
     ports:
@@ -170,6 +170,7 @@ services:
       - fund-store
       - account-store
       - redis-data
+      - authenticator
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -179,9 +180,9 @@ services:
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       # Uncomment this to test file uploads once credentials are set in .env
-      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      # - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
     ports: 
       - 3010:8080
       - 5689:5678
