@@ -6,8 +6,9 @@
 
 ## How to run
 * Copy `.env.example` to `.env` and complete the missing values
-  * `GOV_NOTIFY_API_KEY`: retrieve value of GOV.UK Notify Test Key from bitwarden vault
+  * `GOV_NOTIFY_API_KEY`: retrieve value of `GOV.UK Notify Test Key` from bitwarden vault
   * `AWS_XXX`: all these values can be found by connecting to cloudfoundry and running `cf service-key form-uploads-dev local-testing`
+  * `AZURE_AD_*`: retrieve values from bitwarden vault - values named `AZURE AD TEST XXX`
 * `docker compose up`
 * Apps should be running on localhost on the ports in the [docker-compose.yml](docker-compose.yml) `ports` key before the `:`
 * Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up`.
