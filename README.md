@@ -16,7 +16,7 @@
 ## Troubleshooting
 * Check you have the `main` branch and latest revision of each repo checked out - see `reset-all-repos` script below
 * If dependencies have changed you may need to rebuild the docker images using `docker compose build`
-* To run an individual app rather than all of them, run `docker compose up appname` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml) 
+* To run an individual app rather than all of them, run `docker compose up appname` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml)
 * If you get an error about a database not existing, try running `docker compose down` followed by `docker compose up` this will remove and re-create any existing containers and volumes allowing the new databases to be created.
 * If file upload is not working with an error about credentials, you need to uncomment [these lines](https://github.com/communitiesuk/funding-service-design-docker-runner/blob/d13af481818fbd6398c3583e49a33edd6fb19496/docker-compose.yml#L114-L116) in `docker-compose.yml` and put the credentials in your `.env` file. The credentials are stored in the DLUHC BitWarden vault. (Same applies for file uploads in assessment or SSO in authentication for example.)
 
@@ -30,14 +30,37 @@ To run the e2e tests against the docker runner, set the following env vars:
 
 # Scripts
 ## reset-all-repos
-Shell script to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps. Also optionally 'resets' the postgres image by forcefully removing it - useful if your local migrations get out of sync with the code or you need to start with a blank DB.
+### Usage 1
+Shell script to bulk clone git repositories from `https://github.com/communitiesuk`. Following repositories are cloned `("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder")`
+
+        scripts/reset-all-repos.sh -f /path/to/workspace/dir
+
+### Usage 2
+Also used to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps. Also optionally 'resets' the postgres image by forcefully removing it - useful if your local migrations get out of sync with the code or you need to start with a blank DB.
 
         scripts/reset-all-repos.sh -wm /path/to/workspace/dir
 
 Where
 - w: if supplied, will wipe the postgres image
 - m: if supplied, will reset all repos to main
+- f: if supplied, will do a git clone of FSD repos in workspace dir(make sure workspace dir has only docker-runner)
 - path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
+
+## install-venv-all-repos
+Shell script to go through each repo in turn, create a virtual environment and install the dependencies. This is useful when you just started setting up and want to bulk create the virtual environments for all the repos, which reduces the manual effort of creating venv in each repo. Also optionally 'resets' the virtual environments by forcefully removing it - useful if you have issues with dependencies conflicts or change python versions or you need to start with a fresh setup.
+
+        scripts/install-venv-all-repos.sh -vps /path/to/workspace/dir
+
+Where
+- v: if supplied, will wipe existing virtual environment & create a new one
+- p: if supplied, will install pre-commit hooks
+- s: if supplied, will build the static files in assessment, frontend & authenticator repos
+- path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
+
+To upgrade the depedencies, run the below command
+
+        scripts/install-venv-all-repos.sh /path/to/workspace/dir
+
 
 # Running in debug mode (VS Code)
 ## Python Apps
