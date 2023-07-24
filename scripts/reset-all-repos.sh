@@ -1,7 +1,8 @@
 #!/bin/bash
 wipe_postgres=false
 reset_to_main=false
-while getopts 'wma:' OPTION; do
+fresh_clone=false
+while getopts 'wmfa:' OPTION; do
     case "$OPTION" in
         w)
             wipe_postgres=true
@@ -10,21 +11,52 @@ while getopts 'wma:' OPTION; do
             echo Will reset all repos to main
             reset_to_main=true
             ;;
+        f)
+            echo """Will do a git clone of ("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder")"""
+            fresh_clone=true
+            wipe_postgres=false
+            reset_to_main=false
+            ;;
         ?)
-            echo "script usage: $(basename §$0) [-w -m ] workspace_dir"
+            echo "script usage: $(basename §$0) [-w -m -f] workspace_dir"
             exit 1
     esac
 done
 shift "$(($OPTIND -1))"
 
-workspace_dir=$1
+workspace_dir=${1:-$(dirname $(pwd))}
 fsd="funding-service-design"
 
 echo ============================================
 echo Workspace dir: $workspace_dir
 echo Wipe postgres: $wipe_postgres
 echo Reset all to main: $reset_to_main
+echo Fresh clone repos: $fresh_clone
 echo ============================================
+
+if [ "$fresh_clone" = true ] ; then
+
+    declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
+                    "application-store" "frontend" "fund-store" "notification")
+
+    git_remote_prefix=https://github.com/communitiesuk/funding-service-design-
+
+    for repo in "${repos[@]}"
+    do
+    echo -------------------------------------------------------------------------
+    echo ========= Cloning repo "$repo" =======
+    cd $workspace_dir
+    repo_path="${git_remote_prefix}${repo}.git"
+    git clone ${repo_path}
+    echo -------------------------------------------------------------------------
+    done
+
+    echo -------------------------------------------------------------------------
+    echo ========= Cloning repo digital-form-builder =======
+    cd $workspace_dir
+    git clone https://github.com/communitiesuk/digital-form-builder.git
+    echo -------------------------------------------------------------------------
+fi
 
 if [ "$wipe_postgres" = true ] ; then
     echo Wiping postgres
@@ -38,8 +70,8 @@ if [ "$reset_to_main" = true ] ; then
 
     cd $workspace_dir
 
-    declare -a repos=("authenticator" "assessment" "assessment-store" "account-store" 
-                    "application-store" "audit" "frontend" "fund-store" "notification")
+    declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
+                    "application-store" "frontend" "fund-store" "notification")
 
     for repo in "${repos[@]}"
     do
@@ -49,6 +81,12 @@ if [ "$reset_to_main" = true ] ; then
     git status
     git checkout main
     git pull
-    echo -------------------------------------------------------------------------
     done
+
+    echo ========= Resetting "digital-form-builder" =======
+    cd $workspace_dir/digital-form-builder
+    git status
+    git checkout main
+    git pull
+    echo -------------------------------------------------------------------------
 fi
