@@ -3,6 +3,10 @@
 set -e
 set -u
 
+if [ -z "${POSTGRES_USER}" ]; then
+  POSTGRES_USER="postgres"
+fi
+
 function create_user_and_database() {
 	local database=$1
 	echo "  Creating user and database '$database'"
