@@ -1,19 +1,29 @@
 services:
+  minio:
+    image: minio/minio:RELEASE.2023-08-09T23-30-22Z
+    env_file: .aws.env
+    ports:
+      - "9001:9001"
+      - "9442:9000"
+    command: server /data --console-address ":9001"
+    volumes:
+      - s3minio:/data
+      - ./docker-minio-storage:/scripts
   fund-store:
-    build: 
+    build:
       context: ../funding-service-design-fund-store
     command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/fund_store
-    ports: 
+    ports:
       - 3001:8080
       - 5681:5678
-    depends_on: 
+    depends_on:
     - database
     volumes: ['../funding-service-design-fund-store:/app']
   application-store:
-    build: 
+    build:
       context: ../funding-service-design-application-store
     command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
     environment:
@@ -22,36 +32,33 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-      # Set credentials in .env - see README
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
-      - AWS_REGION=${AWS_REGION}
+    env_file: .aws.env
     ports:
       - 3002:8080
       - 5682:5678
     depends_on:
       - database
+      - minio
     volumes: ['../funding-service-design-application-store:/app']
   account-store:
-      build: 
+      build:
         context: ../funding-service-design-account-store
-      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]   
+      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
       environment:
         - FLASK_ENV=development
         - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
       volumes: ['../funding-service-design-account-store:/app']
-      ports: 
+      ports:
         - 3003:8080
         - 5683:5678
       depends_on:
         - database
   authenticator:
-      build: 
+      build:
         context: ../funding-service-design-authenticator
       volumes: ['../funding-service-design-authenticator:/app']
       command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
-      ports: 
+      ports:
         - 3004:8080
         - 5684:5678
       depends_on:
@@ -59,7 +66,7 @@ services:
         - account-store
         - notification
         - redis-data
-      environment: 
+      environment:
         - REDIS_INSTANCE_URI=redis://redis-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
         - APPLICATION_STORE_API_HOST=http://application-store:8080
@@ -73,23 +80,23 @@ services:
         # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
         # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
   assessment-store:
-      build: 
+      build:
         context: ../funding-service-design-assessment-store
       volumes: ['../funding-service-design-assessment-store:/app']
-      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
-      ports: 
+      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+      ports:
         - 3005:8080
         - 5685:5678
       environment:
         - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
         - APPLICATION_STORE_API_HOST=http://application-store:8080
-      depends_on: 
+      depends_on:
         - database
   notification:
-      build: 
+      build:
         context: ../funding-service-design-notification
       volumes: ['../funding-service-design-notification:/app']
-      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
+      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
       ports:
         - 3006:8080
         - 5686:5678
@@ -101,7 +108,7 @@ services:
       context: ../funding-service-design-frontend
       dockerfile: Dockerfile
     volumes: ['../funding-service-design-frontend:/app']
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]   
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]
     depends_on:
       - application-store
       - fund-store
@@ -121,14 +128,16 @@ services:
       - 3008:8080
       - 5688:5678
   form-runner:
-    build: 
+    depends_on:
+      - minio
+    build:
       context: ../digital-form-builder
       dockerfile: ./fsd_config/Dockerfile
       args:
         # To use branch of digital-form-builder change 'latest' to an alternative tag from https://github.com/communitiesuk/digital-form-builder/pkgs/container/digital-form-builder-dluhc-runner/versions and run 'docker compose build form-runner'
         - BASE_IMAGE_TAG=latest
     command: yarn runner startdebug
-    ports: 
+    ports:
       - 3009:3009
       - 9228:9228
     environment:
@@ -141,9 +150,7 @@ services:
       - FEEDBACK_LINK=http://localhost:3008/feedback
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
-      # Set credentials in .env - see README
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    env_file: .aws.env
   redis-data:
     image: redis
     ports:
@@ -159,16 +166,17 @@ services:
       ports:
         - 5432:5432
   assessment:
-    build: 
+    build:
       context: ../funding-service-design-assessment
     volumes: ['../funding-service-design-assessment:/app']
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]  
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
     depends_on:
       - assessment-store
       - fund-store
       - account-store
       - redis-data
       - authenticator
+      - minio
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -177,10 +185,9 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-      # Set credentials in .env - see README
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
-    ports: 
+    env_file: .aws.env
+    ports:
       - 3010:8080
       - 5689:5678
+volumes:
+  s3minio:
