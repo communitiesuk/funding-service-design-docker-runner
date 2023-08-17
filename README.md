@@ -33,7 +33,7 @@ To run the e2e tests against the docker runner, set the following env vars:
 We use MinIO(https://min.io/product/s3-compatibility) for local s3 storage. A `bucket` is a directory in S3 terminology. To create a bucket in local S3 storage, execute the below script.
 
         docker exec -it <minio_container_id> ./scripts/minio-entrypoint.sh
-MinIO comes with a UI. Visit http://localhost:9442 to open the MinIO UI. Credentials can be found on `.aws.env` file.
+MinIO comes with a UI. Visit http://localhost:9442 to launch the MinIO UI. Use the credentials `MINIO_ROOT_USER` &  `MINIO_ROOT_PASSWORD` from `.aws.env` file to login.
 
 ## reset-all-repos
 ### Usage 1
