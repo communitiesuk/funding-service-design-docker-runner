@@ -1,7 +1,7 @@
 services:
   localstack:
     image: localstack/localstack:2.2.0
-    env_file: .aws.env
+    env_file: .awslocal.env
     environment:
       - SERVICES=s3,sqs
       - DATA_DIR=/tmp/localstack/data
@@ -34,7 +34,7 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-    env_file: .aws.env
+    env_file: .awslocal.env
     ports:
       - 3002:8080
       - 5682:5678
@@ -92,7 +92,7 @@ services:
       environment:
         - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
         - APPLICATION_STORE_API_HOST=http://application-store:8080
-      env_file: .aws.env
+      env_file: .awslocal.env
       depends_on:
         - database
         - localstack
@@ -129,7 +129,7 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - FLASK_ENV=development
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-    env_file: .aws.env
+    env_file: .awslocal.env
     ports:
       - 3008:8080
       - 5688:5678
@@ -156,7 +156,7 @@ services:
       - FEEDBACK_LINK=http://localhost:3008/feedback
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
-    env_file: .aws.env
+    env_file: .awslocal.env
   redis-data:
     image: redis
     ports:
@@ -191,7 +191,7 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-    env_file: .aws.env
+    env_file: .awslocal.env
     ports:
       - 3010:8080
       - 5689:5678
