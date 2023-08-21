@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # # Wait for MinIO server to start
 # while ! curl -f http://minio:9000; do
