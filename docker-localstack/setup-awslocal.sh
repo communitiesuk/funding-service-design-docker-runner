@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Create the bucket using awslocal
 if awslocal s3 ls | grep -q $AWS_BUCKET_NAME; then
