@@ -104,6 +104,21 @@ The form runner also runs in debug mode in docker compose, using the command `ya
 
 The debugger for the form-runner uses `nodemon` on port `9228` which is then exposed from the runner.
 
+## localstack
+LocalStack is a cloud service emulator that runs in a single container on your laptop or in your CI environment. With LocalStack, you can run your AWS applications or Lambdas entirely on your local machine without connecting to a remote cloud provider! Whether you are testing complex CDK applications or Terraform configurations, or just beginning to learn about AWS services, LocalStack helps speed up and simplify your testing and development workflow.
+
+To add a new aws service in localstack, edit the env variable in localstack compose config.
+```
+- SERVICES=s3,sqs
+```
+If you experience any issues with localstack setup. Try below steps to resolve
+1. Make the startup script `docker-localstack/setup-awslocal.sh` executable.
+
+        chmod u+x docker-localstack/setup-awslocal.sh
+2. Fix line ending on windows machine.
+
+        sed -i -e 's/\r$//' docker-localstack/setup-awslocal.sh
+
 ## Gotchas
 - If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - your environment may have different ports already in use.
 - If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking (aka `localRoot` for the form-runner config).
