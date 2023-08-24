@@ -119,6 +119,31 @@ If you experience any issues with localstack setup. Try below steps to resolve
 
         sed -i -e 's/\r$//' docker-localstack/setup-awslocal.sh
 
+### AWS CLI in localstack
+`aws` cli is available as `awslocal` in the localstack container. To access `awslocal` cli, bash into the localstack container.
+
+        docker exec -it <localstacl_container_id> bash
+
+Some useful commands
+1. Display all SQS Queues - `awslocal sqs list-queues`
+2. Create a Queue - `awslocal sqs create-queue --queue-name <queue_name>`
+2. Below example demonstrates moving mesages to DLQ(Dead-letter-queue)
+```bash
+# Send a Message
+awslocal sqs send-message --queue-url http://localstack:4566/000000000000/fsd-queue --message-body "Hello, this is a test message" --delay-seconds 0
+
+# Receive a Message (trying to consume messages 3 times.)
+for i in {1..6}; do
+  sleep 1 # Waits 1 second.
+  echo "iteration num $i"
+  awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/fsd-queue --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
+done
+
+# Check DLQ for transfered messages
+awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/fsd-dlq --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
+
+```
+
 ## Gotchas
 - If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - your environment may have different ports already in use.
 - If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking (aka `localRoot` for the form-runner config).
