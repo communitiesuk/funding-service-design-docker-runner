@@ -147,4 +147,3 @@ awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/fsd
 ## Gotchas
 - If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - your environment may have different ports already in use.
 - If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking (aka `localRoot` for the form-runner config).
-
