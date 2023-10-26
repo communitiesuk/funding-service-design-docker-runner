@@ -107,6 +107,7 @@ services:
       environment:
         # Set key in .env - see README
         GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
+      env_file: .awslocal.env
   frontend:
     build:
       context: ../funding-service-design-frontend
