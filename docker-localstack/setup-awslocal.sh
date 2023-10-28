@@ -25,18 +25,18 @@ fi
 
 
 # Create the SQS Queue & DLQ using awslocal
-if awslocal sqs list-queues | grep -q $AWS_DLQ_QUEUE_NAME; then
-  echo "$AWS_DLQ_QUEUE_NAME already exists!"
+if awslocal sqs list-queues | grep -q $AWS_DLQ_IMPORT_APP_QUEUE_NAME; then
+  echo "$AWS_DLQ_IMPORT_APP_QUEUE_NAME already exists!"
 else
-  DLQ_QUEUE_URL=$(awslocal sqs create-queue --queue-name $AWS_DLQ_QUEUE_NAME  --region $AWS_REGION --output json | grep -o '"QueueUrl": "[^"]*' | awk -F'"' '{print $4}')
+  DLQ_QUEUE_URL=$(awslocal sqs create-queue --queue-name $AWS_DLQ_IMPORT_APP_QUEUE_NAME  --region $AWS_REGION --output json | grep -o '"QueueUrl": "[^"]*' | awk -F'"' '{print $4}')
   echo "Created DLQ: $DLQ_QUEUE_URL!"
 fi
 
-if awslocal sqs list-queues | grep -q $AWS_SQS_QUEUE_NAME; then
-  echo "$AWS_SQS_QUEUE_NAME already exists!"
+if awslocal sqs list-queues | grep -q $AWS_SQS_IMPORT_APP_QUEUE_NAME; then
+  echo "$AWS_SQS_IMPORT_APP_QUEUE_NAME already exists!"
 else
-  SQS_QUEUE_URL=$(awslocal sqs create-queue --queue-name $AWS_SQS_QUEUE_NAME  --region $AWS_REGION --output json | grep -o '"QueueUrl": "[^"]*' | awk -F'"' '{print $4}')
-  DLQ_QUEUE_ARN="arn:aws:sqs:$AWS_REGION:000000000000:$AWS_DLQ_QUEUE_NAME"
+  SQS_QUEUE_URL=$(awslocal sqs create-queue --queue-name $AWS_SQS_IMPORT_APP_QUEUE_NAME  --region $AWS_REGION --output json | grep -o '"QueueUrl": "[^"]*' | awk -F'"' '{print $4}')
+  DLQ_QUEUE_ARN="arn:aws:sqs:$AWS_REGION:000000000000:$AWS_DLQ_IMPORT_APP_QUEUE_NAME"
 
   # configure DLQ for current queue
   awslocal sqs set-queue-attributes --queue-url $SQS_QUEUE_URL \

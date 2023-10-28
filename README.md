@@ -130,17 +130,17 @@ Some useful commands
 2. Below example demonstrates moving mesages to DLQ(Dead-letter-queue)
 ```bash
 # Send a Message
-awslocal sqs send-message --queue-url http://localstack:4566/000000000000/fsd-queue --message-body "Hello, this is a test message" --delay-seconds 0
+awslocal sqs send-message --queue-url http://localstack:4566/000000000000/import-queue --message-body "Hello, this is a test message" --delay-seconds 0
 
 # Receive a Message (trying to consume messages 3 times.)
 for i in {1..6}; do
   sleep 1 # Waits 1 second.
   echo "iteration num $i"
-  awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/fsd-queue --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
+  awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/import-queue --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
 done
 
 # Check DLQ for transfered messages
-awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/fsd-dlq --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
+awslocal sqs receive-message --queue-url http://localstack:4566/000000000000/import-dlq --attribute-names All --message-attribute-names All --max-number-of-messages 1 --wait-time-seconds 0 --visibility-timeout 0
 
 ```
 
