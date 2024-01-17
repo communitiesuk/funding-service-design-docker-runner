@@ -119,6 +119,8 @@ If you experience any issues with localstack setup. Try below steps to resolve
 
         sed -i -e 's/\r$//' docker-localstack/setup-awslocal.sh
 
+3. If file upload doesn't work with an error like 'could not resolve host.docker.internal' make sure this is mapped in your `hosts` file. Sometimes this doesn't happen on install, but you can update it afterwards, more details [here](https://dluhcdigital.atlassian.net/wiki/spaces/FS/pages/79205102/Running+Access+Funding+Locally#localstack-on-Mac-OS---if-you-are-unable-to-update-your-hosts-file) (plus a workaround).
+
 ### AWS CLI in localstack
 `aws` cli is available as `awslocal` in the localstack container. To access `awslocal` cli, bash into the localstack container.
 
