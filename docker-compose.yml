@@ -138,7 +138,7 @@ services:
       - localstack
     build:
       context: ../digital-form-builder
-      dockerfile: ./fsd_config/Dockerfile        
+      dockerfile: ./fsd_config/Dockerfile
     command: yarn runner startdebug
     ports:
       - 3009:3009
