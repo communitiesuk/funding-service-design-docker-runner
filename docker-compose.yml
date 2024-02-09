@@ -134,17 +134,14 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     env_file: .awslocal.env
     ports:
-      - 3008:8080
-      - 5688:5678
+        - 3008:8080
+        - 5688:5678
   form-runner:
     depends_on:
       - localstack
     build:
       context: ../digital-form-builder
       dockerfile: ./fsd_config/Dockerfile
-      args:
-        # To use branch of digital-form-builder change 'latest' to an alternative tag from https://github.com/communitiesuk/digital-form-builder/pkgs/container/digital-form-builder-dluhc-runner/versions and run 'docker compose build form-runner'
-        - BASE_IMAGE_TAG=latest
     command: yarn runner startdebug
     ports:
       - 3009:3009
