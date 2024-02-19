@@ -156,6 +156,10 @@ services:
       - FEEDBACK_LINK=http://localhost:3008/feedback
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
       - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
+      - SERVICE_START_PAGE=http://localhost:3008/account
+      - MULTIFUND_URL=http://localhost:3008/account
+      - LOGOUT_URL=http://localhost:3004/sessions/sign-out
+      - PRIVACY_POLICY_URL=http://localhost:3008/privacy
     env_file: .awslocal.env
   redis-data:
     image: redis
