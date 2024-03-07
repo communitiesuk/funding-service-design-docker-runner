@@ -109,8 +109,10 @@ if [ "$git_log" = true ] ; then
     echo $repo
     git log -n 1 --format=format:%H
     done
+    echo -------------------------------------------------------------------------
     cd $workspace_dir/digital-form-builder
     echo digital-form-builder
     git log -n 1 --format=format:%H
+    echo -------------------------------------------------------------------------
     
 fi
