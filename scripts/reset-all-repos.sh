@@ -112,5 +112,5 @@ if [ "$git_log" = true ] ; then
     cd $workspace_dir/digital-form-builder
     echo digital-form-builder
     git log -n 1 --format=format:%H
-    
+
 fi
