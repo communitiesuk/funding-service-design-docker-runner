@@ -2,7 +2,8 @@
 wipe_postgres=false
 reset_to_main=false
 fresh_clone=false
-while getopts 'wmfa:' OPTION; do
+git_log=false
+while getopts 'wmfal:' OPTION; do
     case "$OPTION" in
         w)
             wipe_postgres=true
@@ -17,8 +18,12 @@ while getopts 'wmfa:' OPTION; do
             wipe_postgres=false
             reset_to_main=false
             ;;
+        l)
+            echo "Running git log for all repos"
+            git_log=true
+            ;;
         ?)
-            echo "script usage: $(basename §$0) [-w -m -f] workspace_dir"
+            echo "script usage: $(basename §$0) [-w -m -f -l] workspace_dir"
             exit 1
     esac
 done
@@ -65,13 +70,14 @@ if [ "$wipe_postgres" = true ] ; then
     echo docker rm postgres --force
 fi
 
+declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
+                "application-store" "frontend" "fund-store" "notification")
+
 if [ "$reset_to_main" = true ] ; then
     echo Resetting all repos to main
 
     cd $workspace_dir
 
-    declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
-                    "application-store" "frontend" "fund-store" "notification")
 
     for repo in "${repos[@]}"
     do
@@ -89,4 +95,22 @@ if [ "$reset_to_main" = true ] ; then
     git checkout main
     git pull
     echo -------------------------------------------------------------------------
+fi
+if [ "$git_log" = true ] ; then
+    echo Running git log
+
+    cd $workspace_dir
+
+
+    for repo in "${repos[@]}"
+    do
+    echo -------------------------------------------------------------------------
+    cd $workspace_dir/$fsd-$repo
+    echo $repo
+    git log -n 1 --format=format:%H
+    done
+    cd $workspace_dir/digital-form-builder
+    echo digital-form-builder
+    git log -n 1 --format=format:%H
+    
 fi
