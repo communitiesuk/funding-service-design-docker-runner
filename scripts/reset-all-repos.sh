@@ -114,5 +114,5 @@ if [ "$git_log" = true ] ; then
     echo digital-form-builder
     git log -n 1 --format=format:%H
     echo -------------------------------------------------------------------------
-    
+
 fi
