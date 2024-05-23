@@ -104,9 +104,12 @@ services:
       ports:
         - 3006:8080
         - 5686:5678
+      env_file: .awslocal.env
       environment:
-        # Set key in .env - see README
-        GOV_NOTIFY_API_KEY: ${GOV_NOTIFY_API_KEY:?err}
+        - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
+        - FLASK_DEBUG=1
+        - FLASK_ENV=development
+        - AWS_MSG_BUCKET_NAME=fsd-notification-bucket
   frontend:
     build:
       context: ../funding-service-design-frontend
