@@ -24,16 +24,16 @@ else
 fi
 
 # Create the bucket using awslocal for notification service
-if awslocal s3 ls | grep -q $AWS_NOTIFICATION_BUCKET_NAME; then
+if awslocal s3 ls | grep -q $AWS_MSG_BUCKET_NAME; then
   echo "Bucket already exists!"
 else
   awslocal s3api \
-  create-bucket --bucket $AWS_NOTIFICATION_BUCKET_NAME \
+  create-bucket --bucket $AWS_MSG_BUCKET_NAME \
   --create-bucket-configuration LocationConstraint=$AWS_REGION \
   --region $AWS_REGION
   echo "Created Bucket $AWS_BUCKET_NAME!"
   awslocal s3api \
-  put-bucket-cors --bucket $AWS_NOTIFICATION_BUCKET_NAME \
+  put-bucket-cors --bucket $AWS_MSG_BUCKET_NAME \
   --cors-configuration '{
     "CORSRules": [
       {
