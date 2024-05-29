@@ -68,6 +68,7 @@ services:
         - account-store
         - notification
         - redis-data
+      env_file: .awslocal.env
       environment:
         - REDIS_INSTANCE_URI=redis://redis-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
