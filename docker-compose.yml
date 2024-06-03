@@ -164,6 +164,7 @@ services:
       - MULTIFUND_URL=http://localhost:3008/account
       - LOGOUT_URL=http://localhost:3004/sessions/sign-out
       - PRIVACY_POLICY_URL=http://localhost:3008/privacy
+      - ELIGIBILITY_RESULT_URL=http://localhost:3008/eligibility-result
     env_file: .awslocal.env
   redis-data:
     image: redis
