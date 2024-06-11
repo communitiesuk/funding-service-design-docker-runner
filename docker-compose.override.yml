@@ -4,24 +4,24 @@ services:
       - 3001:8080
     command: bash -c "invoke recreate-local-db && flask db upgrade && python -m scripts.fund_round_loaders.load_hsra_r1 && python -m scripts.amend_round_dates -q update-round-dates -r HSRA_R1 -o PAST -d FUTURE && python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
     environment:
-      - FLASK_ENV=DEBUG
-  #     - DATABASE_URL=postgresql://postgres:password@fund-store-db:5441/fund_store
-  #   depends_on:
-  #     - fund-store-db
+      - FLASK_ENV=development
   fund-store-db:
     ports:
       - 5434:5432
+      - 5681:5678
 
   fsd-frontend:
     ports:
       - 3008:8080
+      - 5688:5678
     depends_on:
       - fsd-fund-store
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --host 0.0.0.0 --port 8080"]
     environment:
-      - FLASK_ENV=DEBUG
+      - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fsd-fund-store:8080
       - REDIS_INSTANCE_URI=redis://redis-data-frontend:6379
+      - USE_LOCAL_DATA=False
 
   redis-data-frontend:
     ports:
