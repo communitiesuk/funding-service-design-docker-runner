@@ -1,0 +1,10 @@
+services:
+  fsd-self-serve:
+    build:
+      context: .
+      target: self-serve-dev
+    volumes:
+      - .:/self-serve:cached
+    command: sleep infinity
+    # environment:
+     # - DATABASE_URL=postgresql://postgres:password@fund-store-db:5432/fund_store

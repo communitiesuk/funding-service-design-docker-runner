@@ -1,0 +1,57 @@
+{
+    "unscored_sections": [
+        {
+            "id": "unscored",
+            "name": "Unscored",
+            "sub_criteria": [
+                {
+                    "id": "organisation_information",
+                    "name": "Organisation information",
+                    "themes": [
+                        {
+                            "id": "general_information",
+                            "name": "General information",
+                            "answers": [
+                                {
+                                    "field_id": "reuse-organisation-name",
+                                    "form_name": "org-info-3",
+                                    "field_type": "TextField",
+                                    "presentation_type": "text",
+                                    "question": "Organisation name"
+                                },
+                                {
+                                    "field_id": "reuse-organisation-address",
+                                    "form_name": "org-info-3",
+                                    "field_type": "UkAddressField",
+                                    "presentation_type": "address",
+                                    "question": "Organisation address"
+                                },
+                                {
+                                    "field_id": "reuse_organisation_other_names_yes_no",
+                                    "form_name": "org-info-3",
+                                    "field_type": "YesNoField",
+                                    "presentation_type": "text",
+                                    "question": "Does your organisation use any other names?"
+                                },
+                                null
+                            ]
+                        },
+                        {
+                            "id": "activities",
+                            "name": "Activities",
+                            "answers": [
+                                null
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "declarations",
+            "name": "Declarations",
+            "sub_criteria": []
+        }
+    ],
+    "scored_sections": []
+}

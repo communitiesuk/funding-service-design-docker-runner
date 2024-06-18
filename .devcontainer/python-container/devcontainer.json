@@ -1,0 +1,19 @@
+{
+    "name": "Python Container",
+    "dockerComposeFile": [
+      "../../docker-compose.yml"
+    ],
+    "service": "fsd-self-serve",
+    "shutdownAction": "none",
+    "workspaceFolder": "/self-serve",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+                "ms-python.black-formatter"
+            ]
+        }
+    }
+  }
