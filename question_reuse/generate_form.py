@@ -134,7 +134,7 @@ def build_navigation(results: dict, input_pages: list[str]) -> dict:
                     # Check if we need to add this in from SUBPAGES_TO_REUSE
                     if destination_path not in [
                         page["path"] for page in results["pages"]
-                    ]:
+                    ] and not destination_path =='/summary':
                         sub_page = copy.deepcopy(
                             SUB_PAGES_TO_REUSE[destination_path]
                         )
