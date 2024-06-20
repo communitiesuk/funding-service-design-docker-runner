@@ -1,0 +1,40 @@
+{% extends "govuk_frontend_jinja/template.html" %}
+
+{% set assetPath = url_for('static', filename='').rstrip('/') %}
+
+{% block pageTitle %}{{ [pageHeading.rstrip('\n'), service_title]|join(' – ') if pageHeading else service_title }}{% endblock pageTitle %}
+
+{% block head %}
+  {% include "head.html" %}
+{% endblock head %}
+
+{% block header %}
+  {{ govukHeader({
+    'useTudorCrown': 'yes',
+    'serviceName': 'FSD Self Service Prototype'
+  }) }}
+{% endblock header %}
+
+{% block main %}
+<div class="govuk-width-container {{ containerClasses }}">
+  {% block beforeContent %}{% endblock beforeContent %}
+  <main class="govuk-main-wrapper {{ mainClasses }}" id="main-content" role="main"{% if mainLang %} lang="{{ mainLang }}"{% endif %}>
+    {% block content %}{% endblock content %}
+  </main>
+</div>
+{% endblock main %}
+
+{% block footer %}
+  {% include "footer.html" %}
+{% endblock footer %}
+
+{% block bodyEnd %}
+
+
+    {# Run JavaScript at end of the <body>, to avoid blocking the initial render. #}
+        <script type="module" src="{{ url_for('static', filename='govuk-frontend/govuk-frontend-5.4.0.min.js') }}"></script>
+        <script type="module">
+          import { initAll } from "{{ url_for('static', filename='govuk-frontend/govuk-frontend-5.4.0.min.js') }}"
+          initAll()
+        </script>
+{% endblock bodyEnd %}
