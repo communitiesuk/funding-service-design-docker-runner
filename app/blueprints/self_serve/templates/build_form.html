@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput -%}
+{% block content %}
+<div class="govuk-width-container">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-l">FSD Build a Form</h1>
+
+            {{ govukInput({
+            "label": {
+            "text": "What is the name of the form?",
+            "classes": "govuk-label--s",
+            "isPageHeading": false
+            },
+            "id": "form-name",
+            "name": "formName"
+            }) }}
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-form-group">
+                <h3 class="govuk-heading-s">
+                    Available Pages
+                </h3>
+                <div id="pages-hint" class="govuk-hint">
+                    Drag the pages you want for your form from the list of available pages to the list of selected
+                    pages.
+                </div>
+                <div id="available_pages">
+                    {% for page in available_pages%}
+                        <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue">{{ page.name }}<span class="tooltiptext">{{page.id}}</span></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="govuk-grid-column-one-half">
+            <div class="govuk-form-group">
+                <h3 class="govuk-heading-s">
+                    Selected Pages
+                </h3>
+                <div id="selected_pages-hint" class="govuk-hint">
+                    Once you have selected the pages to include, reorder them here.
+                </div>
+                <div id="selected_pages">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Tooltip container */
+    .tooltip {
+      position: relative;
+      margin: 2px 0px 2px 0px;
+      max-width: 100%;
+    }
+    
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 120px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      padding: 5px 0;
+      border-radius: 6px;
+     
+      /* Position the tooltip text - see examples below! */
+      position: absolute;
+      z-index: 1;
+    }
+    
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+    }
+
+    </style>
+{% endblock %}

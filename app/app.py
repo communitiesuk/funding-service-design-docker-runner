@@ -27,13 +27,13 @@ def create_app() -> Flask:
         static_folder="app/static/dist",
     )
 
-    template_loaders = [
-        PackageLoader("app"),
-        PrefixLoader(
-            {"govuk_frontend_jinja": PackageLoader("govuk_frontend_jinja")}
-        ),]
-    
-    flask_app.jinja_loader = ChoiceLoader(template_loaders)
+    flask_app.jinja_loader = ChoiceLoader(
+        [
+            PackageLoader("app"),
+            PrefixLoader({"govuk_frontend_jinja": PackageLoader("govuk_frontend_jinja")}),
+        ]
+    )
+
 
     return flask_app
 
