@@ -159,6 +159,60 @@ COMPONENTS = {
             },
         ],
     },
+    "reuse-alt-org-name-1": {
+        "options": {"classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 1",
+        "schema": {},
+    },
+    "reuse-alt-org-name-2": {
+        "options": {"required": False, "classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 2",
+        "schema": {},
+    },
+    "reuse-alt-org-name-3": {
+        "options": {"required": False, "classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 3",
+        "schema": {},
+    },
+    "auth-sig-intro": {
+        "options": {},
+        "type": "Html",
+        "content": '<p class="govuk-hint">An authorised signatory:</p>\n<ul class="govuk-list govuk-list--bullet govuk-hint">\n            <li>is allowed to act on behalf of the organisation</li>\n            <li>will sign the grant funding agreement if your application is successful</li>\n          </ul>',
+        "schema": {},
+    },
+    "auth-sig-full-name": {
+        "options": {"classes": "govuk-!-width-full"},
+        "type": "TextField",
+        "title": "Authorised signatory full name",
+        "schema": {},
+    },
+    "auth-sig-alt-name": {
+        "options": {"required": False, "classes": "govuk-!-width-full"},
+        "type": "TextField",
+        "title": "Alternative name",
+        "schema": {},
+    },
+    "auth-sig-job-title": {
+        "options": {"required": True, "classes": "govuk-!-width-full"},
+        "type": "TextField",
+        "title": "Authorised signatory job title",
+        "schema": {},
+    },
+    "auth-sig-email": {
+        "options": {"classes": "govuk-!-width-full"},
+        "type": "EmailAddressField",
+        "title": "Authorised signatory email address",
+        "schema": {},
+    },
+    "auth-sig-phone": {
+        "options": {"classes": "govuk-!-width-full"},
+        "type": "TelephoneNumberField",
+        "title": "Authorised signatory telephone number",
+        "schema": {},
+    },
 }
 PAGES = [
     {
@@ -181,12 +235,20 @@ PAGES = [
         "show_in_builder": True,
     },
     {
+        "id": "alternative-organisation-name",
+        "form_display_name": "Alternative names of your organisation",
+        "builder_display_name": "Alternative organisation names",
+        "component_names": ["reuse-alt-org-name-1", "reuse-alt-org-name-2", "reuse-alt-org-name-3"],
+        "show_in_builder": False,
+    },
+    {
         "id": "summary",
         "builder_display_name": "Summary",
         "form_display_name": "Check your answers",
         "component_names": [],
         "show_in_builder": False,
         "controller": "./pages/summary.js",
+        "show_in_builder": False,
     },
     {
         "id": "alternative-organisation-name",
@@ -237,9 +299,12 @@ PAGES = [
             "reuse-annual-turnover-23",
         ],
     },
-    {"id": "ns-membership-organisations", 
+    {
+        "id": "ns-membership-organisations",
         "builder_display_name": "NSTF: Membership Organisaions",
-        "form_display_name": "Organisation Membership","component_names": ["ns-membership-organisations"]},
+        "form_display_name": "Organisation Membership",
+        "component_names": ["ns-membership-organisations"],
+    },
     {
         "id": "lead-contact-details-and-auth-signatory",
         "builder_display_name": "Lead Contact Details & Auth Signatory",
@@ -250,6 +315,19 @@ PAGES = [
             "reuse-lead-contact-email",
             "reuse-lead-contact-phone",
             "reuse_is_lead_contact_same_as_auth_signatory",
+        ],
+    },
+    {
+        "id": "authorised-signatory-details",
+        "form_display_name": "Authorised signatory details",
+        "builder_display_name": "Auth Signatory",
+        "component_names": [
+            "auth-sig-intro",
+            "auth-sig-full-name",
+            "auth-sig-alt-name",
+            "auth-sig-job-title",
+            "auth-sig-email",
+            "auth-sig-phone",
         ],
     },
 ]

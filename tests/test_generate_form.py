@@ -74,6 +74,24 @@ mock_components = {
             },
         ],
     },
+    "reuse-alt-org-name-1": {
+        "options": {"classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 1",
+        "schema": {},
+    },
+    "reuse-alt-org-name-2": {
+        "options": {"required": False, "classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 2",
+        "schema": {},
+    },
+    "reuse-alt-org-name-3": {
+        "options": {"required": False, "classes": "govuk-input"},
+        "type": "TextField",
+        "title": "Alternative name 3",
+        "schema": {},
+    },
 }
 mock_pages = [
     {
@@ -102,23 +120,19 @@ mock_pages = [
         "component_names": ["reuse-charitable-objects"],
         "show_in_builder": True,
     },
+    {
+        "id": "alternative-organisation-name",
+        "builder_display_name": "Alternative Organisation Names",
+        "form_display_name": "Alternative names of your organisation",
+        "component_names": [
+            "reuse-alt-org-name-1",
+            "reuse-alt-org-name-2",
+            "reuse-alt-org-name-3",
+        ],
+        "show_in_builder": False,
+    },
 ]
 
-mock_sub_pages = {
-    "/alternative-organisation-name": {
-        "path": "/alternative-organisation-name",
-        "title": "Alternative names of your organisation",
-        "components": [
-            {
-                "name": "reuse-alt-org-name-1",
-                "options": {"classes": "govuk-input"},
-                "type": "TextField",
-                "title": "Alternative name 1",
-                "schema": {},
-            },
-        ],
-    },
-}
 
 
 @pytest.mark.parametrize(
@@ -340,7 +354,6 @@ def test_build_conditions(input_name, input_component, exp_results):
 def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
     mocker.patch("app.data.data_access.COMPONENTS", mock_components)
     mocker.patch("app.data.data_access.PAGES", mock_pages)
-    mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
 
     results = build_navigation(pages, page_names)
     for page in results["pages"]:
@@ -421,7 +434,6 @@ def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
 def test_build_navigation_with_conditions(mocker, pages, page_names, exp_next, exp_conditions):
     mocker.patch("app.data.data_access.COMPONENTS", mock_components)
     mocker.patch("app.data.data_access.PAGES", mock_pages)
-    mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
 
     results = build_navigation(pages, page_names)
     for page in results["pages"]:

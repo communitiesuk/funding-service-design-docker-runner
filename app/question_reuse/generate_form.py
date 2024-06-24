@@ -7,7 +7,6 @@ from app.data.data_access import get_page_by_id, get_component_by_name
 
 import click
 from app.question_reuse.config.lookups import LISTS
-from app.question_reuse.config.sub_pages_to_reuse import SUB_PAGES_TO_REUSE
 
 BASIC_FORM_STRUCTURE = {
     "metadata": {},
@@ -128,12 +127,12 @@ def build_navigation(pages: dict, input_pages: list[str]) -> dict:
                     else:
                         destination_path = f"/{condition['destination_page']}"
 
-                    # Check if we need to add this in from SUBPAGES_TO_REUSE
+                    # If this points to a pre-built page flow, add that in now (it won't be in the input)
                     if (
                         destination_path not in [page["path"] for page in pages["pages"]]
                         and not destination_path == "/summary"
                     ):
-                        sub_page = copy.deepcopy(SUB_PAGES_TO_REUSE[destination_path])
+                        sub_page = build_page(destination_path[1:])
                         if not sub_page.get("next", None):
                             sub_page["next"] = [{"path": f"/{next_path}"}]
 
