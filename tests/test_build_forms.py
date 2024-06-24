@@ -1,5 +1,5 @@
 import pytest
-from question_reuse.generate_form import build_form_json
+from app.question_reuse.generate_form import build_form_json
 
 
 @pytest.mark.parametrize(

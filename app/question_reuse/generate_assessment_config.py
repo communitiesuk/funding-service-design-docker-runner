@@ -3,8 +3,8 @@ import json
 import os
 
 import click
-from question_reuse.config.lookups import LOOKUPS
-from question_reuse.config.themes_to_reuse import THEMES_TO_REUSE
+from app.question_reuse.config.lookups import LOOKUPS
+from app.question_reuse.config.themes_to_reuse import THEMES_TO_REUSE
 
 
 BASIC_SECTION_STRUCTURE = {"id": None, "name": None, "sub_criteria": []}

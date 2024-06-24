@@ -1,0 +1,14 @@
+[package]
+name = "funding-service-design-self-serve"
+version = "0.0.1"
+description = "Prototype self service app for building application forms"
+authors = ["DLUHC"]
+license = "MIT License"
+
+[tool.black]
+line-length = 120
+experimental-string-processing = 1
+
+[tool.flake8]
+max-line-length = 120
+count = true

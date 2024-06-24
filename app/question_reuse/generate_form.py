@@ -4,13 +4,13 @@ import json
 import os
 
 import click
-from question_reuse.config.components_to_reuse import (
+from app.question_reuse.config.components_to_reuse import (
     COMPONENTS_TO_REUSE,
 )
-from question_reuse.config.lookups import LISTS
-from question_reuse.config.lookups import LOOKUPS
-from question_reuse.config.pages_to_reuse import PAGES_TO_REUSE
-from question_reuse.config.sub_pages_to_reuse import SUB_PAGES_TO_REUSE
+from app.question_reuse.config.lookups import LISTS
+from app.question_reuse.config.lookups import LOOKUPS
+from app.question_reuse.config.pages_to_reuse import PAGES_TO_REUSE
+from app.question_reuse.config.sub_pages_to_reuse import SUB_PAGES_TO_REUSE
 
 BASIC_FORM_STRUCTURE = {
     "metadata": {},
@@ -26,11 +26,7 @@ BASIC_FORM_STRUCTURE = {
             "name": "update-form",
             "title": "Update form in application store",
             "type": "savePerPage",
-            "outputConfiguration": {
-                "savePerPageUrl": (
-                    "https://webhook.site/a8d808ca-bf5e-4aea-aebc-f3d9bc93a435"
-                )
-            },
+            "outputConfiguration": {"savePerPageUrl": ("https://webhook.site/a8d808ca-bf5e-4aea-aebc-f3d9bc93a435")},
         }
     ],
     "skipSummary": False,
@@ -46,10 +42,17 @@ BASIC_PAGE_STRUCTURE = {
     "options": {},
 }
 
-SUMMARY_PAGE = SUB_PAGES_TO_REUSE["/summary"]
+SUMMARY_PAGE = {
+    "path": "/summary",
+    "title": "Check your answers",
+    "components": [],
+    "next": [],
+    "section": "uLwBuz",
+    "controller": "./pages/summary.js",
+}
 
 
-def build_conditions(component_name, component: dict) -> dict:
+def build_conditions(component_name, component: dict) -> list:
     results = []
     for condition in component["conditions"]:
         result = {
@@ -103,7 +106,7 @@ def build_page(input_page_name: str) -> dict:
     return page
 
 
-def build_navigation(results: dict, input_pages: list[str]) -> dict:
+def build_navigation(pages: dict, input_pages: list[str]) -> dict:
     for i in range(0, len(input_pages)):
         if i < len(input_pages) - 1:
             next_path = input_pages[i + 1]
@@ -113,9 +116,7 @@ def build_navigation(results: dict, input_pages: list[str]) -> dict:
             next_path = None
 
         this_path = input_pages[i]
-        this_page_in_results = next(
-            p for p in results["pages"] if p["path"] == f"/{this_path}"
-        )
+        this_page_in_results = next(p for p in pages["pages"] if p["path"] == f"/{this_path}")
 
         conditions_include_direct_next = False
         for c_name in PAGES_TO_REUSE[this_path]["component_names"]:
@@ -123,7 +124,7 @@ def build_navigation(results: dict, input_pages: list[str]) -> dict:
             if "conditions" in component:
 
                 form_json_conditions = build_conditions(c_name, component)
-                results["conditions"].extend(form_json_conditions)
+                pages["conditions"].extend(form_json_conditions)
                 for condition in component["conditions"]:
                     if condition["destination_page"] == "CONTINUE":
                         conditions_include_direct_next = True
@@ -132,16 +133,15 @@ def build_navigation(results: dict, input_pages: list[str]) -> dict:
                         destination_path = condition["destination_page"]
 
                     # Check if we need to add this in from SUBPAGES_TO_REUSE
-                    if destination_path not in [
-                        page["path"] for page in results["pages"]
-                    ] and not destination_path =='/summary':
-                        sub_page = copy.deepcopy(
-                            SUB_PAGES_TO_REUSE[destination_path]
-                        )
+                    if (
+                        destination_path not in [page["path"] for page in pages["pages"]]
+                        and not destination_path == "/summary"
+                    ):
+                        sub_page = copy.deepcopy(SUB_PAGES_TO_REUSE[destination_path])
                         if not sub_page.get("next", None):
                             sub_page["next"] = [{"path": f"/{next_path}"}]
 
-                        results["pages"].append(sub_page)
+                        pages["pages"].append(sub_page)
 
                     this_page_in_results["next"].append(
                         {
@@ -154,20 +154,20 @@ def build_navigation(results: dict, input_pages: list[str]) -> dict:
         if not conditions_include_direct_next:
             this_page_in_results["next"].append({"path": f"/{next_path}"})
 
-    return results
+    return pages
 
 
-def build_lists(form_json: dict) -> dict:
-    for page in form_json["pages"]:
+def build_lists(pages: dict) -> dict:
+    # Takes in the form builder format json and copies in any lists used in those pages
+    lists = []
+    for page in pages:
         for component in page["components"]:
             if "list" in component:
                 list = copy.deepcopy(LISTS[component["list"]])
-                list.update(
-                    {"name": component["list"], "title": component["title"]}
-                )
-                form_json["lists"].append(list)
+                list.update({"name": component["list"], "title": component["title"]})
+                lists.append(list)
 
-    return form_json
+    return lists
 
 
 def build_form_json(input_json: dict) -> dict:
@@ -192,7 +192,7 @@ def build_form_json(input_json: dict) -> dict:
 
     results = build_navigation(results, input_json["pages"])
 
-    results = build_lists(results)
+    results["lists"] = build_lists(results["pages"])
 
     results["pages"].append(SUMMARY_PAGE)
 

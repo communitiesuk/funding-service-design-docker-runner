@@ -1,7 +1,7 @@
 import copy
 import json
 
-from question_reuse.generate_assessment_config import (
+from app.question_reuse.generate_assessment_config import (
     build_assessment_config,
 )
 
@@ -26,7 +26,7 @@ TEST_DATA_UNSCORED_WITH_SUBCRITERIA["unscored_sections"][0]["subcriteria"] = [
 TEST_FORM_NAME = "test-org-info-form"
 
 with open(
-    "./question_reuse/test_data/in/test-org-info-field-info.json"
+    "./app/question_reuse/test_data/in/test-org-info-field-info.json"
 ) as f:
     TEST_FIELD_INFO = json.load(f)
 

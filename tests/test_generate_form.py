@@ -1,0 +1,339 @@
+from app.question_reuse.generate_form import build_lists, build_page, build_conditions, build_navigation
+import pytest
+
+
+LIST1 = {
+    "type": "string",
+    "items": [{"text": "Hello", "value": "h"}, {"text": "goodbye", "value": "g"}],
+}
+
+
+@pytest.mark.parametrize(
+    "pages, available_lists, exp_result",
+    [
+        (
+            [{"components": [{"title": "First component", "list": "list1"}]}],
+            {"list1": LIST1},
+            [LIST1],
+        ),
+        (
+            [
+                {
+                    "components": [
+                        {"title": "First component", "list": "list1"},
+                        {"title": "Second component", "list": "list1"},
+                    ]
+                }
+            ],
+            {"list1": LIST1},
+            [LIST1, LIST1],
+        ),
+    ],
+)
+def test_build_lists(mocker, pages, available_lists, exp_result):
+    mocker.patch("app.question_reuse.generate_form.LISTS", available_lists)
+    results = build_lists(pages)
+    assert len(results) == len(exp_result)
+
+
+mock_lookups = {
+    "organisation-name": "Organisation Name",
+    "organisation-single-name": "Organisation Name",
+}
+mock_components = {
+    "reuse-charitable-objects": {
+        "options": {"hideTitle": True, "maxWords": "500"},
+        "type": "FreeTextField",
+        "title": "What are your organisation’s charitable objects?",
+        "hint": "You can find this in your organisation's governing document.",
+    },
+    "reuse-organisation-name": {
+        "options": {"hideTitle": False, "classes": "govuk-!-width-full"},
+        "type": "TextField",
+        "title": "Organisation name",
+        "hint": "This must match your registered legal organisation name",
+        "schema": {},
+    },
+    "reuse_organisation_other_names_yes_no": {
+        "options": {},
+        "type": "YesNoField",
+        "title": "Does your organisation use any other names?",
+        "schema": {},
+        "conditions": [
+            {
+                "name": "organisation_other_names_no",
+                "value": "false",
+                "operator": "is",
+                "destination_page": "CONTINUE",
+            },
+            {
+                "name": "organisation_other_names_yes",
+                "value": "true",
+                "operator": "is",
+                "destination_page": "/alternative-organisation-name",
+            },
+        ],
+    },
+}
+mock_pages = {
+    "organisation-single-name": {
+        "component_names": [
+            "reuse-organisation-name",
+        ],
+    },
+    "organisation-name": {
+        "component_names": [
+            "reuse-organisation-name",
+            "reuse_organisation_other_names_yes_no",
+        ],
+    },
+    "organisation-charitable-objects": {
+        "component_names": ["reuse-charitable-objects"],
+    },
+}
+
+mock_sub_pages = {
+    "/alternative-organisation-name": {
+        "path": "/alternative-organisation-name",
+        "title": "Alternative names of your organisation",
+        "components": [
+            {
+                "name": "reuse-alt-org-name-1",
+                "options": {"classes": "govuk-input"},
+                "type": "TextField",
+                "title": "Alternative name 1",
+                "schema": {},
+            },
+        ],
+    },
+}
+
+
+@pytest.mark.parametrize(
+    "input_page_name, exp_result",
+    [
+        (
+            "organisation-single-name",
+            {
+                "path": "/organisation-single-name",
+                "title": "Organisation Name",
+                "components": [
+                    {
+                        "name": "reuse-organisation-name",
+                        "options": {
+                            "hideTitle": False,
+                            "classes": "govuk-!-width-full",
+                        },
+                        "type": "TextField",
+                        "title": "Organisation name",
+                        "hint": "This must match your registered legal organisation name",
+                        "schema": {},
+                    }
+                ],
+                "next": [],
+                "options": {},
+            },
+        )
+    ],
+)
+def test_build_page(mocker, input_page_name, exp_result):
+    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
+    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
+    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    result = build_page(input_page_name)
+    assert result == exp_result
+
+
+@pytest.mark.parametrize(
+    "input_name, input_component, exp_results",
+    [
+        (
+            "test_component",
+            {
+                "conditions": [
+                    {"name": "test_condition", "operator": "is", "value": "yes"},
+                ],
+                "type": "test_type",
+                "title": "test_title",
+            },
+            [
+                {
+                    "displayName": "test_condition",
+                    "name": "test_condition",
+                    "value": {
+                        "name": "test_condition",
+                        "conditions": [
+                            {
+                                "field": {
+                                    "name": "test_component",
+                                    "type": "test_type",
+                                    "display": "test_title",
+                                },
+                                "operator": "is",
+                                "value": {
+                                    "type": "Value",
+                                    "value": "yes",
+                                    "display": "yes",
+                                },
+                            }
+                        ],
+                    },
+                }
+            ],
+        ),
+        (
+            "test_component2",
+            {
+                "conditions": [
+                    {"name": "test_condition", "operator": "is", "value": "yes"},
+                    {"name": "test_condition2", "operator": "is", "value": "no"},
+                ],
+                "type": "test_type",
+                "title": "test_title",
+            },
+            [
+                {
+                    "displayName": "test_condition",
+                    "name": "test_condition",
+                    "value": {
+                        "name": "test_condition",
+                        "conditions": [
+                            {
+                                "field": {
+                                    "name": "test_component2",
+                                    "type": "test_type",
+                                    "display": "test_title",
+                                },
+                                "operator": "is",
+                                "value": {
+                                    "type": "Value",
+                                    "value": "yes",
+                                    "display": "yes",
+                                },
+                            },
+                        ],
+                    },
+                },
+                {
+                    "displayName": "test_condition2",
+                    "name": "test_condition2",
+                    "value": {
+                        "name": "test_condition2",
+                        "conditions": [
+                            {
+                                "field": {
+                                    "name": "test_component2",
+                                    "type": "test_type",
+                                    "display": "test_title",
+                                },
+                                "operator": "is",
+                                "value": {
+                                    "type": "Value",
+                                    "value": "no",
+                                    "display": "no",
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        ),
+    ],
+)
+def test_build_conditions(input_name, input_component, exp_results):
+    results = build_conditions(input_name, input_component)
+    assert results == exp_results
+
+
+@pytest.mark.parametrize(
+    "page_names,pages ,exp_next, exp_conditions",
+    [
+        (
+            ["organisation-single-name"],
+            {
+                "pages": [
+                    {
+                        "path": "/organisation-single-name",
+                        "title": "Organisation Name",
+                        "components": [
+                            {
+                                "name": "reuse-organisation-name",
+                                "options": {
+                                    "hideTitle": False,
+                                    "classes": "govuk-!-width-full",
+                                },
+                                "type": "TextField",
+                                "title": "Organisation name",
+                                "hint": "This must match your registered legal organisation name",
+                                "schema": {},
+                            }
+                        ],
+                        "next": [],
+                        "options": {},
+                    },
+                ]
+            },
+            {
+                "/organisation-single-name": [{"path": "/summary"}],
+            },
+            None
+        ),
+        (
+            ["organisation-single-name", "organisation-charitable-objects"],
+            {
+                "pages": [
+                    {
+                        "path": "/organisation-single-name",
+                        "title": "Organisation Name",
+                        "components": [
+                            {
+                                "name": "reuse-organisation-name",
+                                "options": {
+                                    "hideTitle": False,
+                                    "classes": "govuk-!-width-full",
+                                },
+                                "type": "TextField",
+                                "title": "Organisation name",
+                                "hint": "This must match your registered legal organisation name",
+                                "schema": {},
+                            }
+                        ],
+                        "next": [],
+                        "options": {},
+                    },
+                    {
+                        "path": "/organisation-charitable-objects",
+                        "title": "Organisation Charitable Objects",
+                        "components": [
+                            {
+                                "name": "reuse-charitable-objects",
+                                "options": {"hideTitle": True, "maxWords": "500"},
+                                "type": "FreeTextField",
+                                "title": "What are your organisation's charitable objects?",
+                                "hint": "You can find this in your organisation's governing document.",
+                            },
+                        ],
+                        "next": [],
+                        "options": {},
+                    },
+                ]
+            },
+            {
+                "/organisation-single-name": [{"path": "/organisation-charitable-objects"}],
+                "/organisation-charitable-objects": [{"path": "/summary"}],
+            },
+            None
+        ),
+    ],
+)
+def test_build_navigation(mocker, pages, page_names, exp_next, exp_conditions):
+    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
+    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
+    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
+
+    results = build_navigation(pages, page_names)
+    for page in results["pages"]:
+        exp_next_this_page = exp_next[page["path"]]
+        assert page["next"] == exp_next_this_page
+
