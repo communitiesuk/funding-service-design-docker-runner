@@ -246,11 +246,12 @@ def test_build_conditions(input_name, input_component, exp_results):
 
 
 @pytest.mark.parametrize(
-    "page_names,pages ,exp_next, exp_conditions",
+    "page_names,pages ,exp_next",
     [
         (
             ["organisation-single-name"],
             {
+                "conditions": [],
                 "pages": [
                     {
                         "path": "/organisation-single-name",
@@ -271,16 +272,16 @@ def test_build_conditions(input_name, input_component, exp_results):
                         "next": [],
                         "options": {},
                     },
-                ]
+                ],
             },
             {
                 "/organisation-single-name": [{"path": "/summary"}],
             },
-            None
         ),
         (
             ["organisation-single-name", "organisation-charitable-objects"],
             {
+                "conditions": [],
                 "pages": [
                     {
                         "path": "/organisation-single-name",
@@ -296,7 +297,7 @@ def test_build_conditions(input_name, input_component, exp_results):
                                 "title": "Organisation name",
                                 "hint": "This must match your registered legal organisation name",
                                 "schema": {},
-                            }
+                            },
                         ],
                         "next": [],
                         "options": {},
@@ -316,17 +317,16 @@ def test_build_conditions(input_name, input_component, exp_results):
                         "next": [],
                         "options": {},
                     },
-                ]
+                ],
             },
             {
                 "/organisation-single-name": [{"path": "/organisation-charitable-objects"}],
                 "/organisation-charitable-objects": [{"path": "/summary"}],
             },
-            None
         ),
     ],
 )
-def test_build_navigation(mocker, pages, page_names, exp_next, exp_conditions):
+def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
     mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
     mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
     mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
@@ -336,4 +336,80 @@ def test_build_navigation(mocker, pages, page_names, exp_next, exp_conditions):
     for page in results["pages"]:
         exp_next_this_page = exp_next[page["path"]]
         assert page["next"] == exp_next_this_page
+    assert len(results["conditions"]) == 0
 
+
+@pytest.mark.parametrize(
+    "page_names,pages ,exp_next, exp_conditions",
+    [
+        (
+            ["organisation-name", "organisation-charitable-objects"],
+            {
+                "conditions": [],
+                "pages": [
+                    {
+                        "path": "/organisation-name",
+                        "title": "Organisation Name",
+                        "components": [
+                            {
+                                "name": "reuse-organisation-name",
+                                "options": {
+                                    "hideTitle": False,
+                                    "classes": "govuk-!-width-full",
+                                },
+                                "type": "TextField",
+                                "title": "Organisation name",
+                                "hint": "This must match your registered legal organisation name",
+                                "schema": {},
+                            },
+                            {
+                                "name": "reuse_organisation_other_names_yes_no",
+                                "options": {},
+                                "type": "YesNoField",
+                                "title": "Does your organisation use any other names?",
+                                "schema": {},
+                            },
+                        ],
+                        "next": [],
+                        "options": {},
+                    },
+                    {
+                        "path": "/organisation-charitable-objects",
+                        "title": "Organisation Charitable Objects",
+                        "components": [
+                            {
+                                "name": "reuse-charitable-objects",
+                                "options": {"hideTitle": True, "maxWords": "500"},
+                                "type": "FreeTextField",
+                                "title": "What are your organisation's charitable objects?",
+                                "hint": "You can find this in your organisation's governing document.",
+                            },
+                        ],
+                        "next": [],
+                        "options": {},
+                    },
+                ],
+            },
+            {
+                "/organisation-name": [
+                    {"path": "/organisation-charitable-objects","condition": "organisation_other_names_no",},
+                    {"path": "/alternative-organisation-name","condition": "organisation_other_names_yes", },
+                ],
+                "/organisation-charitable-objects": [{"path": "/summary"}],
+                "/alternative-organisation-name": [{"path": "/organisation-charitable-objects"}],
+            },
+            {},
+        )
+    ],
+)
+def test_build_navigation_with_conditions(mocker, pages, page_names, exp_next, exp_conditions):
+    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
+    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
+    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
+
+    results = build_navigation(pages, page_names)
+    for page in results["pages"]:
+        exp_next_this_page = exp_next[page["path"]]
+        for next in page["next"]:
+            assert next in exp_next_this_page
