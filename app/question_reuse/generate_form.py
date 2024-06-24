@@ -101,7 +101,7 @@ def build_page(input_page_name: str) -> dict:
     return page
 
 # Goes through the set of pages and updates the conditions and next properties to account for branching
-def build_navigation(pages: dict, input_pages: list[str]) -> dict:
+def build_navigation(partial_form_json: dict, input_pages: list[str]) -> dict:
     for i in range(0, len(input_pages)):
         if i < len(input_pages) - 1:
             next_path = input_pages[i + 1]
@@ -111,32 +111,32 @@ def build_navigation(pages: dict, input_pages: list[str]) -> dict:
             next_path = None
 
         this_path = input_pages[i]
-        this_page_in_results = next(p for p in pages["pages"] if p["path"] == f"/{this_path}")
+        this_page_in_results = next(p for p in partial_form_json["pages"] if p["path"] == f"/{this_path}")
 
-        conditions_include_direct_next = False
+        has_conditions = False
         for c_name in get_page_by_id(this_path)["component_names"]:
             component = get_component_by_name(c_name)
             if "conditions" in component:
 
                 form_json_conditions = build_conditions(c_name, component)
-                pages["conditions"].extend(form_json_conditions)
+                has_conditions = True
+                partial_form_json["conditions"].extend(form_json_conditions)
                 for condition in component["conditions"]:
                     if condition["destination_page"] == "CONTINUE":
-                        conditions_include_direct_next = True
                         destination_path = f"/{next_path}"
                     else:
                         destination_path = f"/{condition['destination_page']}"
 
                     # If this points to a pre-built page flow, add that in now (it won't be in the input)
                     if (
-                        destination_path not in [page["path"] for page in pages["pages"]]
+                        destination_path not in [page["path"] for page in partial_form_json["pages"]]
                         and not destination_path == "/summary"
                     ):
                         sub_page = build_page(destination_path[1:])
                         if not sub_page.get("next", None):
                             sub_page["next"] = [{"path": f"/{next_path}"}]
 
-                        pages["pages"].append(sub_page)
+                        partial_form_json["pages"].append(sub_page)
 
                     this_page_in_results["next"].append(
                         {
@@ -146,10 +146,10 @@ def build_navigation(pages: dict, input_pages: list[str]) -> dict:
                     )
 
         # If there were no conditions and we just continue to the next page
-        if not conditions_include_direct_next:
+        if not has_conditions:
             this_page_in_results["next"].append({"path": f"/{next_path}"})
 
-    return pages
+    return partial_form_json
 
 
 def build_lists(pages: dict) -> dict:
