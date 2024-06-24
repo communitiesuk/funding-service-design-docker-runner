@@ -3,13 +3,10 @@ import datetime
 import json
 import os
 
+from app.data.data_access import get_page_by_id, get_component_by_name
+
 import click
-from app.question_reuse.config.components_to_reuse import (
-    COMPONENTS_TO_REUSE,
-)
 from app.question_reuse.config.lookups import LISTS
-from app.question_reuse.config.lookups import LOOKUPS
-from app.question_reuse.config.pages_to_reuse import PAGES_TO_REUSE
 from app.question_reuse.config.sub_pages_to_reuse import SUB_PAGES_TO_REUSE
 
 BASIC_FORM_STRUCTURE = {
@@ -38,7 +35,6 @@ BASIC_PAGE_STRUCTURE = {
     "title": None,
     "components": [],
     "next": [],
-    # "controller": None,
     "options": {},
 }
 
@@ -51,7 +47,7 @@ SUMMARY_PAGE = {
     "controller": "./pages/summary.js",
 }
 
-
+# Takes in a simple set of conditions and builds them into the form runner format
 def build_conditions(component_name, component: dict) -> list:
     results = []
     for condition in component["conditions"]:
@@ -83,19 +79,19 @@ def build_conditions(component_name, component: dict) -> list:
 
 
 def build_page(input_page_name: str) -> dict:
-    input_page = PAGES_TO_REUSE[input_page_name]
+    input_page = get_page_by_id(input_page_name)
     page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     page.update(
         {
             "path": f"/{input_page_name}",
-            "title": LOOKUPS.get(input_page_name, input_page_name),
+            "title": input_page["form_display_name"],
         }
     )
     # Having a 'null' controller element breaks the form-json, needs to not be there if blank
     if controller := input_page.get("controller", None):
         page["controller"] = controller
     for component_name in input_page["component_names"]:
-        component = copy.deepcopy(COMPONENTS_TO_REUSE[component_name])
+        component = copy.deepcopy(get_component_by_name(component_name))
         component["name"] = component_name
         conditions = component.get("conditions", None)
         if conditions:
@@ -105,7 +101,7 @@ def build_page(input_page_name: str) -> dict:
 
     return page
 
-
+# Goes through the set of pages and updates the conditions and next properties to account for branching
 def build_navigation(pages: dict, input_pages: list[str]) -> dict:
     for i in range(0, len(input_pages)):
         if i < len(input_pages) - 1:
@@ -119,8 +115,8 @@ def build_navigation(pages: dict, input_pages: list[str]) -> dict:
         this_page_in_results = next(p for p in pages["pages"] if p["path"] == f"/{this_path}")
 
         conditions_include_direct_next = False
-        for c_name in PAGES_TO_REUSE[this_path]["component_names"]:
-            component = COMPONENTS_TO_REUSE[c_name]
+        for c_name in get_page_by_id(this_path)["component_names"]:
+            component = get_component_by_name(c_name)
             if "conditions" in component:
 
                 form_json_conditions = build_conditions(c_name, component)
@@ -130,7 +126,7 @@ def build_navigation(pages: dict, input_pages: list[str]) -> dict:
                         conditions_include_direct_next = True
                         destination_path = f"/{next_path}"
                     else:
-                        destination_path = condition["destination_page"]
+                        destination_path = f"/{condition['destination_page']}"
 
                     # Check if we need to add this in from SUBPAGES_TO_REUSE
                     if (
@@ -170,14 +166,14 @@ def build_lists(pages: dict) -> dict:
     return lists
 
 
-def build_form_json(input_json: dict) -> dict:
+def build_form_json( input_json: dict,title:str="Generated Form",) -> dict:
 
     results = copy.deepcopy(BASIC_FORM_STRUCTURE)
 
     start_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     start_page.update(
         {
-            "title": LOOKUPS.get(input_json["title"], input_json["title"]),
+            "title": title,
             "path": f"/intro-{input_json['title']}",
             "controller": "./pages/start.js",
             "next": [{"path": f"/{input_json['pages'][0]}"}],

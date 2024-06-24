@@ -11,3 +11,7 @@ def get_all_pages() -> list:
 
 def get_pages_to_display_in_builder() -> list:
     return [p for p in PAGES if p["show_in_builder"] is True]
+
+
+def get_page_by_id(id:str) -> dict:
+    return next((p for p in PAGES if p["id"] == id), None)

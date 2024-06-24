@@ -100,10 +100,7 @@ COMPONENTS = {
         },
         "type": "NumberField",
         "title": "Annual turnover for 1 April 2022 to 31 March 2023",
-        "hint": (
-            '<label class="govuk-body" for="YauUjZ">1 April 2022 to 31 March'
-            " 2023</label>"
-        ),
+        "hint": ('<label class="govuk-body" for="YauUjZ">1 April 2022 to 31 March' " 2023</label>"),
     },
     "reuse-annual-turnover-22": {
         "options": {
@@ -112,10 +109,7 @@ COMPONENTS = {
             "classes": "govuk-input--width-10",
         },
         "type": "NumberField",
-        "hint": (
-            '<label class="govuk-body" for="zuCRBk">1 April 2021 to 31 March'
-            " 2022</label>"
-        ),
+        "hint": ('<label class="govuk-body" for="zuCRBk">1 April 2021 to 31 March' " 2022</label>"),
         "title": "Annual turnover for 1 April 2021 to 31 March 2022",
     },
     "reuse-lead-contact-name": {
@@ -161,7 +155,7 @@ COMPONENTS = {
                 "name": "lead_contact_same_as_signatory_no",
                 "value": "false",
                 "operator": "is",
-                "destination_page": "/authorised-signatory-details",
+                "destination_page": "authorised-signatory-details",
             },
         ],
     },
@@ -204,5 +198,58 @@ PAGES = [
             "reuse-alt-org-name-3",
         ],
         "show_in_builder": False,
+    },
+    {
+        "id": "ns-org-name",
+        "builder_display_name": "NSTF: Organisation Name",
+        "form_display_name": "Organisation Name",
+        "component_names": [
+            "reuse-organisation-name",
+            "reuse-organisation-address",
+            "reuse-english-region",
+        ],
+    },
+    {
+        "id": "organisation-address",
+        "builder_display_name": "Organisation Address",
+        "form_display_name": "Registered organisation address",
+        "component_names": ["reuse-organisation-address"],
+    },
+    {
+        "id": "organisation-main-purpose",
+        "builder_display_name": "Organisation Main Purpose",
+        "form_display_name": "Organisation Main Purpose",
+        "component_names": ["reuse-organisation-main-purpose"],
+    },
+    {
+        "id": "organisation-web-links",
+        "builder_display_name": "Organisation Web Links",
+        "form_display_name": "Organisation Web Links",
+        "component_names": ["reuse-organisation-website-social-media-links"],
+        "controller": "RepeatingFieldPageController",
+    },
+    {
+        "id": "annual-turnover",
+        "builder_display_name": "Organisation Annual Turnover",
+        "form_display_name": "Organisation Annual Turnover",
+        "component_names": [
+            "reuse-annual-turnover-22",
+            "reuse-annual-turnover-23",
+        ],
+    },
+    {"id": "ns-membership-organisations", 
+        "builder_display_name": "NSTF: Membership Organisaions",
+        "form_display_name": "Organisation Membership","component_names": ["ns-membership-organisations"]},
+    {
+        "id": "lead-contact-details-and-auth-signatory",
+        "builder_display_name": "Lead Contact Details & Auth Signatory",
+        "form_display_name": "Lead contact details",
+        "component_names": [
+            "reuse-lead-contact-name",
+            "reuse-lead-contact-job-title",
+            "reuse-lead-contact-email",
+            "reuse-lead-contact-phone",
+            "reuse_is_lead_contact_same_as_auth_signatory",
+        ],
     },
 ]

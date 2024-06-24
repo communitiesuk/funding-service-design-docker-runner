@@ -70,27 +70,39 @@ mock_components = {
                 "name": "organisation_other_names_yes",
                 "value": "true",
                 "operator": "is",
-                "destination_page": "/alternative-organisation-name",
+                "destination_page": "alternative-organisation-name",
             },
         ],
     },
 }
-mock_pages = {
-    "organisation-single-name": {
+mock_pages = [
+    {
+        "id": "organisation-single-name",
+        "builder_display_name": "Single Organisation Name",
+        "form_display_name": "Organisation Name",
         "component_names": [
             "reuse-organisation-name",
         ],
+        "show_in_builder": True,
     },
-    "organisation-name": {
+    {
+        "id": "organisation-name",
+        "builder_display_name": "Organisation Name, with Alternatives",
+        "form_display_name": "Organisation Name",
         "component_names": [
             "reuse-organisation-name",
             "reuse_organisation_other_names_yes_no",
         ],
+        "show_in_builder": True,
     },
-    "organisation-charitable-objects": {
+    {
+        "id": "organisation-charitable-objects",
+        "builder_display_name": "Organisation Charitable objects",
+        "form_display_name": "Organisation charitable objects",
         "component_names": ["reuse-charitable-objects"],
+        "show_in_builder": True,
     },
-}
+]
 
 mock_sub_pages = {
     "/alternative-organisation-name": {
@@ -137,9 +149,8 @@ mock_sub_pages = {
     ],
 )
 def test_build_page(mocker, input_page_name, exp_result):
-    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
-    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
-    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    mocker.patch("app.data.data_access.COMPONENTS", mock_components)
+    mocker.patch("app.data.data_access.PAGES", mock_pages)
     result = build_page(input_page_name)
     assert result == exp_result
 
@@ -327,9 +338,8 @@ def test_build_conditions(input_name, input_component, exp_results):
     ],
 )
 def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
-    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
-    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
-    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    mocker.patch("app.data.data_access.COMPONENTS", mock_components)
+    mocker.patch("app.data.data_access.PAGES", mock_pages)
     mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
 
     results = build_navigation(pages, page_names)
@@ -392,8 +402,14 @@ def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
             },
             {
                 "/organisation-name": [
-                    {"path": "/organisation-charitable-objects","condition": "organisation_other_names_no",},
-                    {"path": "/alternative-organisation-name","condition": "organisation_other_names_yes", },
+                    {
+                        "path": "/organisation-charitable-objects",
+                        "condition": "organisation_other_names_no",
+                    },
+                    {
+                        "path": "/alternative-organisation-name",
+                        "condition": "organisation_other_names_yes",
+                    },
                 ],
                 "/organisation-charitable-objects": [{"path": "/summary"}],
                 "/alternative-organisation-name": [{"path": "/organisation-charitable-objects"}],
@@ -403,9 +419,8 @@ def test_build_navigation_no_conditions(mocker, pages, page_names, exp_next):
     ],
 )
 def test_build_navigation_with_conditions(mocker, pages, page_names, exp_next, exp_conditions):
-    mocker.patch("app.question_reuse.generate_form.LOOKUPS", mock_lookups)
-    mocker.patch("app.question_reuse.generate_form.COMPONENTS_TO_REUSE", mock_components)
-    mocker.patch("app.question_reuse.generate_form.PAGES_TO_REUSE", mock_pages)
+    mocker.patch("app.data.data_access.COMPONENTS", mock_components)
+    mocker.patch("app.data.data_access.PAGES", mock_pages)
     mocker.patch("app.question_reuse.generate_form.SUB_PAGES_TO_REUSE", mock_sub_pages)
 
     results = build_navigation(pages, page_names)

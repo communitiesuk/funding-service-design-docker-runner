@@ -15,12 +15,12 @@ from app.question_reuse.generate_form import build_form_json
                 "pages": [
                     {
                         "path": "/intro-about-your-organisation",
-                        "title": "About your organisation",
+                        "title": "Generated Form",
                         "next": [{"path": "/organisation-name"}],
                     },
                     {
                         "path": "/organisation-name",
-                        "title": "Organisation name",
+                        "title": "Organisation Name",
                         "next": [
                             {
                                 "path": "/organisation-address",
@@ -71,7 +71,7 @@ from app.question_reuse.generate_form import build_form_json
                 "pages": [
                     {
                         "path": "/intro-about-your-organisation",
-                        "title": "About your organisation",
+                        "title": "Generated Form",
                         "components": [],
                         "next": [{"path": "/organisation-name"}],
                         "options": {},
@@ -79,7 +79,7 @@ from app.question_reuse.generate_form import build_form_json
                     },
                     {
                         "path": "/organisation-name",
-                        "title": "Organisation name",
+                        "title": "Organisation Name",
                         "components": [
                             {
                                 "options": {

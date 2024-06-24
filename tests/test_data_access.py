@@ -1,8 +1,4 @@
-from app.data.data_access import (
-    get_all_pages,
-    get_component_by_name,
-    get_pages_to_display_in_builder,
-)
+from app.data.data_access import get_all_pages, get_component_by_name, get_pages_to_display_in_builder, get_page_by_id
 import pytest
 
 
@@ -80,16 +76,32 @@ def test_get_all_pages_for_builder(mocker, all_pages, exp_length):
     assert len(results) == exp_length
 
 
-TEST_COMPONENTS = {"name1": {}, "name2": {}}
+TEST_COMPONENTS = {"name1": {"a": "b"}, "name2": {}}
 
 
 @pytest.mark.parametrize(
     "all_components, name, exp_result",
     [
         ({}, "anything", None),
-        (TEST_COMPONENTS, "name1", {}),
+        (TEST_COMPONENTS, "name1", {"a": "b"}),
         (TEST_COMPONENTS, "not_in_list", None),
     ],
 )
 def test_get_components_by_name(mocker, all_components, name, exp_result):
+    mocker.patch("app.data.data_access.COMPONENTS", all_components)
     results = get_component_by_name(name)
+    assert results == exp_result
+
+
+mock_pages = [
+    {"id": "1", "show_in_builder": True},
+    {"id": "2", "show_in_builder": True},
+    {"id": "3", "show_in_builder": False},
+]
+
+
+@pytest.mark.parametrize("all_pages,id,exp_result", [(mock_pages, "2", {"id": "2", "show_in_builder": True})])
+def test_get_page_by_id(mocker, all_pages, id, exp_result):
+    mocker.patch("app.data.data_access.PAGES", all_pages)
+    result = get_page_by_id(id)
+    assert result == exp_result
