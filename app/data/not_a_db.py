@@ -270,18 +270,21 @@ PAGES = [
             "reuse-organisation-address",
             "reuse-english-region",
         ],
+        "show_in_builder": True,
     },
     {
         "id": "organisation-address",
         "builder_display_name": "Organisation Address",
         "form_display_name": "Registered organisation address",
         "component_names": ["reuse-organisation-address"],
+        "show_in_builder": True,
     },
     {
         "id": "organisation-main-purpose",
         "builder_display_name": "Organisation Main Purpose",
         "form_display_name": "Organisation Main Purpose",
         "component_names": ["reuse-organisation-main-purpose"],
+        "show_in_builder": True,
     },
     {
         "id": "organisation-web-links",
@@ -289,6 +292,7 @@ PAGES = [
         "form_display_name": "Organisation Web Links",
         "component_names": ["reuse-organisation-website-social-media-links"],
         "controller": "RepeatingFieldPageController",
+        "show_in_builder": True,
     },
     {
         "id": "annual-turnover",
@@ -298,12 +302,14 @@ PAGES = [
             "reuse-annual-turnover-22",
             "reuse-annual-turnover-23",
         ],
+        "show_in_builder": True,
     },
     {
         "id": "ns-membership-organisations",
         "builder_display_name": "NSTF: Membership Organisaions",
         "form_display_name": "Organisation Membership",
         "component_names": ["ns-membership-organisations"],
+        "show_in_builder": True,
     },
     {
         "id": "lead-contact-details-and-auth-signatory",
@@ -316,6 +322,7 @@ PAGES = [
             "reuse-lead-contact-phone",
             "reuse_is_lead_contact_same_as_auth_signatory",
         ],
+        "show_in_builder": True,
     },
     {
         "id": "authorised-signatory-details",
@@ -329,6 +336,7 @@ PAGES = [
             "auth-sig-email",
             "auth-sig-phone",
         ],
+        "show_in_builder": False,
     },
 ]
 

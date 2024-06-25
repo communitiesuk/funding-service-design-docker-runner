@@ -164,6 +164,7 @@ def build_lists(pages: dict) -> dict:
     return lists
 
 
+# title arg is used for title of first page in form
 def build_form_json( input_json: dict,title:str="Generated Form",) -> dict:
 
     results = copy.deepcopy(BASIC_FORM_STRUCTURE)

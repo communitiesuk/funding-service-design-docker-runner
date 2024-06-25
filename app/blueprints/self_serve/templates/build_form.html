@@ -1,20 +1,24 @@
 {% extends "base.html" %}
 {%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput -%}
+{%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton -%}
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">Create Application Section</h1>
+            <form id="section_form" method="POST" action="{{ url_for('self_serve_bp.generate_json') }}">
 
-            {{ govukInput({
-            "label": {
-            "text": "What is the name of the form?",
-            "classes": "govuk-label--s",
-            "isPageHeading": false
-            },
-            "id": "form-name",
-            "name": "formName"
-            }) }}
+                <select multiple hidden name="selected_pages" id="frm_selected_pages"></select>
+                {{ govukInput({
+                "label": {
+                "text": "What is the name of this section?",
+                "classes": "govuk-label--s",
+                "isPageHeading": false
+                },
+                "id": "form-name",
+                "name": "formName"
+                }) }}
+            </form>
         </div>
     </div>
     <div class="govuk-grid-row">
@@ -24,12 +28,13 @@
                     Available Pages
                 </h3>
                 <div id="pages-hint" class="govuk-hint">
-                    Drag the pages you want for your form from the list of available pages to the list of selected
+                    Drag the pages you want for your section from the list of available pages to the list of selected
                     pages.
                 </div>
                 <div id="available_pages">
                     {% for page in available_pages%}
-                        <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue">{{ page.name }}<span class="tooltiptext">{{page.id}}</span></div>
+                    <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue" id="{{page.id}}">{{
+                        page.display_name }}<span class="tooltiptext">{{page.hover_info.title}}</span></div>
                     {% endfor %}
                 </div>
             </div>
@@ -47,35 +52,46 @@
             </div>
         </div>
     </div>
+    <div class="govuk-grid-row">
+        {{ govukButton({
+        "text": "Download Form JSON",
+        "attributes": {"onclick":"downloadJson()"},
+        "id": "download_json_btn"
+        }) }}
+        {{ govukButton({
+        "text": "Preview Form",
+        "attributes": {"onclick":"previewForm()"}
+        }) }}
+
+    </div>
 </div>
 
 <style>
     /* Tooltip container */
     .tooltip {
-      position: relative;
-      margin: 2px 0px 2px 0px;
-      max-width: 100%;
-    }
-    
-    /* Tooltip text */
-    .tooltip .tooltiptext {
-      visibility: hidden;
-      width: 120px;
-      background-color: black;
-      color: #fff;
-      text-align: center;
-      padding: 5px 0;
-      border-radius: 6px;
-     
-      /* Position the tooltip text - see examples below! */
-      position: absolute;
-      z-index: 1;
-    }
-    
-    /* Show the tooltip text when you mouse over the tooltip container */
-    .tooltip:hover .tooltiptext {
-      visibility: visible;
+        position: relative;
+        margin: 2px 0px 2px 0px;
+        max-width: 100%;
     }
 
-    </style>
+    /* Tooltip text */
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        background-color: black;
+        color: #fff;
+        text-align: center;
+        padding: 5px 0;
+        border-radius: 6px;
+
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+    }
+
+    /* Show the tooltip text when you mouse over the tooltip container */
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
+</style>
 {% endblock %}

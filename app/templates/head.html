@@ -7,6 +7,30 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <script>
+    var selected_sortable;
+
+
+    function updateSelectedPagesInForm(){
+        selected = document.getElementById("selected_pages");
+        selected_form_element = document.getElementById("frm_selected_pages");
+
+        // remove existing selection
+        if (selected_form_element.childElementCount > 0){
+            for(i=0;i<selected_form_element.childElementCount;i++){
+                selected_form_element.removeChild(selected_form_element.childNodes[i]);
+            }
+        }
+
+        // add new selection
+        for (page of selected.children){
+            node = document.createElement("option");
+            node.setAttribute("selected", "true")
+            node.setAttribute("value", page.id)
+            selected_form_element.appendChild(node)
+        }
+
+    }
+
 
     function loadSortable() {
         var available_pages = document.getElementById("available_pages");
@@ -17,12 +41,24 @@
             sort: false
         });
 
-        new Sortable(selected_pages, {
+        selected_sortable = new Sortable(selected_pages, {
             group: 'shared',
-            animation: 150
+            animation: 150,
+            onSort: function(){updateSelectedPagesInForm()}
         });
     };
+
+    function downloadJson(){
+        section_form=document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.generate_json')}}")
+        section_form.submit()
+    }
     
+    function previewForm(){
+        section_form=document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.preview_form')}}")
+        section_form.submit()
+    }
 
     document.addEventListener("DOMContentLoaded", loadSortable);
 </script>
