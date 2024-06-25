@@ -331,3 +331,15 @@ PAGES = [
         ],
     },
 ]
+
+LISTS = {
+    "list_ns_membership_organisations": {
+        "type": "string",
+        "items": [
+            {"text": "Homeless Link", "value": "homeless-link"},
+            {"text": "Housing Justice", "value": "housing-justice"},
+            {"text": "Both", "value": "both"},
+            {"text": "None", "value": "none"},
+        ],
+    }
+}

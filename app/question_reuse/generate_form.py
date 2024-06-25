@@ -3,10 +3,9 @@ import datetime
 import json
 import os
 
-from app.data.data_access import get_page_by_id, get_component_by_name
+from app.data.data_access import get_page_by_id, get_component_by_name, get_list_by_id
 
 import click
-from app.question_reuse.config.lookups import LISTS
 
 BASIC_FORM_STRUCTURE = {
     "metadata": {},
@@ -158,7 +157,7 @@ def build_lists(pages: dict) -> dict:
     for page in pages:
         for component in page["components"]:
             if "list" in component:
-                list = copy.deepcopy(LISTS[component["list"]])
+                list = copy.deepcopy(get_list_by_id(component["list"]))
                 list.update({"name": component["list"], "title": component["title"]})
                 lists.append(list)
 

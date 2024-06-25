@@ -31,7 +31,7 @@ LIST1 = {
     ],
 )
 def test_build_lists(mocker, pages, available_lists, exp_result):
-    mocker.patch("app.question_reuse.generate_form.LISTS", available_lists)
+    mocker.patch("app.data.data_access.LISTS", available_lists)
     results = build_lists(pages)
     assert len(results) == len(exp_result)
 

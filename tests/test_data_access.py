@@ -1,4 +1,10 @@
-from app.data.data_access import get_all_pages, get_component_by_name, get_pages_to_display_in_builder, get_page_by_id
+from app.data.data_access import (
+    get_all_pages,
+    get_list_by_id,
+    get_component_by_name,
+    get_pages_to_display_in_builder,
+    get_page_by_id,
+)
 import pytest
 
 
@@ -104,4 +110,16 @@ mock_pages = [
 def test_get_page_by_id(mocker, all_pages, id, exp_result):
     mocker.patch("app.data.data_access.PAGES", all_pages)
     result = get_page_by_id(id)
+    assert result == exp_result
+
+
+mock_lists = {"list1": {"items": []}, "list2": {"items": []}}
+
+
+@pytest.mark.parametrize(
+    "all_lists, list_id, exp_result", [(mock_lists, "list1", mock_lists["list1"]), (mock_lists, "badid", None)]
+)
+def test_get_list_by_id(mocker, all_lists, list_id, exp_result):
+    mocker.patch("app.data.data_access.LISTS", all_lists)
+    result = get_list_by_id(list_id)
     assert result == exp_result
