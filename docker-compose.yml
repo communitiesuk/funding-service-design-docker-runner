@@ -6,32 +6,4 @@ services:
     volumes:
       - .:/self-serve:cached
     command: sleep infinity
-    # environment:
-     # - DATABASE_URL=postgresql://postgres:password@fund-store-db:5432/fund_store
-
-
-  form-runner:
-    build:
-      context: ../digital-form-builder
-      dockerfile: ./fsd_config/Dockerfile
-    command: yarn runner dev
-    ports:
-      - 3009:3009
-      - 9228:9228
-    environment:
-      - LOG_LEVEL=debug
-      - JWT_AUTH_COOKIE_NAME=fsd_user_token
-      - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
-      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["fsd-self-serve"]}'
-      - CONTACT_US_URL=http://localhost:3008/contact_us
-      - FEEDBACK_LINK=http://localhost:3008/feedback
-      - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
-      - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
-      - SERVICE_START_PAGE=http://localhost:3008/account
-      - MULTIFUND_URL=http://localhost:3008/account
-      - LOGOUT_URL=http://localhost:3004/sessions/sign-out
-      - PRIVACY_POLICY_URL=http://localhost:3008/privacy
-      - ELIGIBILITY_RESULT_URL=http://localhost:3008/eligibility-result
-      - PREVIEW_MODE=true
-      - NODE_ENV=development
+   
