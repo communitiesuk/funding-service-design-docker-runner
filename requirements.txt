@@ -4,27 +4,9 @@
 #
 #    pip-compile requirements.in
 #
-blinker==1.8.2
-    # via flask
-cachelib==0.9.0
-    # via flask-caching
-click==8.1.7
-    # via flask
+airium==0.2.6
+    # via -r requirements.in
 debugpy==1.8.2
     # via -r requirements.in
-flask==3.0.3
-    # via flask-caching
-flask-caching==2.3.0
-    # via -r requirements.in
-itsdangerous==2.2.0
-    # via flask
-jinja2==3.1.4
-    # via flask
-markupsafe==2.1.5
-    # via
-    #   jinja2
-    #   werkzeug
 python-dotenv==1.0.1
     # via -r requirements.in
-werkzeug==3.0.3
-    # via flask

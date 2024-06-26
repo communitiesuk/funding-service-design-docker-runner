@@ -57,6 +57,11 @@
         section_form.setAttribute("action", "{{url_for('self_serve_bp.preview_form')}}")
         section_form.submit()
     }
+    function allQuestions(){
+        section_form=document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.view_form_questions')}}")
+        section_form.submit()
+    }
 
     document.addEventListener("DOMContentLoaded", loadSortable);
 </script>

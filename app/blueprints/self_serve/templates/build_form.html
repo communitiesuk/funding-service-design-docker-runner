@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput -%}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton -%}
+
 {% block content %}
 <div class="govuk-width-container">
     <div class="govuk-grid-row">
@@ -71,6 +72,10 @@
         {{ govukButton({
         "text": "Preview Form",
         "attributes": {"onclick":"previewForm()"}
+        }) }}
+        {{ govukButton({
+        "text": "View Questions",
+        "attributes": {"onclick":"allQuestions()"}
         }) }}
 
     </div>
