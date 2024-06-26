@@ -1,84 +1,89 @@
 {% extends "base.html" %}
+
 {%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput -%}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton -%}
-
 {% block content %}
-<div class="govuk-width-container">
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l">Create Application Section</h1>
-            <form id="section_form" method="POST" action="{{ url_for('self_serve_bp.generate_json') }}">
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Create Application Form</h1>
+        <form id="section_form" method="POST" action="{{ url_for('self_serve_bp.generate_json') }}">
 
-                <select multiple hidden name="selected_pages" id="frm_selected_pages"></select>
-                {{ govukInput({
-                "label": {
-                "text": "What is the name of this section?",
-                "classes": "govuk-label--s",
-                "isPageHeading": false
-                },
-                "id": "form-name",
-                "name": "formName"
-                }) }}
-            </form>
-        </div>
+            <select multiple hidden name="selected_pages" id="frm_selected_pages"></select>
+            {{ govukInput({
+            "label": {
+            "text": "What is the name of this section?",
+            "classes": "govuk-label--s",
+            "isPageHeading": false
+            },
+            "id": "form-name",
+            "name": "formName"
+            }) }}
+        </form>
     </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-one-half">
-            <div class="govuk-form-group">
-                <h3 class="govuk-heading-s">
-                    Available Pages
-                </h3>
-                <div id="pages-hint" class="govuk-hint">
-                    Drag the pages you want for your section from the list of available pages to the list of selected
-                    pages.
-                </div>
-                <div id="available_pages">
-                    {% for page in available_pages%}
-                    <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue" id="{{page.id}}">{{
-                        page.display_name }}
-                        <div class="tooltiptext">
-                            <h4 class="govuk-heading-xs">{{page.hover_info.title}}</h4>
-                            <ul>
-                                {% for q in page.hover_info.questions %}
-                                    <li>{{q}}</li>
-                                {% endfor %}
-                            </ul>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        <div class="govuk-form-group">
+            <h3 class="govuk-heading-s">
+                Available Pages
+            </h3>
+            <div id="pages-hint" class="govuk-hint">
+                Drag the pages you want for your form from the list of available pages to the list of selected
+                pages.
+            </div>
+            <div id="available_pages">
+                {% for page in available_pages%}
+                <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue" id="{{page.id}}">{{
+                    page.display_name }}
+                    <div class="tooltiptext">
+                        <h4 class="govuk-heading-xs">{{page.hover_info.title}}</h4>
+                        <ul>
+                            {% for q in page.hover_info.questions %}
+                            <li>{{q}}</li>
+                            {% endfor %}
+                        </ul>
 
-                        </div>
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-        </div>
-        <div class="govuk-grid-column-one-half">
-            <div class="govuk-form-group">
-                <h3 class="govuk-heading-s">
-                    Selected Pages
-                </h3>
-                <div id="selected_pages-hint" class="govuk-hint">
-                    Once you have selected the pages to include, reorder them here.
-                </div>
-                <div id="selected_pages">
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-half">
+        <div class="govuk-form-group">
+            <h3 class="govuk-heading-s">
+                Selected Pages
+            </h3>
+            <div id="selected_pages-hint" class="govuk-hint">
+                Once you have selected the pages to include, reorder them here.
+            </div>
+            <div id="selected_pages">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <p>
         {{ govukButton({
-        "text": "Download Form JSON",
-        "attributes": {"onclick":"downloadJson()"},
-        "id": "download_json_btn"
+        "text": "Save",
+        "attributes": {"onclick":"saveForm()"},
         }) }}
         {{ govukButton({
         "text": "Preview Form",
-        "attributes": {"onclick":"previewForm()"}
+        "attributes": {"onclick":"previewForm()"},
+        "classes": "govuk-button--secondary"
         }) }}
         {{ govukButton({
         "text": "View Questions",
-        "attributes": {"onclick":"allQuestions()"}
+        "attributes": {"onclick":"allQuestions()"},
+        "classes": "govuk-button--secondary"
         }) }}
+    </p>
+    <p>
 
-    </div>
+        <a class="govuk-link" onClick="downloadJson()">Download form json</a>
+    </p>
+
 </div>
 
 <style>
@@ -106,7 +111,8 @@
         font-size: smaller;
     }
 
-    .tooltiptext ul, .tooltiptext h4 {
+    .tooltiptext ul,
+    .tooltiptext h4 {
         margin: 1px;
     }
 
@@ -116,3 +122,72 @@
     }
 </style>
 {% endblock %}
+
+{% block bodyEnd %}
+
+
+<script>
+    var selected_sortable;
+
+
+    function updateSelectedPagesInForm() {
+        selected = document.getElementById("selected_pages");
+        selected_form_element = document.getElementById("frm_selected_pages");
+
+        // remove existing selection
+        while (selected_form_element.firstChild) {
+            selected_form_element.removeChild(selected_form_element.lastChild);
+        }
+
+        // add new selection
+        for (page of selected.children) {
+            node = document.createElement("option");
+            node.setAttribute("selected", "true")
+            node.setAttribute("value", page.id)
+            selected_form_element.appendChild(node)
+        }
+
+    }
+
+
+    function loadSortable() {
+        var available_pages = document.getElementById("available_pages");
+        var selected_pages = document.getElementById("selected_pages");
+        new Sortable(available_pages, {
+            group: 'shared', // set both lists to same group
+            animation: 150,
+            sort: false
+        });
+
+        selected_sortable = new Sortable(selected_pages, {
+            group: 'shared',
+            animation: 150,
+            onSort: function () { updateSelectedPagesInForm() }
+        });
+    };
+
+    function downloadJson() {
+        section_form = document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.generate_json')}}")
+        section_form.submit()
+    }
+
+    function previewForm() {
+        section_form = document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.preview_form')}}")
+        section_form.submit()
+    }
+    function allQuestions() {
+        section_form = document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.view_form_questions')}}")
+        section_form.submit()
+    }
+    function saveForm() {
+        section_form = document.getElementById("section_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.save_form_config')}}")
+        section_form.submit()
+    }
+
+    document.addEventListener("DOMContentLoaded", loadSortable);
+</script>
+{% endblock bodyEnd %}

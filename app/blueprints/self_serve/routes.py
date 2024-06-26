@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, Response, redirect, current_app
-from app.data.data_access import get_pages_to_display_in_builder, save_response, get_component_by_name
+from flask import Blueprint, render_template, request, Response, redirect, current_app,url_for, flash
+from app.data.data_access import get_pages_to_display_in_builder, save_response, get_component_by_name, save_form, get_saved_forms
 import json
 from app.question_reuse.generate_form import build_form_json
 import requests, os
@@ -96,3 +96,26 @@ def view_form_questions():
     html = print_html(print_data)
     return render_template("view_questions.html", section_name=title, question_html=html)
 
+
+@self_serve_bp.route("/save_form", methods=["POST"])
+def save_form_config():
+    form_data, title_kebab, title = get_form_json()
+    save_form(title=title_kebab, form_config=form_data)
+    flash(message=f"Form {title} was saved")
+    return redirect(url_for("self_serve_bp.index"))
+
+
+@self_serve_bp.route("build_section")
+def build_section():
+    saved_forms=get_saved_forms()
+    available_forms = []
+    for form_id in saved_forms.keys():
+        form_config=saved_forms.get(form_id)
+        available_forms.append(
+            {
+                "id": form_id,
+                "display_name": form_config["name"],
+                "hover_info": {"title": form_config["name"], "pages": ["p1", "p2"]},
+            }
+        )
+    return render_template("build_section.html",available_forms=available_forms)

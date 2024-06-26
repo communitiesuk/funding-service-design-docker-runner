@@ -11,7 +11,7 @@ import static_assets
 def create_app() -> Flask:
 
     flask_app = Flask("__name__", static_url_path="/assets")
-
+    flask_app.secret_key="dev"
     flask_app.register_blueprint(self_serve_bp)
     flask_app.register_blueprint(dev_bp)
 
