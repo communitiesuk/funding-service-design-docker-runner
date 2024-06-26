@@ -4,5 +4,7 @@
 #
 #    pip-compile requirements.in
 #
+debugpy==1.8.2
+    # via -r requirements.in
 python-dotenv==1.0.1
     # via -r requirements.in

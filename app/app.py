@@ -4,6 +4,7 @@ from jinja2 import PackageLoader, ChoiceLoader
 from flask_assets import Bundle
 from jinja2 import PrefixLoader
 from app.blueprints.self_serve.routes import self_serve_bp
+from app.blueprints.dev.routes import dev_bp
 from flask_assets import Environment
 import static_assets
 
@@ -12,6 +13,7 @@ def create_app() -> Flask:
     flask_app = Flask("__name__", static_url_path="/assets")
 
     flask_app.register_blueprint(self_serve_bp)
+    flask_app.register_blueprint(dev_bp)
 
     # flask_app.static_url_path = "/static"
     flask_app.static_folder = "app/static/dist"

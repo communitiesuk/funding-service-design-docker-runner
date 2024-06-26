@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, Response, redirect
-from app.data.data_access import get_pages_to_display_in_builder
+from flask import Blueprint, render_template, request, Response, redirect, url_for, current_app
+from app.data.data_access import get_pages_to_display_in_builder, save_response
 import json
 from app.question_reuse.generate_form import build_form_json
 import requests, os
@@ -7,6 +7,8 @@ import requests, os
 
 FORM_RUNNER_URL = os.getenv("FORM_RUNNER_INTERNAL_HOST", "http://form-runner:3009")
 FORM_RUNNER_URL_REDIRECT = "http://localhost:3009"
+
+
 
 
 self_serve_bp = Blueprint(
@@ -63,9 +65,26 @@ def preview_form():
     title_kebab = human_to_kebab_case(title)
     input_data = {"title": title_kebab, "pages": pages}
     form_json = build_form_json(title=title, input_json=input_data)
-
+    form_json["outputs"][0]["outputConfiguration"]["savePerPageUrl"] = "http://fsd-self-serve:8080/save"
     response = requests.post(url=f"{FORM_RUNNER_URL}/publish", json={"id": title_kebab, "configuration": form_json})
     return redirect(f"{FORM_RUNNER_URL_REDIRECT}/{title_kebab}")
+
+
+@self_serve_bp.route("/save", methods=["PUT"])
+def save_per_page():
+    current_app.logger.info("Saving request")
+    request_json = request.get_json(force=True)
+    current_app.logger.info(request_json)
+    form_dict = {
+        "application_id": "",
+        "form_name": request_json["name"],
+        "question_json": request_json["questions"],
+        "is_summary_page_submit": request_json["metadata"].get("isSummaryPageSubmit", False),
+    }
+    updated_form = save_response(form_dict=form_dict)
+    return updated_form, 201
+
+
 
 
     # rehydrate_payload = format_runner_payload(

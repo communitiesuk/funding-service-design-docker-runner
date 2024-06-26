@@ -1,5 +1,13 @@
 from app.data.not_a_db import COMPONENTS, PAGES, LISTS
 
+responses = []
+
+def save_response(form_dict:dict) -> dict:
+    responses.append(form_dict)
+    return form_dict
+
+def get_responses() -> list:
+    return responses
 
 def get_component_by_name(component_name: str) -> dict:
     return COMPONENTS.get(component_name, None)
