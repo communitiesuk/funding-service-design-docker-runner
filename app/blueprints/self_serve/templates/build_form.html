@@ -34,7 +34,17 @@
                 <div id="available_pages">
                     {% for page in available_pages%}
                     <div class="tooltip govuk-task-list__item govuk-tag govuk-tag--blue" id="{{page.id}}">{{
-                        page.display_name }}<span class="tooltiptext">{{page.hover_info.title}}</span></div>
+                        page.display_name }}
+                        <div class="tooltiptext">
+                            <h4 class="govuk-heading-xs">{{page.hover_info.title}}</h4>
+                            <ul>
+                                {% for q in page.hover_info.questions %}
+                                    <li>{{q}}</li>
+                                {% endfor %}
+                            </ul>
+
+                        </div>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -76,17 +86,23 @@
 
     /* Tooltip text */
     .tooltip .tooltiptext {
+        width: 300px;
         visibility: hidden;
-        width: 120px;
         background-color: black;
         color: #fff;
-        text-align: center;
-        padding: 5px 0;
+        padding: 5px;
         border-radius: 6px;
 
         /* Position the tooltip text - see examples below! */
         position: absolute;
         z-index: 1;
+        left: 105%;
+
+        font-size: smaller;
+    }
+
+    .tooltiptext ul, .tooltiptext h4 {
+        margin: 1px;
     }
 
     /* Show the tooltip text when you mouse over the tooltip container */

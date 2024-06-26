@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, Response, redirect, url_for, current_app
-from app.data.data_access import get_pages_to_display_in_builder, save_response
+from app.data.data_access import get_pages_to_display_in_builder, save_response, get_component_by_name
 import json
 from app.question_reuse.generate_form import build_form_json
 import requests, os
@@ -29,11 +29,12 @@ def build_form():
     available_pages = []
     pages = get_pages_to_display_in_builder()
     for page in pages:
+        questions = [get_component_by_name(c)["title"] for c in page["component_names"]]
         available_pages.append(
             {
                 "id": page["id"],
                 "display_name": page["builder_display_name"],
-                "hover_info": {"title": page["form_display_name"]},
+                "hover_info": {"title": page["form_display_name"], "questions":questions},
             }
         )
     return render_template("build_form.html", available_pages=available_pages)

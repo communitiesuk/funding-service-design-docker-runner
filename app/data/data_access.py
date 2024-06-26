@@ -9,6 +9,10 @@ def save_response(form_dict:dict) -> dict:
 def get_responses() -> list:
     return responses
 
+def clear_all_responses():
+    responses=[]
+    return
+
 def get_component_by_name(component_name: str) -> dict:
     return COMPONENTS.get(component_name, None)
 
