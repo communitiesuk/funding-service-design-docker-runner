@@ -58,8 +58,9 @@ def human_to_kebab_case(word: str) -> str | None:
 def get_form_json():
     pages = request.form.getlist("selected_pages")
     title = request.form.get("formName", "My Form")
+    intro_content=request.form.get("startPageContent")
     title_kebab = human_to_kebab_case(title)
-    input_data = {"title": title_kebab, "pages": pages}
+    input_data = {"title": title_kebab, "pages": pages, "intro_content": intro_content}
     form_json = build_form_json(title=title, input_json=input_data)
     return form_json, title_kebab, title
 

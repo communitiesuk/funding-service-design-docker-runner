@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {%- from "govuk_frontend_jinja/components/input/macro.html" import govukInput -%}
+{%- from "govuk_frontend_jinja/components/textarea/macro.html" import govukTextarea -%}
 {%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton -%}
 {% block content %}
 <div class="govuk-grid-row">
@@ -11,12 +12,21 @@
             <select multiple hidden name="selected_pages" id="frm_selected_pages"></select>
             {{ govukInput({
             "label": {
-            "text": "What is the name of this section?",
+            "text": "What is the name of this form?",
             "classes": "govuk-label--s",
             "isPageHeading": false
             },
             "id": "form-name",
             "name": "formName"
+            }) }}
+            {{ govukTextarea({
+            "label": {
+            "text": "Start page guidance",
+            "classes": "govuk-label--s",
+            "isPageHeading": false
+            },
+            "id": "startPageContent",
+            "name": "startPageContent"
             }) }}
         </form>
     </div>

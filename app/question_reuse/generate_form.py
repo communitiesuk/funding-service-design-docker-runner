@@ -36,6 +36,7 @@ BASIC_PAGE_STRUCTURE = {
     "options": {},
 }
 
+
 SUMMARY_PAGE = {
     "path": "/summary",
     "title": "Check your answers",
@@ -44,6 +45,7 @@ SUMMARY_PAGE = {
     "section": "uLwBuz",
     "controller": "./pages/summary.js",
 }
+
 
 # Takes in a simple set of conditions and builds them into the form runner format
 def build_conditions(component_name, component: dict) -> list:
@@ -98,6 +100,7 @@ def build_page(input_page_name: str) -> dict:
         page["components"].append(component)
 
     return page
+
 
 # Goes through the set of pages and updates the conditions and next properties to account for branching
 def build_navigation(partial_form_json: dict, input_pages: list[str]) -> dict:
@@ -164,11 +167,30 @@ def build_lists(pages: dict) -> dict:
     return lists
 
 
+def build_start_page_content_component(content: str, pages) -> dict:
+    ask_about='<p class="govuk-body">We will ask you about:</p> <ul>'
+    for page in pages:
+        ask_about+=f"<li>{page['title']}</li>"
+    ask_about += "</ul>"
+
+    result = {
+        "name": "start-page-content",
+        "options": {},
+        "type": "Html",
+        "content": f'<p class="govuk-body">{content}</p>{ask_about}',
+        "schema": {},
+    }
+    return result
+
 # title arg is used for title of first page in form
-def build_form_json( input_json: dict,title:str="Generated Form",) -> dict:
+def build_form_json(input_json: dict, title: str = "Generated Form") -> dict:
 
     results = copy.deepcopy(BASIC_FORM_STRUCTURE)
     results["name"] = title
+
+
+    for page in input_json["pages"]:
+        results["pages"].append(build_page(page))
 
     start_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     start_page.update(
@@ -179,12 +201,12 @@ def build_form_json( input_json: dict,title:str="Generated Form",) -> dict:
             "next": [{"path": f"/{input_json['pages'][0]}"}],
         }
     )
+    if intro_content := input_json.get("intro_content"):
+        content = build_start_page_content_component(content=intro_content, pages=results["pages"])
+        start_page["components"].append(content)
 
     results["pages"].append(start_page)
     results["startPage"] = start_page["path"]
-
-    for page in input_json["pages"]:
-        results["pages"].append(build_page(page))
 
     results = build_navigation(results, input_json["pages"])
 
