@@ -183,10 +183,10 @@ def build_start_page_content_component(content: str, pages) -> dict:
     return result
 
 # title arg is used for title of first page in form
-def build_form_json(input_json: dict, title: str = "Generated Form") -> dict:
+def build_form_json(input_json: dict, form_title: str, form_id: str) -> dict:
 
     results = copy.deepcopy(BASIC_FORM_STRUCTURE)
-    results["name"] = title
+    results["name"] = form_title
 
 
     for page in input_json["pages"]:
@@ -195,8 +195,8 @@ def build_form_json(input_json: dict, title: str = "Generated Form") -> dict:
     start_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     start_page.update(
         {
-            "title": title,
-            "path": f"/intro-{input_json['title']}",
+            "title": form_title,
+            "path": f"/intro-{form_id}",
             "controller": "./pages/start.js",
             "next": [{"path": f"/{input_json['pages'][0]}"}],
         }
