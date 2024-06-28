@@ -1,10 +1,11 @@
 from flask import Blueprint, render_template, request, Response, redirect, current_app, url_for, flash
+from app.blueprints.self_serve.forms.question_form import QuestionForm
 from app.data.data_access import (
     get_pages_to_display_in_builder,
     save_response,
     get_component_by_name,
     save_form,
-    get_saved_forms,
+    get_saved_forms, save_question
 )
 import json
 from app.question_reuse.generate_form import build_form_json
@@ -134,3 +135,14 @@ def build_section():
             }
         )
     return render_template("build_section.html", available_forms=available_forms)
+
+
+@self_serve_bp.route('/add_question', methods=['GET', 'POST'])
+def add_question():
+    form = QuestionForm()
+    question=form.as_dict()
+    if form.validate_on_submit():
+        save_question(question)
+        flash(message=f"Question '{question['title']}' was saved")
+        return redirect(url_for("self_serve_bp.index"))
+    return render_template('add_question.html', form=form)

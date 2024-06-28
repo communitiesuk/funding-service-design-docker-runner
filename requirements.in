@@ -1,3 +1,4 @@
 python-dotenv
 debugpy
 airium
+flask-wtf

@@ -46,3 +46,13 @@ def get_page_by_id(id: str) -> dict:
 
 def get_list_by_id(id: str) -> dict:
     return LISTS.get(id, None)
+
+
+def save_question(question: dict):
+    COMPONENTS[question["id"]] = {
+        "options": {},
+        "type": question["question_type"],
+        "title": question["title"],
+        "hint":question["hint"],
+        "schema": {},
+    },
