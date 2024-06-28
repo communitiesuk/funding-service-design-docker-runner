@@ -82,14 +82,14 @@ def test_get_all_pages_for_builder(mocker, all_pages, exp_length):
     assert len(results) == exp_length
 
 
-TEST_COMPONENTS = {"name1": {"a": "b"}, "name2": {}}
+TEST_COMPONENTS = [{"id":"name1","a": "b"}, {"id":"name2"}]
 
 
 @pytest.mark.parametrize(
     "all_components, name, exp_result",
     [
         ({}, "anything", None),
-        (TEST_COMPONENTS, "name1", {"a": "b"}),
+        (TEST_COMPONENTS, "name1", {"a": "b", "id":"name1"}),
         (TEST_COMPONENTS, "not_in_list", None),
     ],
 )

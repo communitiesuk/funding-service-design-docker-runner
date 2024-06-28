@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, Response, redirect, current_app, url_for, flash
 from app.blueprints.self_serve.forms.question_form import QuestionForm
+from app.blueprints.self_serve.forms.page_form import PageForm
 from app.data.data_access import (
-    get_pages_to_display_in_builder,
+    get_pages_to_display_in_builder, get_all_components,
     save_response,
     get_component_by_name,
     save_form,
@@ -123,18 +124,19 @@ def save_form_config():
 
 @self_serve_bp.route("build_section")
 def build_section():
-    saved_forms = get_saved_forms()
-    available_forms = []
-    for form_id in saved_forms.keys():
-        form_config = saved_forms.get(form_id)
-        available_forms.append(
-            {
-                "id": form_id,
-                "display_name": form_config["name"],
-                "hover_info": {"title": form_config["name"], "pages": ["p1", "p2"]},
-            }
-        )
-    return render_template("build_section.html", available_forms=available_forms)
+    pass
+#     saved_forms = get_saved_forms()
+#     available_forms = []
+#     for form_id in saved_forms.keys():
+#         form_config = saved_forms.get(form_id)
+#         available_forms.append(
+#             {
+#                 "id": form_id,
+#                 "display_name": form_config["name"],
+#                 "hover_info": {"title": form_config["name"], "pages": ["p1", "p2"]},
+#             }
+#         )
+#     return render_template("build_section.html", available_forms=available_forms)
 
 
 @self_serve_bp.route('/add_question', methods=['GET', 'POST'])
@@ -146,3 +148,16 @@ def add_question():
         flash(message=f"Question '{question['title']}' was saved")
         return redirect(url_for("self_serve_bp.index"))
     return render_template('add_question.html', form=form)
+
+
+@self_serve_bp.route("/build_page", methods=["GET", "POST"])
+def build_page():
+    form=PageForm()
+    if form.validate_on_submit():
+        current_app.logger.info(form.as_dict())
+        pass
+    components=get_all_components()
+    available_questions=[{"id":c["id"], 
+                "display_name": c["builder_display_name"] or c["id"],
+                "hover_info": {"title": c["json_snippet"]["title"]}} for c in components]
+    return render_template("build_page.html", form=form, available_questions=available_questions)

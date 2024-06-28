@@ -27,9 +27,12 @@ def clear_all_responses():
     responses = []
     return
 
+def get_all_components() -> list:
+    return COMPONENTS
+
 
 def get_component_by_name(component_name: str) -> dict:
-    return COMPONENTS.get(component_name, None)
+    return next((c for c in COMPONENTS if c["id"] == component_name), None)
 
 
 def get_all_pages() -> list:
@@ -49,10 +52,13 @@ def get_list_by_id(id: str) -> dict:
 
 
 def save_question(question: dict):
-    COMPONENTS[question["id"]] = {
-        "options": {},
-        "type": question["question_type"],
-        "title": question["title"],
-        "hint":question["hint"],
-        "schema": {},
-    },
+    COMPONENTS.append(
+    {
+        "json_snippet": {
+            "options": {},
+            "type": question["question_type"],
+            "title": question["title"],
+        },
+        "id": question["id"],
+        "builder_display_name": question["question_type"],
+    })
