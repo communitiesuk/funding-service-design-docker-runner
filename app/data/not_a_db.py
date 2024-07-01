@@ -191,21 +191,21 @@ COMPONENTS = [
             "type": "YesNoField",
             "title": "Is the lead contact the same person as the authorised signatory?",
             "hint": '<p class=\\"govuk-hint\\">An authorised signatory:<ul class=\\"govuk-list govuk-list--bullet govuk-hint\\"> <li>is allowed to act on behalf of the organisation</li> <li>will sign the grant funding agreement if your application is successful</li></ul></p>',
-            "conditions": [
-                {
-                    "name": "lead_contact_same_as_signatory_yes",
-                    "value": "True",
-                    "operator": "is",
-                    "destination_page": "CONTINUE",
-                },
-                {
-                    "name": "lead_contact_same_as_signatory_no",
-                    "value": "False",
-                    "operator": "is",
-                    "destination_page": "authorised-signatory-details",
-                },
-            ],
         },
+        "conditions": [
+            {
+                "name": "lead_contact_same_as_signatory_yes",
+                "value": "True",
+                "operator": "is",
+                "destination_page": "CONTINUE",
+            },
+            {
+                "name": "lead_contact_same_as_signatory_no",
+                "value": "False",
+                "operator": "is",
+                "destination_page": "authorised-signatory-details",
+            },
+        ],
         "id": "reuse_is_lead_contact_same_as_auth_signatory",
         "builder_display_name": "",
     },

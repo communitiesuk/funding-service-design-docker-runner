@@ -40,25 +40,34 @@ mock_lookups = {
     "organisation-name": "Organisation Name",
     "organisation-single-name": "Organisation Name",
 }
-mock_components = {
-    "reuse-charitable-objects": {
-        "options": {"hideTitle": True, "maxWords": "500"},
-        "type": "FreeTextField",
-        "title": "What are your organisation’s charitable objects?",
-        "hint": "You can find this in your organisation's governing document.",
+mock_components = [
+    {
+        "id": "reuse-charitable-objects",
+        "json_snippet": {
+            "options": {"hideTitle": True, "maxWords": "500"},
+            "type": "FreeTextField",
+            "title": "What are your organisation’s charitable objects?",
+            "hint": "You can find this in your organisation's governing document.",
+        },
     },
-    "reuse-organisation-name": {
-        "options": {"hideTitle": False, "classes": "govuk-!-width-full"},
-        "type": "TextField",
-        "title": "Organisation name",
-        "hint": "This must match your registered legal organisation name",
-        "schema": {},
+    {
+        "id": "reuse-organisation-name",
+        "json_snippet": {
+            "options": {"hideTitle": False, "classes": "govuk-!-width-full"},
+            "type": "TextField",
+            "title": "Organisation name",
+            "hint": "This must match your registered legal organisation name",
+            "schema": {},
+        },
     },
-    "reuse_organisation_other_names_yes_no": {
-        "options": {},
-        "type": "YesNoField",
-        "title": "Does your organisation use any other names?",
-        "schema": {},
+    {
+        "id": "reuse_organisation_other_names_yes_no",
+        "json_snippet": {
+            "options": {},
+            "type": "YesNoField",
+            "title": "Does your organisation use any other names?",
+            "schema": {},
+        },
         "conditions": [
             {
                 "name": "organisation_other_names_no",
@@ -74,25 +83,34 @@ mock_components = {
             },
         ],
     },
-    "reuse-alt-org-name-1": {
-        "options": {"classes": "govuk-input"},
-        "type": "TextField",
-        "title": "Alternative name 1",
-        "schema": {},
+    {
+        "id": "reuse-alt-org-name-1",
+        "json_snippet": {
+            "options": {"classes": "govuk-input"},
+            "type": "TextField",
+            "title": "Alternative name 1",
+            "schema": {},
+        },
     },
-    "reuse-alt-org-name-2": {
-        "options": {"required": False, "classes": "govuk-input"},
-        "type": "TextField",
-        "title": "Alternative name 2",
-        "schema": {},
+    {
+        "id": "reuse-alt-org-name-2",
+        "json_snippet": {
+            "options": {"required": False, "classes": "govuk-input"},
+            "type": "TextField",
+            "title": "Alternative name 2",
+            "schema": {},
+        },
     },
-    "reuse-alt-org-name-3": {
-        "options": {"required": False, "classes": "govuk-input"},
-        "type": "TextField",
-        "title": "Alternative name 3",
-        "schema": {},
+    {
+        "id": "reuse-alt-org-name-3",
+        "json_snippet": {
+            "options": {"required": False, "classes": "govuk-input"},
+            "type": "TextField",
+            "title": "Alternative name 3",
+            "schema": {},
+        },
     },
-}
+]
 mock_pages = [
     {
         "id": "organisation-single-name",
@@ -132,7 +150,6 @@ mock_pages = [
         "show_in_builder": False,
     },
 ]
-
 
 
 @pytest.mark.parametrize(
@@ -178,8 +195,10 @@ def test_build_page(mocker, input_page_name, exp_result):
                 "conditions": [
                     {"name": "test_condition", "operator": "is", "value": "yes"},
                 ],
-                "type": "test_type",
-                "title": "test_title",
+                "json_snippet": {
+                    "type": "test_type",
+                    "title": "test_title",
+                },
             },
             [
                 {
@@ -213,8 +232,10 @@ def test_build_page(mocker, input_page_name, exp_result):
                     {"name": "test_condition", "operator": "is", "value": "yes"},
                     {"name": "test_condition2", "operator": "is", "value": "no"},
                 ],
-                "type": "test_type",
-                "title": "test_title",
+                "json_snippet": {
+                    "type": "test_type",
+                    "title": "test_title",
+                },
             },
             [
                 {
