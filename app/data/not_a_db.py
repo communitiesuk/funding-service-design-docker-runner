@@ -90,21 +90,21 @@ COMPONENTS = [
             "type": "YesNoField",
             "title": "Does your organisation use any other names?",
             "schema": {},
-            "conditions": [
-                {
-                    "name": "organisation_other_names_no",
-                    "value": "False",
-                    "operator": "is",
-                    "destination_page": "CONTINUE",
-                },
-                {
-                    "name": "organisation_other_names_yes",
-                    "value": "True",
-                    "operator": "is",
-                    "destination_page": "alternative-organisation-name",
-                },
-            ],
         },
+        "conditions": [
+            {
+                "name": "organisation_other_names_no",
+                "value": "False",
+                "operator": "is",
+                "destination_page": "CONTINUE",
+            },
+            {
+                "name": "organisation_other_names_yes",
+                "value": "True",
+                "operator": "is",
+                "destination_page": "alternative-organisation-name",
+            },
+        ],
         "id": "reuse_organisation_other_names_yes_no",
         "builder_display_name": "",
     },

@@ -51,6 +51,7 @@ SUMMARY_PAGE = {
 def build_conditions(component_name, component: dict) -> list:
     results = []
     for condition in component["conditions"]:
+        json = component["json_snippet"]
         result = {
             "displayName": condition["name"],
             "name": condition["name"],
@@ -60,8 +61,8 @@ def build_conditions(component_name, component: dict) -> list:
                     {
                         "field": {
                             "name": component_name,
-                            "type": component["type"],
-                            "display": component["title"],
+                            "type": json["type"],
+                            "display": json["title"],
                         },
                         "operator": condition["operator"],
                         "value": {
