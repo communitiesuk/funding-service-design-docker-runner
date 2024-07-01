@@ -1,6 +1,6 @@
 from wtforms import RadioField
 from wtforms import StringField
-from wtforms.validators import InputRequired
+from wtforms.validators import InputRequired, Optional
 from flask_wtf import FlaskForm
 from wtforms.widgets import RadioInput
 
@@ -20,13 +20,14 @@ class QuestionForm(FlaskForm):
         validators=[InputRequired(message="Supply a unique ID")],
     )
     title = StringField(label="Question text", validators=[InputRequired(message="Supply a question title")])
-    hint = StringField(label="Hint text")
+    hint = StringField(label="Hint text (Optional)", validators=[Optional()])
     question_type = GovUkRadioField(
         label="Question type",
         validators=[InputRequired(message="Select question type")],
         choices=[("TextField", "Short text"), ("FreeTextField", "Multi line text")],
         widget=RadioInput,
     )
+    builder_display_name = StringField(label="Name to display in this tool", default=None)
 
     # list
     # conditions

@@ -91,7 +91,7 @@ def build_page(input_page_name: str) -> dict:
     if controller := input_page.get("controller", None):
         page["controller"] = controller
     for component_name in input_page["component_names"]:
-        component = copy.deepcopy(get_component_by_name(component_name))
+        component = copy.deepcopy(get_component_by_name(component_name)["json_snippet"])
         component["name"] = component_name
         conditions = component.get("conditions", None)
         if conditions:

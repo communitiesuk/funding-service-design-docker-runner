@@ -47,6 +47,9 @@ def get_page_by_id(id: str) -> dict:
     return next((p for p in PAGES if p["id"] == id), None)
 
 
+def save_page(page:dict):
+    PAGES.append(page)
+
 def get_list_by_id(id: str) -> dict:
     return LISTS.get(id, None)
 
@@ -58,7 +61,8 @@ def save_question(question: dict):
             "options": {},
             "type": question["question_type"],
             "title": question["title"],
+            "hint":question["hint"]
         },
         "id": question["id"],
-        "builder_display_name": question["question_type"],
+        "builder_display_name": question["builder_display_name"],
     })

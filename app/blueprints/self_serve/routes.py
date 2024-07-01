@@ -2,11 +2,14 @@ from flask import Blueprint, render_template, request, Response, redirect, curre
 from app.blueprints.self_serve.forms.question_form import QuestionForm
 from app.blueprints.self_serve.forms.page_form import PageForm
 from app.data.data_access import (
-    get_pages_to_display_in_builder, get_all_components,
+    get_pages_to_display_in_builder,
+    get_all_components,
     save_response,
     get_component_by_name,
     save_form,
-    get_saved_forms, save_question
+    save_page,
+    get_saved_forms,
+    save_question,
 )
 import json
 from app.question_reuse.generate_form import build_form_json
@@ -36,7 +39,10 @@ def build_form():
     available_pages = []
     pages = get_pages_to_display_in_builder()
     for page in pages:
-        questions = [get_component_by_name(c)["title"] for c in page["component_names"]]
+        questions = [
+            x["json_snippet"]["title"] if (x := get_component_by_name(comp_name)) else comp_name
+            for comp_name in page["component_names"]
+        ]
         available_pages.append(
             {
                 "id": page["id"],
@@ -76,26 +82,11 @@ def generate_form_config_from_request():
 @self_serve_bp.route("/preview", methods=["POST"])
 def preview_form():
     form_config = generate_form_config_from_request()
-    form_config["form_json"]["outputs"][0]["outputConfiguration"]["savePerPageUrl"] = "http://fsd-self-serve:8080/save"
+    form_config["form_json"]["outputs"][0]["outputConfiguration"]["savePerPageUrl"] = "http://fsd-self-serve:8080/dev/save"
     response = requests.post(
         url=f"{FORM_RUNNER_URL}/publish", json={"id": form_config["form_id"], "configuration": form_config["form_json"]}
     )
     return redirect(f"{FORM_RUNNER_URL_REDIRECT}/{form_config['form_id']}")
-
-
-@self_serve_bp.route("/save", methods=["PUT"])
-def save_per_page():
-    current_app.logger.info("Saving request")
-    request_json = request.get_json(force=True)
-    current_app.logger.info(request_json)
-    form_dict = {
-        "application_id": "",
-        "form_name": request_json["name"],
-        "question_json": request_json["questions"],
-        "is_summary_page_submit": request_json["metadata"].get("isSummaryPageSubmit", False),
-    }
-    updated_form = save_response(form_dict=form_dict)
-    return updated_form, 201
 
 
 @self_serve_bp.route("/form_questions", methods=["POST"])
@@ -125,6 +116,8 @@ def save_form_config():
 @self_serve_bp.route("build_section")
 def build_section():
     pass
+
+
 #     saved_forms = get_saved_forms()
 #     available_forms = []
 #     for form_id in saved_forms.keys():
@@ -139,25 +132,38 @@ def build_section():
 #     return render_template("build_section.html", available_forms=available_forms)
 
 
-@self_serve_bp.route('/add_question', methods=['GET', 'POST'])
+@self_serve_bp.route("/add_question", methods=["GET", "POST"])
 def add_question():
     form = QuestionForm()
-    question=form.as_dict()
+    question = form.as_dict()
     if form.validate_on_submit():
         save_question(question)
         flash(message=f"Question '{question['title']}' was saved")
         return redirect(url_for("self_serve_bp.index"))
-    return render_template('add_question.html', form=form)
+    return render_template("add_question.html", form=form)
 
 
 @self_serve_bp.route("/build_page", methods=["GET", "POST"])
 def build_page():
-    form=PageForm()
+    form = PageForm()
     if form.validate_on_submit():
-        current_app.logger.info(form.as_dict())
-        pass
-    components=get_all_components()
-    available_questions=[{"id":c["id"], 
-                "display_name": c["builder_display_name"] or c["id"],
-                "hover_info": {"title": c["json_snippet"]["title"]}} for c in components]
+        new_page = {
+            "id": form.id.data,
+            "builder_display_name": form.builder_display_name.data,
+            "form_display_name": form.form_display_name.data,
+            "component_names": form.selected_components.data,
+            "show_in_builder": True,
+        }
+        save_page(new_page)
+        flash(message=f"Page '{form.builder_display_name.data}' was saved")
+        return redirect(url_for("self_serve_bp.index"))
+    components = get_all_components()
+    available_questions = [
+        {
+            "id": c["id"],
+            "display_name": c["builder_display_name"] or c["id"],
+            "hover_info": {"title": c["json_snippet"]["title"]},
+        }
+        for c in components
+    ]
     return render_template("build_page.html", form=form, available_questions=available_questions)
