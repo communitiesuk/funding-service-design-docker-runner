@@ -1,15 +1,16 @@
-from flask import Blueprint, render_template, request, Response, redirect, current_app, url_for, flash
+from flask import Blueprint, render_template, request, Response, redirect, url_for, flash
 from app.blueprints.self_serve.forms.question_form import QuestionForm
 from app.blueprints.self_serve.forms.page_form import PageForm
+from app.blueprints.self_serve.forms.form_form import FormForm
+from app.blueprints.self_serve.forms.section_form import SectionForm
 from app.data.data_access import (
     get_pages_to_display_in_builder,
     get_all_components,
-    save_response,
     get_component_by_name,
     save_form,
     save_page,
     get_saved_forms,
-    save_question,
+    save_question, save_section
 )
 import json
 from app.question_reuse.generate_form import build_form_json
@@ -34,8 +35,21 @@ def index():
     return render_template("index.html")
 
 
-@self_serve_bp.route("/build_form")
+@self_serve_bp.route("/build_form", methods=["GET", "POST"])
 def build_form():
+    form = FormForm()
+    if form.validate_on_submit():        
+        new_form = {
+            "builder_display_name": form.builder_display_name.data,
+            "start_page_guidance": form.start_page_guidance.data,
+            "form_display_name": form.form_title.data,
+            "id": human_to_kebab_case(form.form_title.data),
+            "pages": form.selected_pages.data
+        }
+        save_form(new_form)
+        flash(message=f'Form {new_form["form_display_name"]} was saved')
+        return redirect(url_for("self_serve_bp.index"))
+
     available_pages = []
     pages = get_pages_to_display_in_builder()
     for page in pages:
@@ -50,7 +64,7 @@ def build_form():
                 "hover_info": {"title": page["form_display_name"], "questions": questions},
             }
         )
-    return render_template("build_form.html", available_pages=available_pages)
+    return render_template("build_form.html", available_pages=available_pages, form=form)
 
 
 @self_serve_bp.route("/download_json", methods=["POST"])
@@ -105,31 +119,25 @@ def view_form_questions():
     return render_template("view_questions.html", section_name=form_config["title"], question_html=html)
 
 
-@self_serve_bp.route("/save_form", methods=["POST"])
-def save_form_config():
-    form_config = generate_form_config_from_request()
-    save_form(title=form_config["form_id"], form_config=form_config["form_json"])
-    flash(message=f"Form {form_config['title']} was saved")
-    return redirect(url_for("self_serve_bp.index"))
-
-
-@self_serve_bp.route("build_section")
+@self_serve_bp.route("build_section", methods=["GET", "POST"])
 def build_section():
-    pass
+    form = SectionForm()
+    if form.validate_on_submit():
+        save_section(form.as_dict())
+        flash(message=f"Section '{form['builder_display_name'].data}' was saved")
+        return redirect(url_for("self_serve_bp.index"))
 
-
-#     saved_forms = get_saved_forms()
-#     available_forms = []
-#     for form_id in saved_forms.keys():
-#         form_config = saved_forms.get(form_id)
-#         available_forms.append(
-#             {
-#                 "id": form_id,
-#                 "display_name": form_config["name"],
-#                 "hover_info": {"title": form_config["name"], "pages": ["p1", "p2"]},
-#             }
-#         )
-#     return render_template("build_section.html", available_forms=available_forms)
+    saved_forms = get_saved_forms()
+    available_forms = []
+    for f in saved_forms:
+        available_forms.append(
+            {
+                "id": f["id"],
+                "display_name": f["builder_display_name"],
+                "hover_info": {"title": f["builder_display_name"], "pages":f["pages"]},
+            }
+        )
+    return render_template("build_section.html", available_forms=available_forms, form=form)
 
 
 @self_serve_bp.route("/add_question", methods=["GET", "POST"])
@@ -167,3 +175,19 @@ def build_page():
         for c in components
     ]
     return render_template("build_page.html", form=form, available_questions=available_questions)
+
+@self_serve_bp.route("/section_questions", methods=["POST"])
+def view_section_questions():
+    # form_config = generate_form_config_from_request()
+    # print_data = generate_print_data_for_sections(
+    #     sections=[
+    #         {
+    #             "section_title": form_config["title"],
+    #             "forms": [{"name": form_config["form_id"], "form_data": form_config["form_json"]}],
+    #         }
+    #     ],
+    #     lang="en",
+    # )
+    # html = print_html(print_data)
+    return render_template("view_questions.html", section_name=form_config["title"], question_html=html)
+

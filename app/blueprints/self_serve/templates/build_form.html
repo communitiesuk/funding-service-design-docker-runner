@@ -7,27 +7,41 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
         <h1 class="govuk-heading-l">Create Application Form</h1>
-        <form id="section_form" method="POST" action="{{ url_for('self_serve_bp.generate_json') }}">
+        <form id="form_form" method="POST">
 
             <select multiple hidden name="selected_pages" id="frm_selected_pages"></select>
+            {{ form.hidden_tag() }}
             {{ govukInput({
             "label": {
-            "text": "What is the name of this form?",
-            "classes": "govuk-label--s",
+            "text": form.builder_display_name.label ,
             "isPageHeading": false
             },
-            "id": "form-name",
-            "name": "formName"
+            "id": form.builder_display_name.id,
+            "name": form.builder_display_name.name,
+            "value": form.builder_display_name.data,
+            "errorMessage":  {"text": form.errors.get('builder_display_name')[0]} if form.errors.get('builder_display_name') else None
+            }) }}
+            {{ govukInput({
+            "label": {
+            "text": form.form_title.label ,
+            "isPageHeading": false
+            },
+            "id": form.form_title.id,
+            "name": form.form_title.name,
+            "value": form.form_title.data,
+            "errorMessage":  {"text": form.errors.get('form_title')[0]} if form.errors.get('form_title') else None
             }) }}
             {{ govukTextarea({
             "label": {
-            "text": "Start page guidance",
-            "classes": "govuk-label--s",
+            "text": form.start_page_guidance.label ,
             "isPageHeading": false
             },
-            "id": "startPageContent",
-            "name": "startPageContent"
+            "id": form.start_page_guidance.id,
+            "name": form.start_page_guidance.name,
+            "value": form.start_page_guidance.data,
+            "errorMessage":  {"text": form.errors.get('start_page_guidance')[0]} if form.errors.get('start_page_guidance') else None
             }) }}
+
         </form>
     </div>
 </div>
@@ -177,24 +191,24 @@
     };
 
     function downloadJson() {
-        section_form = document.getElementById("section_form")
+        section_form = document.getElementById("form_form")
         section_form.setAttribute("action", "{{url_for('self_serve_bp.generate_json')}}")
         section_form.submit()
     }
 
     function previewForm() {
-        section_form = document.getElementById("section_form")
+        section_form = document.getElementById("form_form")
         section_form.setAttribute("action", "{{url_for('self_serve_bp.preview_form')}}")
         section_form.submit()
     }
     function allQuestions() {
-        section_form = document.getElementById("section_form")
+        section_form = document.getElementById("form_form")
         section_form.setAttribute("action", "{{url_for('self_serve_bp.view_form_questions')}}")
         section_form.submit()
     }
     function saveForm() {
-        section_form = document.getElementById("section_form")
-        section_form.setAttribute("action", "{{url_for('self_serve_bp.save_form_config')}}")
+        section_form = document.getElementById("form_form")
+        section_form.setAttribute("action", "{{url_for('self_serve_bp.build_form')}}")
         section_form.submit()
     }
 

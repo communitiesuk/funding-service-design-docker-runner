@@ -130,7 +130,7 @@ COMPONENTS = [
     },
     {
         "json_snippet": {
-            "options": {"prefix": "\\u00a3", "hideTitle": True, "classes": "govuk-input--width-10"},
+            "options": {"prefix": "\u00a3", "hideTitle": True, "classes": "govuk-input--width-10"},
             "type": "NumberField",
             "title": "Annual turnover for 1 April 2022 to 31 March 2023",
             "hint": '<label class=\\"govuk-body\\" for=\\"YauUjZ\\">1 April 2022 to 31 March 2023</label>',
@@ -140,7 +140,7 @@ COMPONENTS = [
     },
     {
         "json_snippet": {
-            "options": {"prefix": "\\u00a3", "hideTitle": True, "classes": "govuk-input--width-10"},
+            "options": {"prefix": "\u00a3", "hideTitle": True, "classes": "govuk-input--width-10"},
             "type": "NumberField",
             "hint": '<label class=\\"govuk-body\\" for=\\"zuCRBk\\">1 April 2021 to 31 March 2022</label>',
             "title": "Annual turnover for 1 April 2021 to 31 March 2022",
@@ -396,7 +396,7 @@ PAGES = [
         "show_in_builder": False,
     },
 ]
-
+SECTIONS = []
 LISTS = {
     "list_ns_membership_organisations": {
         "type": "string",
@@ -408,3 +408,15 @@ LISTS = {
         ],
     }
 }
+FORMS=[
+      {
+        "id": "org-info",
+        "builder_display_name": "Organisation Information (Simple)",
+        "form_display_name": "Organisation Information",
+        "start_page_guidance": "This form will collect information about your organisation",
+        "pages": [
+            "organisation-single-name",
+            "organisation-address",
+        ],
+    },  
+]

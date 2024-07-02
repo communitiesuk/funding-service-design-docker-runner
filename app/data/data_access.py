@@ -1,18 +1,24 @@
-from app.data.not_a_db import COMPONENTS, PAGES, LISTS
+from app.data.not_a_db import COMPONENTS, PAGES, LISTS, FORMS, SECTIONS
 
 saved_responses = []
-saved_forms = {}
+saved_sections = {}
 
-def save_form(title,form_config):
-    saved_forms[title] = form_config
+
+def save_form(form_config):
+    FORMS.append(form_config)
 
 
 def get_saved_forms():
-    return saved_forms
+    return FORMS
 
-def clear_saved_forms():
-    saved_forms = {}
-    return
+
+def get_all_sections():
+    return SECTIONS
+
+# def clear_saved_forms():
+#     saved_forms = {}
+#     return
+
 
 def save_response(form_dict: dict) -> dict:
     saved_responses.append(form_dict)
@@ -26,6 +32,7 @@ def get_responses() -> list:
 def clear_all_responses():
     responses = []
     return
+
 
 def get_all_components() -> list:
     return COMPONENTS
@@ -47,8 +54,9 @@ def get_page_by_id(id: str) -> dict:
     return next((p for p in PAGES if p["id"] == id), None)
 
 
-def save_page(page:dict):
+def save_page(page: dict):
     PAGES.append(page)
+
 
 def get_list_by_id(id: str) -> dict:
     return LISTS.get(id, None)
@@ -56,13 +64,18 @@ def get_list_by_id(id: str) -> dict:
 
 def save_question(question: dict):
     COMPONENTS.append(
-    {
-        "json_snippet": {
-            "options": {},
-            "type": question["question_type"],
-            "title": question["title"],
-            "hint":question["hint"]
-        },
-        "id": question["id"],
-        "builder_display_name": question["builder_display_name"],
-    })
+        {
+            "json_snippet": {
+                "options": {},
+                "type": question["question_type"],
+                "title": question["title"],
+                "hint": question["hint"],
+            },
+            "id": question["id"],
+            "builder_display_name": question["builder_display_name"],
+        }
+    )
+
+
+def save_section(section:dict):
+    SECTIONS.append(section)
