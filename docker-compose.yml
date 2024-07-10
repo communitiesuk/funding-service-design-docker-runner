@@ -27,7 +27,7 @@ services:
   application-store:
     build:
       context: ../funding-service-design-application-store
-    command: bash -c "flask db upgrade && python -m flask run -p 8080 -h 0.0.0.0"
+    command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
@@ -194,9 +194,9 @@ services:
       - localstack
     environment:
       - FLASK_ENV=development
-        - FUND_STORE_API_HOST=http://fund-store:8080
+      - FUND_STORE_API_HOST=http://fund-store:8080
       - APPLICATION_STORE_API_HOST=http://application-store:8080
-      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8000
+      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=http://localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
