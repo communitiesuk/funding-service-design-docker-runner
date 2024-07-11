@@ -86,7 +86,7 @@ services:
       build:
         context: ../funding-service-design-assessment-store
       volumes: ['../funding-service-design-assessment-store:/app']
-      command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
+      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
       ports:
         - 3005:8080
         - 5685:5678
