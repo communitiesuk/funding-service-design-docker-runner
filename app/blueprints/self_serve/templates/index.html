@@ -5,28 +5,38 @@
 <div class="govuk-width-container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-            {% set html %}
-            <p class="govuk-notification-banner__body">
-            {{messages[0]}}
-            </p>
-            {% endset %}
-    
-        {{ govukNotificationBanner({
-        "html": html
-        }) }}
+    {% set html %}
+    <p class="govuk-notification-banner__body">
+        {{messages[0]}}
+    </p>
+    {% endset %}
+
+    {{ govukNotificationBanner({
+    "html": html
+    }) }}
     {% endif %}
     {% endwith %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-m">What do you want to do?</h1>
+            <h2 class="govuk-heading-s">Application Setup</h2>
             <ul class="govuk-body">
-                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.add_question')}}">Add a Question</a></li>
-                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.build_page')}}">Create a Page</a></li>
+                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.add_question')}}">Add a
+                        Question</a></li>
+                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.build_page')}}">Create a
+                        Page</a></li>
 
                 <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.build_form')}}">Create an
                         Application Form</a></li>
-                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.build_section')}}">Create a Section (Group Forms)</a></li>
-           
+                <li class="govuk-body"><a class="govuk-link" href="{{ url_for('self_serve_bp.build_section')}}">Create a
+                        Section (Group Forms)</a></li>
+
+            </ul>
+            <h2 class="govuk-heading-s">Fund Metadata</h2>
+            <ul class="govuk-body">
+                <li class="govuk-body"><a class="govuk-link" href="{{url_for('build_fund_bp.fund')}}">Add a Fund</a></li>
+                <li class="govuk-body"><a class="govuk-link" href="{{url_for('build_fund_bp.round')}}">Add a Round</a></li>
+                <li class="govuk-body"><a class="govuk-link" href="{{url_for('build_fund_bp.view_fund')}}">View Fund and Round Config</a></li>
             </ul>
         </div>
     </div>

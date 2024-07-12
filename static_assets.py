@@ -1,8 +1,8 @@
 """Compile static assets."""
+
 from os import path
 
 from flask import Flask
-from flask_assets import Bundle
 from flask_assets import Environment
 
 

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "macros/wtfToGovUk.html" import input %}
+{% from "macros/wtfToGovUk.html" import yes_no %}
+{%- from "govuk_frontend_jinja/components/button/macro.html" import govukButton -%}
+{% block content %}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+        <h1 class="govuk-heading-l">Create a Fund</h1>
+        <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+                <form method="POST">
+
+                    {{ form.hidden_tag()}}
+
+                    {{input(form.name_en)}}
+                    {{input(form.title_en)}}
+                    {{input(form.short_name)}}
+                    {{input(form.description_en)}}
+                    {{yes_no(form.welsh_available)}}
+                    {{ govukButton({
+                    "text": "Save"
+                    }) }}
+                </form>
+            </fieldset>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,4 +1,3 @@
-
 def determine_display_value_for_condition(
     condition_value: str,
     list_name: str = None,

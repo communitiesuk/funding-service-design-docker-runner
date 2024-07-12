@@ -1,6 +1,5 @@
 from airium import Airium  # noqa: E402
 
-
 # Initialise Airium html printer
 air = Airium()
 
@@ -118,6 +117,5 @@ def print_html(sections: dict) -> str:
     # Concatenate start html, generated html and end html to one string and return
     # html = f"{BOILERPLATE_START}{str(air)}{BOILERPLATE_END}"
     return str(air)
-    print(html)
-    return html
-
+    # print(html)
+    # return html

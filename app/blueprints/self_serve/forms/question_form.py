@@ -1,7 +1,8 @@
+from flask_wtf import FlaskForm
 from wtforms import RadioField
 from wtforms import StringField
-from wtforms.validators import InputRequired, Optional
-from flask_wtf import FlaskForm
+from wtforms.validators import InputRequired
+from wtforms.validators import Optional
 from wtforms.widgets import RadioInput
 
 

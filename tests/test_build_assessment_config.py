@@ -1,68 +1,32 @@
-import copy
-import json
-
-from app.question_reuse.generate_assessment_config import (
-    build_assessment_config,
-)
-
-TEST_DATA_UNSCORED_NO_SUBCRITERIA = {
-    "unscored_sections": [
-        {"id": "unscored", "subcriteria": []},
-        {"id": "declarations", "subcriteria": []},
-    ]
-}
+from app.question_reuse.generate_assessment_config import build_assessment_config
+from tests.unit_test_data import cri1
+from tests.unit_test_data import crit_1_id
+from tests.unit_test_data import mock_form_1
 
 
-TEST_DATA_UNSCORED_WITH_SUBCRITERIA = copy.deepcopy(
-    TEST_DATA_UNSCORED_NO_SUBCRITERIA
-)
-TEST_DATA_UNSCORED_WITH_SUBCRITERIA["unscored_sections"][0]["subcriteria"] = [
-    {
-        "id": "organisation_information",
-        "themes": ["general_information", "activities"],
-    }
-]
+def test_build_basic_structure(mocker):
+    mocker.patch("app.question_reuse.generate_assessment_config.get_form_for_component", return_value=mock_form_1)
 
-TEST_FORM_NAME = "test-org-info-form"
-
-with open(
-    "./app/question_reuse/test_data/in/test-org-info-field-info.json"
-) as f:
-    TEST_FIELD_INFO = json.load(f)
-
-
-def test_build_basic_structure():
-
-    results = build_assessment_config(TEST_DATA_UNSCORED_NO_SUBCRITERIA, {})
+    results = build_assessment_config([cri1])
     assert "unscored_sections" in results
-    unscored = next(
-        section
-        for section in results["unscored_sections"]
-        if section["id"] == "unscored"
-    )
+    unscored = next(section for section in results["unscored_sections"] if section["id"] == crit_1_id)
     assert unscored["name"] == "Unscored"
 
 
-def test_with_field_info():
-    results = build_assessment_config(
-        TEST_DATA_UNSCORED_WITH_SUBCRITERIA, TEST_FIELD_INFO["test-org-info-form"]
-    )
-    assert len(results["unscored_sections"]) == 2
-    unscored_subcriteria = next(
-        section
-        for section in results["unscored_sections"]
-        if section["id"] == "unscored"
-    )["sub_criteria"]
+def test_with_field_info(mocker):
 
-    assert unscored_subcriteria[0]["name"] == "Organisation information"
+    mocker.patch("app.question_reuse.generate_assessment_config.get_form_for_component", return_value=mock_form_1)
+    results = build_assessment_config([cri1])
+    assert len(results["unscored_sections"]) == 1
+    unscored_subcriteria = next(section for section in results["unscored_sections"] if section["id"] == crit_1_id)[
+        "subcriteria"
+    ]
+    assert unscored_subcriteria
+    assert unscored_subcriteria[0]["name"] == "Organisation Information"
 
     unscored_themes = unscored_subcriteria[0]["themes"]
-    assert len(unscored_themes) == 2
+    assert len(unscored_themes) == 1
 
     general_info = unscored_themes[0]
-    assert general_info["name"] == "General information"
-    assert len(general_info["answers"]) == 7
-
-    activities = unscored_themes[1]
-    assert activities["name"] == "Activities"
-    assert len(activities["answers"]) == 1
+    assert general_info["name"] == "General Information"
+    assert len(general_info["answers"]) == 2

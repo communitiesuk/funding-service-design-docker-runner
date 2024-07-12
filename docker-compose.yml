@@ -6,4 +6,11 @@ services:
     volumes:
       - .:/self-serve:cached
     command: sleep infinity
-   
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder
+
+
+  fsd-self-serve-db:
+    image: postgres
+    environment:
+     - POSTGRES_PASSWORD=password

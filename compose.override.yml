@@ -1,4 +1,4 @@
-# services:
-#   fund-store-db:
-#     ports:
-#       - 5433:5432
+services:
+  fsd-self-serve-db:
+    ports:
+      - 5433:5432

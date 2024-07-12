@@ -7,8 +7,12 @@ license = "MIT License"
 
 [tool.black]
 line-length = 120
-experimental-string-processing = 1
 
 [tool.flake8]
 max-line-length = 120
+ignore = ['E203', 'W503']
 count = true
+
+[tool.isort]
+profile = "black"
+force_single_line = "true"

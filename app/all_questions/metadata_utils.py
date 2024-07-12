@@ -630,7 +630,6 @@ def generate_print_data_for_sections(
         form_print_data = {}
         form_idx = 0
         for child_form in section["forms"]:
-            form_name = child_form["name"]
             form_data = child_form["form_data"]
             form_metadata = generate_metadata(form_data)
             form_index = {}

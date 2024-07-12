@@ -1,7 +1,8 @@
 {
     "name": "Python Container",
     "dockerComposeFile": [
-      "../../docker-compose.yml"
+      "../../docker-compose.yml",
+      "../../compose.override.yml"
     ],
     "service": "fsd-self-serve",
     "shutdownAction": "none",
@@ -12,7 +13,9 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-python.debugpy",
-                "ms-python.black-formatter"
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "monosans.djlint"
             ]
         }
     }
