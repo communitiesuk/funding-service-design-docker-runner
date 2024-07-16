@@ -16,7 +16,7 @@ from app.question_reuse.generate_assessment_config import build_assessment_confi
 from app.question_reuse.generate_form import build_form_json
 from tasks.test_data import insert_test_data
 
-url_base = "postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder"  # pragma: allowlist secret
+url_base = "postgresql://postgres:password@fab-db:5432/fab"  # pragma: allowlist secret
 
 
 @pytest.fixture(scope="session")

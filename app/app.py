@@ -27,7 +27,7 @@ def create_app(config: dict = None) -> Flask:
         or {
             "SQLALCHEMY_DATABASE_URI": getenv(
                 "DATABASE_URL",
-                "postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder",  # pragma: allowlist secret
+                "postgresql://postgres:password@fab-db:5432/fab",  # pragma: allowlist secret
             )
         }
     )

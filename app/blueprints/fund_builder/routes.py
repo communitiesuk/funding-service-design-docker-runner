@@ -34,7 +34,7 @@ build_fund_bp = Blueprint(
     template_folder="templates",
 )
 # TODO get these from config
-FUND_BUILDER_HOST = "fsd-self-serve:8080"
+FUND_BUILDER_HOST = "fab:8080"
 FORM_RUNNER_URL = os.getenv("FORM_RUNNER_INTERNAL_HOST", "http://form-runner:3009")
 FORM_RUNNER_URL_REDIRECT = os.getenv("FORM_RUNNER_EXTERNAL_HOST", "http://localhost:3009")
 

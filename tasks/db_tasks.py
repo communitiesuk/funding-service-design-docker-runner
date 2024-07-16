@@ -24,11 +24,11 @@ def recreate_local_dbs(c):
     uris = [
         getenv(
             "DATABASE_URL",
-            "postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder",  # pragma: allowlist secret
+            "postgresql://postgres:password@fab-db:5432/fab",  # pragma: allowlist secret
         ),
         getenv(
             "DATABASE_URL_UNIT_TEST",
-            "postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder_unit_test",  # pragma: allowlist secret
+            "postgresql://postgres:password@fab-db:5432/fab_unit_test",  # pragma: allowlist secret
         ),
     ]
     with app.app_context():
@@ -54,7 +54,11 @@ def create_test_data(c):
 
     with app.app_context():
         db = app.extensions["sqlalchemy"]
-        db.session.execute(text("TRUNCATE TABLE fund, round, section,form, page, component CASCADE;"))
+        db.session.execute(
+            text(
+                "TRUNCATE TABLE fund, round, section,form, page, component, criteria, subcriteria, theme, lizt CASCADE;"
+            )
+        )
         db.session.commit()
         insert_test_data(db=db)
 

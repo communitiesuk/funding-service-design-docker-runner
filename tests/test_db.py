@@ -19,7 +19,7 @@ from app.db.queries.fund import get_fund_by_id
 from app.db.queries.round import add_round
 from app.db.queries.round import get_round_by_id
 
-url_base = "postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder"  # pragma: allowlist secret
+url_base = "postgresql://postgres:password@fab-db:5432/fab"  # pragma: allowlist secret
 
 
 @pytest.fixture(scope="session")

@@ -4,9 +4,9 @@
       "../../docker-compose.yml",
       "../../compose.override.yml"
     ],
-    "service": "fsd-self-serve",
+    "service": "fab",
     "shutdownAction": "none",
-    "workspaceFolder": "/self-serve",
+    "workspaceFolder": "/fab",
     "customizations": {
         "vscode": {
             "extensions": [

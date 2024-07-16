@@ -1,16 +1,16 @@
 services:
-  fsd-self-serve:
+  fab:
     build:
       context: .
-      target: self-serve-dev
+      target: fab-dev
     volumes:
-      - .:/self-serve:cached
+      - .:/fab:cached
     command: sleep infinity
     environment:
-      - DATABASE_URL=postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder
+      - DATABASE_URL=postgresql://postgres:password@fab-db:5432/fab
 
 
-  fsd-self-serve-db:
+  fab-db:
     image: postgres
     environment:
      - POSTGRES_PASSWORD=password

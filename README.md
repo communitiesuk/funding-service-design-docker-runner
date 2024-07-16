@@ -8,9 +8,9 @@ This repo contains a devcontainer spec for VS code at [.devcontainer](.devcontai
 ## Local development
 If developing locally, you will need a postgres instance running and to set the following environment variables:
  - `DATABASE_URL` to a suitable connection string. The default used is
- `postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder`.   # pragma: allowlist secret
+ `postgresql://postgres:password@fab-db:5432/fund_builder`.   # pragma: allowlist secret
  - `DATABASE_URL_UNIT_TEST` default
- `postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder_unit_test`  # pragma: allowlist secret
+ `postgresql://postgres:password@fab-db:5432/fund_builder_unit_test`  # pragma: allowlist secret
 
 ## General
 Run the app with `flask run` (include `--debug` for auto reloading on file changes)
@@ -38,15 +38,15 @@ Below is a docker-compose file that will start both the FAB app, and the form ru
      | - dc
      |      - docker-compose.yml
      | - digital-form-builder
-     | - funding-service-design-self-serve
+     | - funding-service-design-fund-application-builder
 ```
 
 ```
 services:
-  fsd-self-serve:
-    hostname: fsd-self-serve
+  fab:
+    hostname: fab
     build:
-      context: ../funding-service-design-self-serve
+      context: ../funding-service-design-fund-application-builder
       dockerfile: Dockerfile
     command: ["sh", "-c", "python -m flask db upgrade && inv create-test-data && python -m flask run --host 0.0.0.0 --port 8080"]
     ports:
@@ -54,10 +54,10 @@ services:
     environment:
       - FORM_RUNNER_INTERNAL_HOST=http://form-runner:3009
       - FORM_RUNNER_EXTERNAL_HOST=http://localhost:3009
-      - DATABASE_URL=postgresql://postgres:password@fsd-self-serve-db:5432/fund_builder   # pragma: allowlist secret
-    depends_on: [fsd-self-serve-db]
+      - DATABASE_URL=postgresql://postgres:password@fab-db:5432/fund_builder   # pragma: allowlist secret
+    depends_on: [fab-db]
 
-  fsd-self-serve-db:
+  fab-db:
     image: postgres
     environment:
       - POSTGRES_PASSWORD=password
@@ -69,13 +69,13 @@ services:
       dockerfile: ./fsd_config/Dockerfile
     command: yarn runner startdebug
     links:
-      - fsd-self-serve:fsd-self-serve
+      - fab:fab
     ports:
       - 3009:3009
       - 9228:9228
     environment:
       - LOG_LEVEL=debug
-      - 'NODE_CONFIG={"safelist": ["fsd-self-serve"]}'
+      - 'NODE_CONFIG={"safelist": ["fab"]}'
       - CONTACT_US_URL=http://localhost:3008/contact_us
       - FEEDBACK_LINK=http://localhost:3008/feedback
       - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy

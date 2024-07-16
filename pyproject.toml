@@ -1,8 +1,8 @@
 [package]
-name = "funding-service-design-self-serve"
+name = "funding-service-design-fund-application-builder"
 version = "0.0.1"
-description = "Prototype self service app for building application forms"
-authors = ["DLUHC"]
+description = "Prototype Fund Application Builder (FAB) app for building application forms"
+authors = ["MHCLG"]
 license = "MIT License"
 
 [tool.black]
