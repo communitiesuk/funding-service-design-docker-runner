@@ -1,5 +1,3 @@
-from os import getenv
-
 from flask import Flask
 from flask_assets import Environment
 from jinja2 import ChoiceLoader
@@ -14,7 +12,7 @@ from app.db.models import Fund  # noqa:F401
 from app.db.models import Round  # noqa:F401
 
 
-def create_app(config: dict = None) -> Flask:
+def create_app() -> Flask:
 
     flask_app = Flask("__name__", static_url_path="/assets")
     flask_app.secret_key = "dev"  # pragma: allowlist secret
@@ -22,15 +20,7 @@ def create_app(config: dict = None) -> Flask:
     flask_app.register_blueprint(dev_bp)
     flask_app.register_blueprint(build_fund_bp)
 
-    flask_app.config.from_mapping(
-        config
-        or {
-            "SQLALCHEMY_DATABASE_URI": getenv(
-                "DATABASE_URL",
-                "postgresql://postgres:password@fab-db:5432/fab",  # pragma: allowlist secret
-            )
-        }
-    )
+    flask_app.config.from_object("config.Config")
 
     flask_app.static_folder = "app/static/dist"
 

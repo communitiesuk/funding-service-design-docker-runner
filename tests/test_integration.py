@@ -1,10 +1,7 @@
 from uuid import uuid4
 
 import pytest
-from flask_migrate import upgrade
-from sqlalchemy import text
 
-from app.app import create_app
 from app.db.models import Component
 from app.db.models import ComponentType
 from app.db.models import Form
@@ -14,46 +11,9 @@ from app.db.queries.application import get_component_by_id
 from app.db.queries.fund import get_all_funds
 from app.question_reuse.generate_assessment_config import build_assessment_config
 from app.question_reuse.generate_form import build_form_json
-from tasks.test_data import insert_test_data
-
-url_base = "postgresql://postgres:password@fab-db:5432/fab"  # pragma: allowlist secret
 
 
-@pytest.fixture(scope="session")
-def app():
-    app = create_app(config={"SQLALCHEMY_DATABASE_URI": f"{url_base}_unit_test"})
-    yield app
-
-
-@pytest.fixture(scope="function")
-def flask_test_client():
-    with create_app(
-        config={"SQLALCHEMY_DATABASE_URI": f"{url_base}_unit_test"}  # pragma: allowlist secret
-    ).app_context() as app_context:
-        upgrade()
-        with app_context.app.test_client() as test_client:
-            yield test_client
-
-
-@pytest.fixture(scope="session")
-def _db(app, request):
-    """
-    Fixture to supply tests with direct access to the database
-    """
-
-    yield app.extensions["sqlalchemy"]
-
-
-@pytest.fixture(scope="function")
-def sort_out_test_data(_db, flask_test_client):
-    _db.session.execute(
-        text("TRUNCATE TABLE fund, round, section,form, page, component, theme, subcriteria, criteria, lizt CASCADE;")
-    )
-    _db.session.commit()
-    insert_test_data(_db)
-
-
-def test_build_form_json(sort_out_test_data):
+def test_build_form_json(seed_dynamic_data):
 
     f: Fund = get_all_funds()[0]
     form: Form = f.rounds[0].sections[0].forms[0]
@@ -90,7 +50,7 @@ def test_build_form_json(sort_out_test_data):
 
 
 # TODO this fails with components from a template (branching logic)
-def test_build_assessment_config(sort_out_test_data):
+def test_build_assessment_config(seed_dynamic_data):
     f: Fund = get_all_funds()[0]
     criteria = f.rounds[0].criteria[0]
     result = build_assessment_config(criteria_list=[criteria])
@@ -104,31 +64,39 @@ def test_build_assessment_config(sort_out_test_data):
     assert len(first_unscored["subcriteria"][0]["themes"][1]["answers"]) == 3
 
 
-def test_list_relationship(_db, flask_test_client):
+list_id = uuid4()
 
-    lizt: Lizt = Lizt(
-        list_id=uuid4(),
-        name="classifications_list",
-        type="string",
-        items=[{"text": "Charity", "value": "charity"}, {"text": "Public Limited Company", "value": "plc"}],
-    )
-    component: Component = Component(
-        component_id=uuid4(),
-        page_id=None,
-        title="How is your organisation classified?",
-        type=ComponentType.RADIOS_FIELD,
-        page_index=1,
-        theme_id=None,
-        theme_index=6,
-        options={"hideTitle": False, "classes": ""},
-        runner_component_name="organisation_classification",
-        list_id=lizt.list_id,
-    )
-    _db.session.bulk_save_objects([lizt, component])
-    _db.session.commit()
 
-    result = get_component_by_id(component.component_id)
+@pytest.mark.seed_config(
+    {
+        "lists": [
+            Lizt(
+                list_id=list_id,
+                name="classifications_list",
+                type="string",
+                items=[{"text": "Charity", "value": "charity"}, {"text": "Public Limited Company", "value": "plc"}],
+            )
+        ],
+        "components": [
+            Component(
+                component_id=uuid4(),
+                page_id=None,
+                title="How is your organisation classified?",
+                type=ComponentType.RADIOS_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=6,
+                options={"hideTitle": False, "classes": ""},
+                runner_component_name="organisation_classification",
+                list_id=list_id,
+            )
+        ],
+    }
+)
+def test_list_relationship(seed_dynamic_data):
+
+    result = get_component_by_id(seed_dynamic_data["components"][0].component_id)
     assert result
-    assert result.list_id == lizt.list_id
+    assert result.list_id == list_id
     assert result.lizt
     assert result.lizt.name == "classifications_list"

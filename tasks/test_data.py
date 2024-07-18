@@ -1,4 +1,5 @@
 from datetime import datetime
+from random import randint
 from uuid import uuid4
 
 from app.db.models import Component
@@ -14,7 +15,7 @@ from app.db.models import Subcriteria
 from app.db.models import Theme
 
 
-def init_data():
+def init_data() -> dict:
     f: Fund = Fund(
         fund_id=uuid4(),
         name_json={"en": "Salmon Fishing Fund"},
@@ -23,7 +24,7 @@ def init_data():
             "en": "A £10m fund to improve access to salmong fishing facilities across the devolved nations."
         },
         welsh_available=False,
-        short_name="SFF",
+        short_name=f"SFF{randint(0,999)}",
     )
 
     r: Round = Round(
@@ -31,7 +32,7 @@ def init_data():
         fund_id=f.fund_id,
         audit_info={"user": "dummy_user", "timestamp": datetime.now().isoformat(), "action": "create"},
         title_json={"en": "round the first"},
-        short_name="R1",
+        short_name=f"R{randint(0,999)}",
         opens=datetime.now(),
         deadline=datetime.now(),
         assessment_start=datetime.now(),
@@ -45,7 +46,7 @@ def init_data():
         fund_id=f.fund_id,
         audit_info={"user": "dummy_user", "timestamp": datetime.now().isoformat(), "action": "create"},
         title_json={"en": "round the second"},
-        short_name="R2",
+        short_name=f"R{randint(0,999)}",
         opens=datetime.now(),
         deadline=datetime.now(),
         assessment_start=datetime.now(),
@@ -257,25 +258,24 @@ def init_data():
     }
 
 
-def insert_test_data(db):
-    test_data = init_data()
-    db.session.bulk_save_objects(test_data["funds"])
+def insert_test_data(db, test_data={}):
+    db.session.bulk_save_objects(test_data.get("funds", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["rounds"])
+    db.session.bulk_save_objects(test_data.get("rounds", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["sections"])
+    db.session.bulk_save_objects(test_data.get("sections", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["forms"])
+    db.session.bulk_save_objects(test_data.get("forms", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["pages"])
+    db.session.bulk_save_objects(test_data.get("pages", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["criteria"])
+    db.session.bulk_save_objects(test_data.get("criteria", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["subcriteria"])
+    db.session.bulk_save_objects(test_data.get("subcriteria", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["themes"])
+    db.session.bulk_save_objects(test_data.get("themes", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["lists"])
+    db.session.bulk_save_objects(test_data.get("lists", []))
     db.session.commit()
-    db.session.bulk_save_objects(test_data["components"])
+    db.session.bulk_save_objects(test_data.get("components", []))
     db.session.commit()
