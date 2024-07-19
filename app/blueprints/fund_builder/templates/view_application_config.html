@@ -19,9 +19,9 @@
     {% for section in round.sections %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h3 class="govuk-heading-s">{{ section.index }}. {{ section.name_in_apply["en"] }}</h3>
+                <h3 class="govuk-heading-s">{{ section.index }}. {{ section.name_in_apply_json["en"] }}</h3>
                 {% for form in section.forms %}
-                    <h4 class="govuk-heading-s">Form {{ form.section_index }}. {{ form.name_in_apply["en"] }}</h4>
+                    <h4 class="govuk-heading-s">Form {{ form.section_index }}. {{ form.name_in_apply_json["en"] }}</h4>
                     {{ govukButton({
                         "text": "Preview Form",
                         "href": url_for("build_fund_bp.preview_form", form_id=form.form_id),
@@ -36,7 +36,7 @@
                     }}
                     {% for page in form.pages %}
                         <div class="section_page">
-                            <span class="govuk-body">{{ page.form_index }}. {{ page.name_in_apply["en"] }}</span>
+                            <span class="govuk-body">{{ page.form_index }}. {{ page.name_in_apply_json["en"] }}</span>
                             <ul class="govuk-list--bullet">
                                 {% for component in page.components %}
                                     {% set list_details %}

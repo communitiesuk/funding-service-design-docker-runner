@@ -189,7 +189,7 @@ def view_all_questions(round_id):
     section_data = []
     for section in sections_in_round:
         forms = [{"name": form.runner_publish_name, "form_data": build_form_json(form)} for form in section.forms]
-        section_data.append({"section_title": section.name_in_apply["en"], "forms": forms})
+        section_data.append({"section_title": section.name_in_apply_json["en"], "forms": forms})
 
     print_data = generate_print_data_for_sections(
         section_data,

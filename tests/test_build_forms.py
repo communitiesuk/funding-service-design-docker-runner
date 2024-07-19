@@ -592,7 +592,7 @@
 #     results = build_form_json(form=input_form)
 #     assert results
 #     assert len(results["pages"]) == len(exp_results["pages"])
-#     assert results["name"] == input_form.name_in_apply["en"]
+#     assert results["name"] == input_form.name_in_apply_json["en"]
 #     for exp_page in exp_results["pages"]:
 #         result_page = next(res_page for res_page in results["pages"] if res_page["path"] == exp_page["path"])
 #         assert result_page["title"] == exp_page["title"]

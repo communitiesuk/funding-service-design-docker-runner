@@ -104,7 +104,7 @@ def build_page(page: Page = None, page_display_path: str = None) -> dict:
     built_page.update(
         {
             "path": f"/{page.display_path}",
-            "title": page.name_in_apply["en"],
+            "title": page.name_in_apply_json["en"],
         }
     )
     # Having a 'null' controller element breaks the form-json, needs to not be there if blank
@@ -209,7 +209,7 @@ def human_to_kebab_case(word: str) -> str | None:
 def build_form_json(form: Form) -> dict:
 
     results = copy.deepcopy(BASIC_FORM_STRUCTURE)
-    results["name"] = form.name_in_apply["en"]
+    results["name"] = form.name_in_apply_json["en"]
 
     for page in form.pages:
         results["pages"].append(build_page(page=page))
@@ -217,8 +217,8 @@ def build_form_json(form: Form) -> dict:
     start_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     start_page.update(
         {
-            "title": form.name_in_apply["en"],
-            "path": f"/intro-{human_to_kebab_case(form.name_in_apply['en'])}",
+            "title": form.name_in_apply_json["en"],
+            "path": f"/intro-{human_to_kebab_case(form.name_in_apply_json['en'])}",
             "controller": "./pages/start.js",
             "next": [{"path": f"/{form.pages[0].display_path}"}],
         }

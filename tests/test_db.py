@@ -2,7 +2,7 @@ from datetime import datetime
 from random import randint
 from uuid import uuid4
 
-from sqlalchemy import text
+import pytest
 
 from app.db.models import Form
 from app.db.models import Fund
@@ -30,11 +30,24 @@ def test_add_fund(flask_test_client, _db):
     assert result.fund_id
 
 
-def test_add_round(flask_test_client, _db):
-    fund = _db.session.execute(text("select * from fund limit 1;")).one()
+@pytest.mark.seed_config(
+    {
+        "funds": [
+            Fund(
+                fund_id=uuid4(),
+                name_json={"en": "Test Fund To Create Rounds"},
+                title_json={"en": "funding to improve stuff"},
+                description_json={"en": "A £10m fund to improve stuff across the devolved nations."},
+                welsh_available=False,
+                short_name="TFCR1",
+            )
+        ]
+    }
+)
+def test_add_round(seed_dynamic_data):
     result = add_round(
         Round(
-            fund_id=fund.fund_id,
+            fund_id=seed_dynamic_data["funds"][0].fund_id,
             audit_info={"user": "dummy_user", "timestamp": datetime.now().isoformat(), "action": "create"},
             title_json={"en": "test title"},
             short_name=f"Z{randint(0,99999)}",
@@ -54,12 +67,27 @@ def test_add_round(flask_test_client, _db):
 def test_get_all_funds(flask_test_client, _db):
     results = get_all_funds()
     assert results
+    assert results[0].fund_id
 
 
-def test_get_fund_by_id(flask_test_client, _db):
-    any_fund = _db.session.execute(text("select * from fund limit 1;")).one()
-    result: Fund = get_fund_by_id(any_fund.fund_id)
-    assert result.name_json == any_fund.name_json
+@pytest.mark.seed_config(
+    {
+        "funds": [
+            Fund(
+                fund_id=uuid4(),
+                name_json={"en": "Test Fund 1"},
+                title_json={"en": "funding to improve stuff"},
+                description_json={"en": "A £10m fund to improve stuff across the devolved nations."},
+                welsh_available=False,
+                short_name="TF1",
+            )
+        ]
+    }
+)
+def test_get_fund_by_id(seed_dynamic_data):
+    result: Fund = get_fund_by_id(seed_dynamic_data["funds"][0].fund_id)
+    assert result
+    assert result.name_json["en"] == "Test Fund 1"
 
 
 def test_get_fund_by_id_none(flask_test_client, _db):
@@ -72,54 +100,94 @@ def test_get_round_by_id_none(flask_test_client, _db):
     assert result is None
 
 
-def test_get_round_by_id(flask_test_client, _db):
-    any_round = _db.session.execute(text("select * from round limit 1;")).one()
-    result: Round = get_round_by_id(any_round.round_id)
-    assert result.title_json == any_round.title_json
+fund_id = uuid4()
 
 
-def test_get_template_page_by_display_path(flask_test_client, _db):
-    _db.session.execute(
-        text("TRUNCATE TABLE fund, round, section,form, page, component, theme, subcriteria, criteria CASCADE;")
-    )
-    _db.session.commit()
+@pytest.mark.seed_config(
+    {
+        "funds": [
+            Fund(
+                fund_id=fund_id,
+                name_json={"en": "Test Fund 1"},
+                title_json={"en": "funding to improve stuff"},
+                description_json={"en": "A £10m fund to improve stuff across the devolved nations."},
+                welsh_available=False,
+                short_name="TFR1",
+            )
+        ],
+        "rounds": [
+            Round(
+                round_id=uuid4(),
+                fund_id=fund_id,
+                audit_info={"user": "dummy_user", "timestamp": datetime.now().isoformat(), "action": "create"},
+                title_json={"en": "round the first"},
+                short_name="R1",
+                opens=datetime.now(),
+                deadline=datetime.now(),
+                assessment_start=datetime.now(),
+                reminder_date=datetime.now(),
+                assessment_deadline=datetime.now(),
+                prospectus_link="http://www.google.com",
+                privacy_notice_link="http://www.google.com",
+            )
+        ],
+    }
+)
+def test_get_round_by_id(seed_dynamic_data):
 
-    template_page: Page = Page(
-        page_id=uuid4(),
-        form_id=None,
-        display_path="testing_templates_path",
-        is_template=True,
-        name_in_apply={"en": "Template Path"},
-        form_index=0,
-    )
-    non_template_page: Page = Page(
-        page_id=uuid4(),
-        form_id=None,
-        display_path="testing_templates_path",
-        is_template=False,
-        name_in_apply={"en": "Not Template Path"},
-        form_index=0,
-    )
+    result: Round = get_round_by_id(seed_dynamic_data["rounds"][0].round_id)
+    assert result.title_json["en"] == "round the first"
 
-    _db.session.bulk_save_objects([template_page, non_template_page])
-    _db.session.commit()
+
+@pytest.mark.seed_config(
+    {
+        "pages": [
+            Page(
+                page_id=uuid4(),
+                form_id=None,
+                display_path="testing_templates_path",
+                is_template=True,
+                name_in_apply_json={"en": "Template Path"},
+                form_index=0,
+            ),
+            Page(
+                page_id=uuid4(),
+                form_id=None,
+                display_path="testing_templates_path",
+                is_template=False,
+                name_in_apply_json={"en": "Not Template Path"},
+                form_index=0,
+            ),
+        ]
+    }
+)
+def test_get_template_page_by_display_path(seed_dynamic_data):
+
     result = get_template_page_by_display_path("testing_templates_path")
     assert result
-    assert result.page_id == template_page.page_id
+    assert result.page_id == seed_dynamic_data["pages"][0].page_id
 
 
-def test_form_sorting(flask_test_client, _db):
-    # Create a section with one form, at index 1
-    section: Section = Section(section_id=uuid4(), name_in_apply={"en": "hello section"})
-    form1: Form = Form(form_id=uuid4(), section_id=section.section_id, section_index=1, name_in_apply={"en": "Form 1"})
-    _db.session.bulk_save_objects([section, form1])
-    _db.session.commit()
+section_id = uuid4()
 
+
+# Create a section with one form, at index 1
+@pytest.mark.seed_config(
+    {
+        "sections": [Section(section_id=section_id, name_in_apply_json={"en": "hello section"})],
+        "forms": [Form(form_id=uuid4(), section_id=section_id, section_index=1, name_in_apply_json={"en": "Form 1"})],
+    }
+)
+def test_form_sorting(seed_dynamic_data, _db):
+    section = seed_dynamic_data["sections"][0]
+    form1 = seed_dynamic_data["forms"][0]
     result_section = _db.session.query(Section).where(Section.section_id == section.section_id).one_or_none()
     assert len(result_section.forms) == 1
 
     # add a form at index 2, confirm ordering
-    form2: Form = Form(form_id=uuid4(), section_id=section.section_id, section_index=2, name_in_apply={"en": "Form 2"})
+    form2: Form = Form(
+        form_id=uuid4(), section_id=section.section_id, section_index=2, name_in_apply_json={"en": "Form 2"}
+    )
     _db.session.add(form2)
     _db.session.commit()
 
@@ -129,7 +197,9 @@ def test_form_sorting(flask_test_client, _db):
     assert result_section.forms[1].form_id == form2.form_id
 
     # add a form at index 0, confirm ordering
-    form0: Form = Form(form_id=uuid4(), section_id=section.section_id, section_index=0, name_in_apply={"en": "Form 0"})
+    form0: Form = Form(
+        form_id=uuid4(), section_id=section.section_id, section_index=0, name_in_apply_json={"en": "Form 0"}
+    )
     _db.session.add(form0)
     _db.session.commit()
 
@@ -140,7 +210,7 @@ def test_form_sorting(flask_test_client, _db):
     assert result_section.forms[2].form_id == form2.form_id
 
     # insert a form between 1 and 2, check ordering
-    formX: Form = Form(form_id=uuid4(), section_id=section.section_id, name_in_apply={"en": "Form X"})
+    formX: Form = Form(form_id=uuid4(), section_id=section.section_id, name_in_apply_json={"en": "Form X"})
     result_section.forms.insert(2, formX)
     _db.session.bulk_save_objects([result_section])
     _db.session.commit()

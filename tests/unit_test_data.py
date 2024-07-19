@@ -19,7 +19,7 @@ crit_1_id = uuid4()
 sc_1_id = uuid4()
 mock_s_1 = Section(
     section_id=section_1_id,
-    name_in_apply={"en": "Test Section 1"},
+    name_in_apply_json={"en": "Test Section 1"},
 )
 mock_c_1 = Component(
     component_id=uuid4(),
@@ -43,7 +43,7 @@ mock_c_2 = Component(
 )
 mock_p_1 = Page(
     page_id=page_1_id,
-    name_in_apply={"en": "A test page"},
+    name_in_apply_json={"en": "A test page"},
     display_path="test-display-path",
     components=[mock_c_1, mock_c_2],
     form_id=form_1_id,
@@ -52,7 +52,7 @@ mock_form_1 = Form(
     form_id=form_1_id,
     pages=[mock_p_1],
     section_id=section_1_id,
-    name_in_apply={"en": "A test form"},
+    name_in_apply_json={"en": "A test form"},
     runner_publish_name="a-test-form",
     section_index=1,
 )
@@ -88,7 +88,7 @@ component_with_list: Component = Component(
 )
 mock_p_2 = Page(
     page_id=page_2_id,
-    name_in_apply={"en": "A test page 2"},
+    name_in_apply_json={"en": "A test page 2"},
     display_path="test-display-path-2",
     components=[component_with_list],
     form_id=None,

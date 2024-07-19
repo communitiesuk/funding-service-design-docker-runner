@@ -4,11 +4,11 @@ from typing import List
 
 from flask_sqlalchemy.model import DefaultMeta
 from sqlalchemy import Column
-from sqlalchemy import Float
 from sqlalchemy import ForeignKey
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import REAL
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import relationship
@@ -33,7 +33,7 @@ class Criteria(BaseModel):
         nullable=True,
     )
     name = Column(String())
-    weighting = Column(Float(precision=2))
+    weighting = Column(REAL(precision=2))
     template_name = Column("Template Name", String(), nullable=True)
     is_template = Column("is_template", Boolean, default=False, nullable=False)
     audit_info = Column("audit_info", JSON(none_as_null=True))

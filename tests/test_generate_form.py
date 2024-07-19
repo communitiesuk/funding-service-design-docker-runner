@@ -211,7 +211,7 @@ mock_pages = [
                 page_id=uuid4(),
                 form_id=uuid4(),
                 display_path="organisation-single-name",
-                name_in_apply={"en": "Organisation Name"},
+                name_in_apply_json={"en": "Organisation Name"},
                 form_index=1,
                 components=[mock_c_1],
             ),
@@ -356,7 +356,7 @@ def test_build_conditions(input_component, exp_results):
                     page_id=uuid4(),
                     form_id=uuid4(),
                     display_path="organisation-single-name",
-                    name_in_apply={"en": "Organisation Name"},
+                    name_in_apply_json={"en": "Organisation Name"},
                     form_index=1,
                 )
             ],
@@ -394,14 +394,14 @@ def test_build_conditions(input_component, exp_results):
                     page_id=uuid4(),
                     form_id=uuid4(),
                     display_path="organisation-single-name",
-                    name_in_apply={"en": "Organisation Name"},
+                    name_in_apply_json={"en": "Organisation Name"},
                     form_index=1,
                 ),
                 Page(
                     page_id=uuid4(),
                     form_id=uuid4(),
                     display_path="organisation-charitable-objects",
-                    name_in_apply={"en": "What are your organisation's charitable objects?"},
+                    name_in_apply_json={"en": "What are your organisation's charitable objects?"},
                     form_index=1,
                 ),
             ],
@@ -469,7 +469,7 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
                     page_id=uuid4(),
                     form_id=uuid4(),
                     display_path="organisation-name",
-                    name_in_apply={"en": "Organisation Name"},
+                    name_in_apply_json={"en": "Organisation Name"},
                     form_index=1,
                     components=[
                         Component(
@@ -498,7 +498,7 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
                 #     page_id=uuid4(),
                 #     form_id=uuid4(),
                 #     display_path="organisation-alternative-names",
-                #     name_in_apply={"en": "Organisation Alternative Names"},
+                #     name_in_apply_json={"en": "Organisation Alternative Names"},
                 #     form_index=2,
                 # ),
             ],
@@ -660,7 +660,7 @@ def test_build_form(input_form, exp_results):
     results = build_form_json(form=input_form)
     assert results
     assert len(results["pages"]) == len(exp_results["pages"])
-    assert results["name"] == input_form.name_in_apply["en"]
+    assert results["name"] == input_form.name_in_apply_json["en"]
     for exp_page in exp_results["pages"]:
         result_page = next((res_page for res_page in results["pages"] if res_page["path"] == exp_page["path"]), None)
         assert result_page, f"{exp_page['path']}"

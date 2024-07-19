@@ -9,5 +9,4 @@ def add_round(round: Round) -> Round:
 
 
 def get_round_by_id(id: str) -> Round:
-    query = db.session.query(Round).where(Round.round_id == id)
-    return query.one_or_none()
+    return db.session.get(Round, id)

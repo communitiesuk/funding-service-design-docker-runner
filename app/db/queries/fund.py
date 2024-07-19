@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from app.db import db
 from app.db.models.fund import Fund
 
@@ -9,10 +11,9 @@ def add_fund(fund: Fund) -> Fund:
 
 
 def get_all_funds() -> list:
-    query = db.session.query(Fund).order_by(Fund.short_name)
-    return query.all()
+    stmt = select(Fund).order_by(Fund.short_name)
+    return db.session.scalars(stmt).all()
 
 
 def get_fund_by_id(id: str) -> Fund:
-    query = db.session.query(Fund).where(Fund.fund_id == id)
-    return query.one_or_none()
+    return db.session.get(Fund, id)
