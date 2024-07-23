@@ -5,11 +5,17 @@ import pytest
 from app.db.models import Component
 from app.db.models import ComponentType
 from app.db.models import Page
+from app.db.models.application_config import Form
+from app.db.models.application_config import Section
 from app.db.queries.application import _initiate_cloned_component
+from app.db.queries.application import _initiate_cloned_form
 from app.db.queries.application import _initiate_cloned_page
+from app.db.queries.application import _initiate_cloned_section
 from app.db.queries.application import clone_multiple_components
 from app.db.queries.application import clone_single_component
+from app.db.queries.application import clone_single_form
 from app.db.queries.application import clone_single_page
+from app.db.queries.application import clone_single_section
 
 
 @pytest.fixture
@@ -22,6 +28,54 @@ def mock_new_uuid(mocker):
 # =====================================================================================================================
 # These functions mock the _initiate_cloned_XXX functions and don't use the db
 # =====================================================================================================================
+
+
+def test_initiate_cloned_section(mock_new_uuid):
+    clone: Section = Section(
+        section_id="old-id",
+        name_in_apply_json={"en": "test section 1"},
+        round_id="old-section-id",
+        is_template=True,
+        template_name="Template Section",
+    )
+    result: Section = _initiate_cloned_section(to_clone=clone, new_round_id="new-round")
+    assert result
+    assert result.section_id == mock_new_uuid
+
+    # Check other bits are the same
+    assert result.name_in_apply_json == clone.name_in_apply_json
+
+    # check template settings
+    assert result.is_template is False
+    assert result.source_template_id == "old-id"
+    assert result.template_name is None
+
+    assert result.round_id == "new-round"
+
+
+def test_initiate_cloned_form(mock_new_uuid):
+    clone: Form = Form(
+        form_id="old-id",
+        name_in_apply_json={"en": "test form 1"},
+        section_id="old-section-id",
+        is_template=True,
+        template_name="Template Page",
+        runner_publish_name="template-form-1",
+    )
+    result: Form = _initiate_cloned_form(to_clone=clone, new_section_id="new-section")
+    assert result
+    assert result.form_id == mock_new_uuid
+
+    # Check other bits are the same
+    assert result.name_in_apply_json == clone.name_in_apply_json
+    assert result.runner_publish_name == clone.runner_publish_name
+
+    # check template settings
+    assert result.is_template is False
+    assert result.source_template_id == "old-id"
+    assert result.template_name is None
+
+    assert result.section_id == "new-section"
 
 
 def test_initiate_cloned_page(mock_new_uuid):
@@ -324,3 +378,361 @@ def test_clone_page_with_components(seed_dynamic_data, _db):
     assert len(old_page_from_db.components) == 3
     for component in old_page_from_db.components:
         assert str(component.component_id) in old_component_ids
+
+
+@pytest.mark.seed_config(
+    {
+        "forms": [
+            Form(
+                form_id=uuid4(),
+                section_id=None,
+                name_in_apply_json={"en": "UT Form 1"},
+                section_index=2,
+                runner_publish_name="ut-form-1",
+            )
+        ]
+    }
+)
+def test_clone_form_no_pages(seed_dynamic_data, _db):
+    old_form = _db.session.get(Form, seed_dynamic_data["forms"][0].form_id)
+    assert old_form
+
+    result = clone_single_form(form_id=old_form.form_id, new_section_id=None)
+    assert result
+    assert result.form_id != old_form.form_id
+
+    cloned_form = _db.session.get(Form, result.form_id)
+    assert cloned_form
+    assert len(cloned_form.pages) == 0
+
+    old_form_from_db = _db.session.get(Form, old_form.form_id)
+    assert old_form_from_db
+
+
+form_id_2 = uuid4()
+
+
+@pytest.mark.seed_config(
+    {
+        "forms": [
+            Form(
+                form_id=form_id_2,
+                section_id=None,
+                name_in_apply_json={"en": "UT Form 2"},
+                section_index=2,
+                runner_publish_name="ut-form-2",
+            )
+        ],
+        "pages": [
+            Page(
+                page_id=uuid4(),
+                form_id=form_id_2,
+                display_path="testing-clone-from-form",
+                is_template=True,
+                name_in_apply_json={"en": "Clone testing"},
+                form_index=0,
+            )
+        ],
+    }
+)
+def test_clone_form_with_page(seed_dynamic_data, _db):
+    old_form = _db.session.get(Form, seed_dynamic_data["forms"][0].form_id)
+    assert old_form
+
+    result = clone_single_form(form_id=old_form.form_id, new_section_id=None)
+    assert result
+    assert result.form_id != old_form.form_id
+
+    cloned_form = _db.session.get(Form, result.form_id)
+    assert cloned_form
+    assert len(cloned_form.pages) == 1
+    new_page_id = cloned_form.pages[0].page_id
+
+    old_form_from_db = _db.session.get(Form, old_form.form_id)
+    assert old_form_from_db
+    assert len(old_form_from_db.pages) == 1
+    old_page_id = old_form_from_db.pages[0].page_id
+
+    assert old_page_id != new_page_id
+
+
+form_id_3 = uuid4()
+page_id_2 = uuid4()
+page_id_3 = uuid4()
+
+
+@pytest.mark.seed_config(
+    {
+        "forms": [
+            Form(
+                form_id=form_id_3,
+                section_id=None,
+                name_in_apply_json={"en": "UT Form 2"},
+                section_index=2,
+                runner_publish_name="ut-form-2",
+            )
+        ],
+        "pages": [
+            Page(
+                page_id=page_id_2,
+                form_id=form_id_3,
+                display_path="testing-clone-from-form-2",
+                is_template=True,
+                name_in_apply_json={"en": "Clone testing"},
+                form_index=0,
+            ),
+            Page(
+                page_id=page_id_3,
+                form_id=form_id_3,
+                display_path="testing-clone-from-form-3",
+                is_template=True,
+                name_in_apply_json={"en": "Clone testing"},
+                form_index=0,
+            ),
+        ],
+        "components": [
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_2,
+                title="Template qustion 1?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_1",
+                is_template=True,
+            ),
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_2,
+                title="Template qustion 2?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_2",
+                is_template=True,
+            ),
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_3,
+                title="Template qustion 3?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_3",
+                is_template=True,
+            ),
+        ],
+    }
+)
+def test_clone_form_with_pages_and_components(seed_dynamic_data, _db):
+    old_form = _db.session.get(Form, seed_dynamic_data["forms"][0].form_id)
+    assert old_form
+
+    result = clone_single_form(form_id=old_form.form_id, new_section_id=None)
+    assert result
+    assert result.form_id != old_form.form_id
+
+    cloned_form = _db.session.get(Form, result.form_id)
+    assert cloned_form
+    assert len(cloned_form.pages) == 2
+    new_page_id_1 = next(p.page_id for p in cloned_form.pages if p.display_path == "testing-clone-from-form-2")
+    new_page_id_2 = next(p.page_id for p in cloned_form.pages if p.display_path == "testing-clone-from-form-3")
+    new_page_1: Page = _db.session.get(Page, new_page_id_1)
+    new_page_2: Page = _db.session.get(Page, new_page_id_2)
+
+    old_form_from_db = _db.session.get(Form, old_form.form_id)
+    assert old_form_from_db
+    assert len(old_form_from_db.pages) == 2
+
+    # Set old page id 1 and 2 to be the ids of the old pages that correspond to the new
+    # pages 1 and 2 by matching display path
+    old_page_id_1 = next(p.page_id for p in old_form_from_db.pages if p.display_path == new_page_1.display_path)
+    old_page_id_2 = next(p.page_id for p in old_form_from_db.pages if p.display_path == new_page_2.display_path)
+
+    assert new_page_id_1 not in [old_page_id_1, old_page_id_2]
+    assert new_page_id_2 not in [old_page_id_1, old_page_id_2]
+
+    # Check pages and components
+
+    assert len(new_page_1.components) == 2
+    assert len(new_page_2.components) == 1
+
+    old_page_1 = _db.session.get(Page, old_page_id_1)
+    old_page_2 = _db.session.get(Page, old_page_id_2)
+
+    old_component_ids_1 = [c.component_id for c in old_page_1.components]
+    old_component_ids_2 = [c.component_id for c in old_page_2.components]
+
+    # check the new components are different than the old ones
+    assert new_page_1.components[0].component_id not in old_component_ids_1
+    assert new_page_1.components[1].component_id not in old_component_ids_1
+    assert new_page_2.components[0].component_id not in old_component_ids_2
+
+
+@pytest.mark.seed_config(
+    {
+        "sections": [
+            Section(
+                section_id=uuid4(),
+                name_in_apply_json={"en": "UT Section 1"},
+                index=2,
+            )
+        ]
+    }
+)
+def test_clone_section_no_forms(seed_dynamic_data, _db):
+    old_section = _db.session.get(Section, seed_dynamic_data["sections"][0].section_id)
+    assert old_section
+
+    result = clone_single_section(section_id=old_section.section_id, new_round_id=None)
+    assert result
+    assert result.section_id != old_section.section_id
+
+    cloned_section = _db.session.get(Section, result.section_id)
+    assert cloned_section
+    assert len(cloned_section.forms) == 0
+
+    old_section_from_db = _db.session.get(Section, old_section.section_id)
+    assert old_section_from_db
+
+
+section_id_to_clone = uuid4()
+form_id_to_clone = uuid4()
+page_id_to_clone_1 = uuid4()
+page_id_to_clone_2 = uuid4()
+
+
+@pytest.mark.seed_config(
+    {
+        "sections": [
+            Section(
+                section_id=section_id_to_clone,
+                name_in_apply_json={"en": "UT Section 2"},
+                index=2,
+            )
+        ],
+        "forms": [
+            Form(
+                form_id=form_id_to_clone,
+                section_id=section_id_to_clone,
+                name_in_apply_json={"en": "UT Form 2"},
+                section_index=2,
+                runner_publish_name="ut-form-2",
+            )
+        ],
+        "pages": [
+            Page(
+                page_id=page_id_to_clone_1,
+                form_id=form_id_to_clone,
+                display_path="testing-clone-from-section-1",
+                is_template=True,
+                name_in_apply_json={"en": "Clone testing"},
+                form_index=0,
+            ),
+            Page(
+                page_id=page_id_to_clone_2,
+                form_id=form_id_to_clone,
+                display_path="testing-clone-from-section-2",
+                is_template=True,
+                name_in_apply_json={"en": "Clone testing"},
+                form_index=0,
+            ),
+        ],
+        "components": [
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_to_clone_1,
+                title="Template qustion 1?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_1",
+                is_template=True,
+            ),
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_to_clone_1,
+                title="Template qustion 2?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_2",
+                is_template=True,
+            ),
+            Component(
+                component_id=uuid4(),
+                page_id=page_id_to_clone_2,
+                title="Template qustion 3?",
+                type=ComponentType.YES_NO_FIELD,
+                page_index=1,
+                theme_id=None,
+                theme_index=2,
+                options={"hideTitle": False, "classes": "test-class"},
+                runner_component_name="template_question_name_3",
+                is_template=True,
+            ),
+        ],
+    }
+)
+def test_clone_section_with_forms(seed_dynamic_data, _db):
+    old_section = _db.session.get(Section, seed_dynamic_data["sections"][0].section_id)
+    assert old_section
+
+    result = clone_single_section(section_id=old_section.section_id, new_round_id=None)
+    assert result
+    assert result.section_id != old_section.section_id
+
+    cloned_section = _db.session.get(Section, result.section_id)
+    assert cloned_section
+    assert len(cloned_section.forms) == 1
+
+    # check the old section still exists
+    old_section_from_db = _db.session.get(Section, old_section.section_id)
+    assert old_section_from_db
+
+    # validate the form
+    cloned_form = _db.session.get(Form, cloned_section.forms[0].form_id)
+    assert cloned_form
+    assert len(cloned_form.pages) == 2
+    new_page_id_1 = next(p.page_id for p in cloned_form.pages if p.display_path == "testing-clone-from-section-1")
+    new_page_id_2 = next(p.page_id for p in cloned_form.pages if p.display_path == "testing-clone-from-section-2")
+    new_page_1: Page = _db.session.get(Page, new_page_id_1)
+    new_page_2: Page = _db.session.get(Page, new_page_id_2)
+
+    old_form_from_db = _db.session.get(Form, seed_dynamic_data["forms"][0].form_id)
+    assert old_form_from_db
+    assert len(old_form_from_db.pages) == 2
+
+    # Set old page id 1 and 2 to be the ids of the old pages that correspond to the new
+    # pages 1 and 2 by matching display path
+    old_page_id_1 = next(p.page_id for p in old_form_from_db.pages if p.display_path == new_page_1.display_path)
+    old_page_id_2 = next(p.page_id for p in old_form_from_db.pages if p.display_path == new_page_2.display_path)
+
+    assert new_page_id_1 not in [old_page_id_1, old_page_id_2]
+    assert new_page_id_2 not in [old_page_id_1, old_page_id_2]
+
+    # Check pages and components
+
+    assert len(new_page_1.components) == 2
+    assert len(new_page_2.components) == 1
+
+    old_page_1 = _db.session.get(Page, old_page_id_1)
+    old_page_2 = _db.session.get(Page, old_page_id_2)
+
+    old_component_ids_1 = [c.component_id for c in old_page_1.components]
+    old_component_ids_2 = [c.component_id for c in old_page_2.components]
+
+    # check the new components are different than the old ones
+    assert new_page_1.components[0].component_id not in old_component_ids_1
+    assert new_page_1.components[1].component_id not in old_component_ids_1
+    assert new_page_2.components[0].component_id not in old_component_ids_2

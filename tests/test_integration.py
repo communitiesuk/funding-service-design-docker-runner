@@ -181,7 +181,7 @@ def test_build_form_json_with_conditions(seed_dynamic_data):
 
 
 # TODO this fails with components from a template (branching logic)
-def test_build_assessment_config(seed_dynamic_data):
+def test_build_assessment_config_no_branching(seed_dynamic_data):
 
     f: Fund = get_fund_by_id(seed_dynamic_data["funds"][0].fund_id)
     criteria = f.rounds[0].criteria[0]

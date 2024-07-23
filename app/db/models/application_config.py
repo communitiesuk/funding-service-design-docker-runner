@@ -120,6 +120,7 @@ class Page(BaseModel):
         "Component", order_by="Component.page_index", collection_class=ordering_list("page_index")
     )
     source_template_id = Column(UUID(as_uuid=True), nullable=True)
+    controller = Column(String(), nullable=True)
 
     def __repr__(self):
         return f"Page(/{self.display_path} - {self.name_in_apply_json['en']}, Components: {self.components})"

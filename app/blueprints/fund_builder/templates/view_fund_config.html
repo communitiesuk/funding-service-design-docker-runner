@@ -159,6 +159,12 @@
                 "href": url_for("build_fund_bp.view_assess_config", round_id=round.round_id),
                 "classes": "govuk-button--secondary"
                 }) }}
+
+                {{ govukButton({
+                    "text": "Clone this round",
+                    "href": url_for("build_fund_bp.clone_round", round_id=round.round_id, fund_id=fund.fund_id),
+                    "classes": "govuk-button--secondary"
+                    }) }}
                         {% endfor %}
 
                 {% endset %}

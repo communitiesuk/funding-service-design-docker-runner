@@ -1,8 +1,4 @@
 import copy
-import json
-import os
-
-import click
 
 from app.db.models import Component
 from app.db.models import Form
@@ -50,8 +46,10 @@ SUMMARY_PAGE = {
 }
 
 
-# Takes in a simple set of conditions and builds them into the form runner format
 def build_conditions(component: Component) -> list:
+    """
+    Takes in a simple set of conditions and builds them into the form runner format
+    """
     results = []
     for condition in component.conditions:
         result = {
@@ -82,6 +80,9 @@ def build_conditions(component: Component) -> list:
 
 
 def build_component(component: Component) -> dict:
+    """
+    Builds the component json in form runner format for the supplied Component object
+    """
     built_component = {
         "options": component.options or {},
         "type": component.type.value,
@@ -91,6 +92,7 @@ def build_component(component: Component) -> dict:
         "name": component.runner_component_name,
         "metadata": {"fund_builder_id": str(component.component_id)},
     }
+    # add a reference to the relevant list if this component use a list
     if component.lizt:
         built_component.update({"list": component.lizt.name})
         built_component["metadata"].update({"fund_builder_list_id": str(component.list_id)})
@@ -98,6 +100,16 @@ def build_component(component: Component) -> dict:
 
 
 def build_page(page: Page = None, page_display_path: str = None) -> dict:
+    """
+    Builds the form runner JSON structure for the supplied page. If that page is None, retrieves a template
+    page with the display_path matching page_display_path.
+
+    This accounts for conditional logic where the destination target will be the display path of a template
+    page, but that page does not actually live in the main hierarchy as branching logic uses a fixed set of
+    conditions at this stage.
+
+    Then builds all the components on this page and adds them to the page json structure
+    """
     if not page:
         page = get_template_page_by_display_path(page_display_path)
     built_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
@@ -108,8 +120,9 @@ def build_page(page: Page = None, page_display_path: str = None) -> dict:
         }
     )
     # Having a 'null' controller element breaks the form-json, needs to not be there if blank
-    # if controller := input_page.get("controller", None):
-    #     page["controller"] = controller
+    if page.controller:
+        built_page["controller"] = page.controller
+
     for component in page.components:
         built_component = build_component(component)
 
@@ -121,6 +134,7 @@ def build_page(page: Page = None, page_display_path: str = None) -> dict:
 # Goes through the set of pages and updates the conditions and next properties to account for branching
 def build_navigation(partial_form_json: dict, input_pages: list[Page]) -> dict:
     # TODO order by index not order in list
+    # Think this is sorted now that the collection is sorted by index, but needs testing
     for i in range(0, len(input_pages)):
         if i < len(input_pages) - 1:
             next_path = input_pages[i + 1].display_path
@@ -165,7 +179,7 @@ def build_navigation(partial_form_json: dict, input_pages: list[Page]) -> dict:
                     }
                 )
 
-        # If there were no conditions and we just continue to the next page
+        # If there were no conditions we just continue to the next page
         if not has_conditions:
             this_page_in_results["next"].append({"path": f"/{next_path}"})
 
@@ -185,35 +199,11 @@ def build_lists(pages: list[dict]) -> list:
     return lists
 
 
-def build_start_page_content_component(content: str, pages) -> dict:
-    ask_about = '<p class="govuk-body">We will ask you about:</p> <ul>'
-    for page in pages:
-        ask_about += f"<li>{page['title']}</li>"
-    ask_about += "</ul>"
-
-    result = {
-        "name": "start-page-content",
-        "options": {},
-        "type": "Html",
-        "content": f'<p class="govuk-body">{content}</p>{ask_about}',
-        "schema": {},
-    }
-    return result
-
-
-def human_to_kebab_case(word: str) -> str | None:
-    if word:
-        return word.replace(" ", "-").strip().lower()
-
-
-def build_form_json(form: Form) -> dict:
-
-    results = copy.deepcopy(BASIC_FORM_STRUCTURE)
-    results["name"] = form.name_in_apply_json["en"]
-
-    for page in form.pages:
-        results["pages"].append(build_page(page=page))
-
+def build_start_page(content: str, form: Form) -> dict:
+    """
+    Builds the start page which contains just an html component comprising a bullet
+    list of the headings of all pages in this form
+    """
     start_page = copy.deepcopy(BASIC_PAGE_STRUCTURE)
     start_page.update(
         {
@@ -223,55 +213,57 @@ def build_form_json(form: Form) -> dict:
             "next": [{"path": f"/{form.pages[0].display_path}"}],
         }
     )
-    intro_content = build_start_page_content_component(content=None, pages=results["pages"])
-    start_page["components"].append(intro_content)
+    ask_about = '<p class="govuk-body">We will ask you about:</p> <ul>'
+    for page in form.pages:
+        ask_about += f"<li>{page.name_in_apply_json['en']}</li>"
+    ask_about += "</ul>"
 
+    start_page["components"].append(
+        {
+            "name": "start-page-content",
+            "options": {},
+            "type": "Html",
+            "content": f'<p class="govuk-body">{content}</p>{ask_about}',
+            "schema": {},
+        }
+    )
+    return start_page
+
+
+def human_to_kebab_case(word: str) -> str | None:
+    """
+    Converts the supplied string into all lower case, and replaces spaces with hyphens
+    """
+    if word:
+        return word.replace(" ", "-").strip().lower()
+
+
+def build_form_json(form: Form) -> dict:
+    """
+    Takes in a single Form object and then generates the form runner json for that form.
+
+    Inserts a start page to the beginning of the form, and the summary page at the end.
+    """
+
+    results = copy.deepcopy(BASIC_FORM_STRUCTURE)
+    results["name"] = form.name_in_apply_json["en"]
+
+    # Build the basic page structure
+    for page in form.pages:
+        results["pages"].append(build_page(page=page))
+
+    # Create the start page
+    start_page = build_start_page(content=None, form=form)
     results["pages"].append(start_page)
     results["startPage"] = start_page["path"]
 
+    # Build navigation and add any pages from branching logic
     results = build_navigation(results, form.pages)
 
+    # Build the list values
     results["lists"] = build_lists(results["pages"])
 
+    # Add on the summary page
     results["pages"].append(SUMMARY_PAGE)
 
     return results
-
-
-@click.command()
-@click.option(
-    "--input_folder",
-    default="./question_reuse/test_data/in/",
-    help="Input configuration",
-    prompt=True,
-)
-@click.option(
-    "--input_file",
-    default="org-info_basic_name_address.json",
-    help="Input configuration",
-    prompt=True,
-)
-@click.option(
-    "--output_folder",
-    default="../digital-form-builder/runner/dist/server/forms/",
-    help="Output destination",
-    prompt=True,
-)
-@click.option(
-    "--output_file",
-    default="single_name_address.json",
-    help="Output destination",
-    prompt=True,
-)
-def generate_form_json(input_folder, input_file, output_folder, output_file):
-    with open(os.path.join(input_folder, input_file), "r") as f:
-        input_data = json.load(f)
-
-    form_json = build_form_json(input_data)
-
-    with open(os.path.join(output_folder, output_file), "w") as f:
-        json.dump(form_json, f)
-
-
-if __name__ == "__main__":
-    generate_form_json()

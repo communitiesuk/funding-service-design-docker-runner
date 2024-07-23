@@ -16,6 +16,7 @@ from app.blueprints.fund_builder.forms.fund import FundForm
 from app.blueprints.fund_builder.forms.round import RoundForm
 from app.db.models.fund import Fund
 from app.db.models.round import Round
+from app.db.queries.application import clone_single_round
 from app.db.queries.application import get_form_by_id
 from app.db.queries.fund import add_fund
 from app.db.queries.fund import get_all_funds
@@ -65,6 +66,15 @@ def view_app_config(round_id):
     round = get_round_by_id(round_id)
     fund = get_fund_by_id(round.fund_id)
     return render_template("view_application_config.html", round=round, fund=fund)
+
+
+@build_fund_bp.route("/fund/<fund_id>/round/<round_id>/clone")
+def clone_round(round_id, fund_id):
+
+    cloned = clone_single_round(round_id=round_id, new_fund_id=fund_id, new_short_name=f"R-C{randint(0,999)}")
+    flash(f"Cloned new round: {cloned.short_name}")
+
+    return redirect(url_for("build_fund_bp.view_fund", fund_id=fund_id))
 
 
 @build_fund_bp.route("/fund/round/<round_id>/assessment_config")
