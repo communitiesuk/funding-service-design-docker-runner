@@ -10,15 +10,31 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "app.app.py",
-                "FLASK_DEBUG": "1"
+              "FLASK_APP": "app.app.py",
+              "FLASK_DEBUG": "1"
             },
-            "args": [
-                "run",
-                "--debug"
-            ],
+            "args": ["run", "--debug"],
             "jinja": true,
             "autoStartBrowser": false
-        }
+          },
+          {
+            "name": "Docker Runner FAB",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+              "host": "localhost",
+              "port": 5686
+            },
+            "pathMappings": [
+              {
+                "localRoot": "${workspaceFolder:funding-service-design-fund-application-builder}",
+                "remoteRoot": "."
+              }
+            ],
+            "justMyCode": true
+          }
+        ]
+      }
+      
     ]
 }

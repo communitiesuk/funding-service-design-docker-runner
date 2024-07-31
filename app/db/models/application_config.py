@@ -54,7 +54,7 @@ class Section(BaseModel):
     is_template = Column(Boolean, default=False, nullable=False)
     audit_info = Column(JSON(none_as_null=True))
     forms: Mapped[List["Form"]] = relationship(
-        "Form", order_by="Form.section_index", collection_class=ordering_list("section_index")
+        "Form", order_by="Form.section_index", collection_class=ordering_list("section_index"), passive_deletes="all"
     )
     index = Column(Integer())
     source_template_id = Column(UUID(as_uuid=True), nullable=True)
@@ -85,7 +85,7 @@ class Form(BaseModel):
     audit_info = Column(JSON(none_as_null=True))
     section_index = Column(Integer())
     pages: Mapped[List["Page"]] = relationship(
-        "Page", order_by="Page.form_index", collection_class=ordering_list("form_index")
+        "Page", order_by="Page.form_index", collection_class=ordering_list("form_index"), passive_deletes="all"
     )
     runner_publish_name = Column(db.String())
     source_template_id = Column(UUID(as_uuid=True), nullable=True)
@@ -117,7 +117,10 @@ class Page(BaseModel):
     form_index = Column(Integer())
     display_path = Column(String())
     components: Mapped[List["Component"]] = relationship(
-        "Component", order_by="Component.page_index", collection_class=ordering_list("page_index")
+        "Component",
+        order_by="Component.page_index",
+        collection_class=ordering_list("page_index"),
+        passive_deletes="all",
     )
     source_template_id = Column(UUID(as_uuid=True), nullable=True)
     controller = Column(String(), nullable=True)

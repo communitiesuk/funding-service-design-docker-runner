@@ -169,6 +169,8 @@ def test_clone_single_component(flask_test_client, _db):
     assert result
     new_id = result.component_id
 
+    assert old_id != new_id
+
     # check can retrieve new component
     assert _db.session.get(Component, new_id)
 
@@ -286,6 +288,8 @@ def test_clone_page_no_components(seed_dynamic_data, _db):
     assert result
     new_id = result.page_id
 
+    assert old_id != new_id
+
     # check new page exists
     new_page_from_db = _db.session.query(Page).where(Page.page_id == new_id).one_or_none()
     assert new_page_from_db
@@ -362,6 +366,8 @@ def test_clone_page_with_components(seed_dynamic_data, _db):
     result = clone_single_page(page_id=old_page_id, new_form_id=None)
     assert result
     new_id = result.page_id
+
+    assert old_page_id != new_id
 
     # check new page exists
     new_page_from_db = _db.session.query(Page).where(Page.page_id == new_id).one_or_none()
