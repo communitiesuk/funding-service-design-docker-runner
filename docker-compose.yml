@@ -27,7 +27,7 @@ services:
   application-store:
     build:
       context: ../funding-service-design-application-store
-    command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
+    command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
