@@ -101,7 +101,7 @@ services:
       build:
         context: ../funding-service-design-notification
       volumes: ['../funding-service-design-notification:/app']
-      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m wsgi"]
       ports:
         - 3006:8080
         - 5686:5678
