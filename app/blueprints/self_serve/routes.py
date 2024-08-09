@@ -1,7 +1,6 @@
 import json
 import os
 
-import requests
 from flask import Blueprint
 from flask import Response
 from flask import flash
@@ -23,8 +22,8 @@ from app.blueprints.self_serve.forms.form_form import FormForm
 from app.blueprints.self_serve.forms.page_form import PageForm
 from app.blueprints.self_serve.forms.question_form import QuestionForm
 from app.blueprints.self_serve.forms.section_form import SectionForm
-from app.question_reuse.generate_all_questions import print_html
-from app.question_reuse.generate_form import build_form_json
+from app.config_generator.generate_all_questions import print_html
+from app.config_generator.generate_form import build_form_json
 
 FORM_RUNNER_URL = os.getenv("FORM_RUNNER_INTERNAL_HOST", "http://form-runner:3009")
 FORM_RUNNER_URL_REDIRECT = os.getenv("FORM_RUNNER_EXTERNAL_HOST", "http://localhost:3009")
@@ -59,26 +58,16 @@ def human_to_kebab_case(word: str) -> str | None:
         return word.replace(" ", "-").strip().lower()
 
 
+def human_to_snake_case(word: str) -> str | None:
+    if word:
+        return word.replace(" ", "_").strip().lower()
+
+
 def generate_form_config_from_request():
-    pages = request.form.getlist("selected_pages")
     title = request.form.get("form_title", "My Form")
-    intro_content = request.form.get("startPageContent")
     form_id = human_to_kebab_case(title)
-    input_data = {"title": form_id, "pages": pages, "intro_content": intro_content}
-    form_json = build_form_json(form_title=title, input_json=input_data, form_id=form_id)
+    form_json = build_form_json(form)
     return {"form_json": form_json, "form_id": form_id, "title": title}
-
-
-@self_serve_bp.route("/preview", methods=["POST"])
-def preview_form():
-    form_config = generate_form_config_from_request()
-    form_config["form_json"]["outputs"][0]["outputConfiguration"][
-        "savePerPageUrl"
-    ] = "http://fsd-self-serve:8080/dev/save"
-    requests.post(
-        url=f"{FORM_RUNNER_URL}/publish", json={"id": form_config["form_id"], "configuration": form_config["form_json"]}
-    )
-    return redirect(f"{FORM_RUNNER_URL_REDIRECT}/{form_config['form_id']}")
 
 
 @self_serve_bp.route("/form_questions", methods=["POST"])
@@ -121,15 +110,13 @@ def view_section_questions():
 @self_serve_bp.route("section", methods=["GET", "POST", "PUT", "DELETE"])
 def section():
     # TODO: Create frontend routes and connect to middleware
-    if request.method == "GET":
-        pass
     if request.method == "PUT":
         pass
     if request.method == "DELETE":
         pass
 
     form = SectionForm()
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         save_template_section(form.as_dict())
         flash(message=f"Section '{form['builder_display_name'].data}' was saved")
         return redirect(url_for("self_serve_bp.index"))
@@ -151,15 +138,13 @@ def section():
 @self_serve_bp.route("/form", methods=["GET", "POST", "PUT", "DELETE"])
 def form():
     # TODO: Create frontend routes and connect to middleware
-    if request.method == "GET":
-        pass
     if request.method == "PUT":
         pass
     if request.method == "DELETE":
         pass
 
     form = FormForm()
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         new_form = {
             "builder_display_name": form.builder_display_name.data,
             "start_page_guidance": form.start_page_guidance.data,
@@ -191,15 +176,13 @@ def form():
 @self_serve_bp.route("/page", methods=["GET", "POST", "PUT", "DELETE"])
 def page():
     # TODO: Create frontend routes and connect to middleware
-    if request.method == "GET":
-        pass
     if request.method == "PUT":
         pass
     if request.method == "DELETE":
         pass
 
     form = PageForm()
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         new_page = {
             "id": form.id.data,
             "builder_display_name": form.builder_display_name.data,
@@ -225,8 +208,6 @@ def page():
 @self_serve_bp.route("/question", methods=["GET", "PUT", "POST", "DELETE"])
 def question():
     # TODO: Create frontend routes and connect to middleware
-    if request.method == "GET":
-        pass
     if request.method == "PUT":
         pass
     if request.method == "DELETE":
@@ -234,7 +215,7 @@ def question():
 
     form = QuestionForm()
     question = form.as_dict()
-    if form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         save_template_component(question)
         flash(message=f"Question '{question['title']}' was saved")
         return redirect(url_for("self_serve_bp.index"))

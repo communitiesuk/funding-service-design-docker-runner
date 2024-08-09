@@ -62,8 +62,11 @@ class Section(BaseModel):
     def __repr__(self):
         return f"Section({self.name_in_apply_json['en']}, Forms: {self.forms})"
 
-    def as_dict(self):
-        return {col.name: self.__getattribute__(col.name) for col in inspect(self).mapper.columns}
+    def as_dict(self, include_relationships=False):
+        result = {col.name: getattr(self, col.name) for col in inspect(self).mapper.columns}
+        if include_relationships & hasattr(self, "forms"):
+            result["forms"] = [form.as_dict() for form in self.forms if self.forms is not None]
+        return result
 
 
 @dataclass
@@ -93,8 +96,11 @@ class Form(BaseModel):
     def __repr__(self):
         return f"Form({self.runner_publish_name} - {self.name_in_apply_json['en']}, Pages: {self.pages})"
 
-    def as_dict(self):
-        return {col.name: self.__getattribute__(col.name) for col in inspect(self).mapper.columns}
+    def as_dict(self, include_relationships=False):
+        result = {col.name: getattr(self, col.name) for col in inspect(self).mapper.columns}
+        if include_relationships & hasattr(self, "pages"):
+            result["pages"] = [page.as_dict() for page in self.pages if self.pages is not None]
+        return result
 
 
 @dataclass
@@ -128,8 +134,13 @@ class Page(BaseModel):
     def __repr__(self):
         return f"Page(/{self.display_path} - {self.name_in_apply_json['en']}, Components: {self.components})"
 
-    def as_dict(self):
-        return {col.name: self.__getattribute__(col.name) for col in inspect(self).mapper.columns}
+    def as_dict(self, include_relationships=False):
+        result = {col.name: getattr(self, col.name) for col in inspect(self).mapper.columns}
+
+        if include_relationships & hasattr(self, "components"):
+            result["components"] = [component.as_dict() for component in self.components if self.components is not None]
+
+        return result
 
 
 # Ensure we can only have one template with a particular display_path value
