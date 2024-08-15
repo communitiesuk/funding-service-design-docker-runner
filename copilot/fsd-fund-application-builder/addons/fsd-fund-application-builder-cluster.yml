@@ -9,14 +9,14 @@ Parameters:
     Type: String
     Description: The name of the service, job, or workflow being deployed.
   # Customize your Aurora Serverless cluster by setting the default value of the following parameters.
-  fsdselfserveclusterDBName:
+  fsdfundapplicationbuilderclusterDBName:
     Type: String
     Description: The name of the initial database to be created in the Aurora Serverless v2 cluster.
-    Default: fsd_self_serve
+    Default: fsd_application_builder
     # Cannot have special characters
     # Naming constraints: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Limits.html#RDS_Limits.Constraints
 Mappings:
-  fsdselfserveclusterEnvScalingConfigurationMap:
+  fsdfundapplicationbuilderclusterEnvScalingConfigurationMap:
     All:
       "DBMinCapacity": 0.5 # AllowedValues: from 0.5 through 128
       "DBMaxCapacity": 8   # AllowedValues: from 0.5 through 128
@@ -31,27 +31,27 @@ Mappings:
       "SecurityGroup": "sg-08cecea8f9b8a4ec9"
 
 Resources:
-  fsdselfserveclusterDBSubnetGroup:
+  fsdfundapplicationbuilderclusterDBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
     Properties:
       DBSubnetGroupDescription: Group of Copilot private subnets for Aurora Serverless v2 cluster.
       SubnetIds:
         !Split [',', { 'Fn::ImportValue': !Sub '${App}-${Env}-PrivateSubnets' }]
-  fsdselfserveclusterSecurityGroup:
+  fsdfundapplicationbuilderclusterSecurityGroup:
     Metadata:
-      'aws:copilot:description': 'A security group for your workload to access the Aurora Serverless v2 cluster fsdselfservecluster'
+      'aws:copilot:description': 'A security group for your workload to access the Aurora Serverless v2 cluster fsdfundapplicationbuildercluster'
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
-      GroupDescription: !Sub 'The Security Group for ${Name} to access Aurora Serverless v2 cluster fsdselfservecluster.'
+      GroupDescription: !Sub 'The Security Group for ${Name} to access Aurora Serverless v2 cluster fsdfundapplicationbuildercluster.'
       VpcId:
         Fn::ImportValue:
           !Sub '${App}-${Env}-VpcId'
       Tags:
         - Key: Name
           Value: !Sub 'copilot-${App}-${Env}-${Name}-Aurora'
-  fsdselfserveclusterDBClusterSecurityGroup:
+  fsdfundapplicationbuilderclusterDBClusterSecurityGroup:
     Metadata:
-      'aws:copilot:description': 'A security group for your Aurora Serverless v2 cluster fsdselfservecluster'
+      'aws:copilot:description': 'A security group for your Aurora Serverless v2 cluster fsdfundapplicationbuildercluster'
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: The Security Group for the Aurora Serverless v2 cluster.
@@ -60,7 +60,7 @@ Resources:
           FromPort: 5432
           IpProtocol: tcp
           Description: !Sub 'From the Aurora Security Group of the workload ${Name}.'
-          SourceSecurityGroupId: !Ref fsdselfserveclusterSecurityGroup
+          SourceSecurityGroupId: !Ref fsdfundapplicationbuilderclusterSecurityGroup
         - ToPort: 5432
           FromPort: 5432
           IpProtocol: tcp
@@ -72,7 +72,7 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub 'copilot-${App}-${Env}-${Name}-Aurora'
-  fsdselfserveclusterAuroraSecret:
+  fsdfundapplicationbuilderclusterAuroraSecret:
     Metadata:
       'aws:copilot:description': 'A Secrets Manager secret to store your DB credentials'
     Type: AWS::SecretsManager::Secret
@@ -84,7 +84,7 @@ Resources:
         ExcludePunctuation: true
         IncludeSpace: false
         PasswordLength: 16
-  fsdselfserveclusterDBClusterParameterGroup:
+  fsdfundapplicationbuilderclusterDBClusterParameterGroup:
     Metadata:
       'aws:copilot:description': 'A DB parameter group for engine configuration values'
     Type: 'AWS::RDS::DBClusterParameterGroup'
@@ -93,35 +93,35 @@ Resources:
       Family: 'aurora-postgresql14'
       Parameters:
         client_encoding: 'UTF8'
-  fsdselfserveclusterDBCluster:
+  fsdfundapplicationbuilderclusterDBCluster:
     Metadata:
-      'aws:copilot:description': 'The fsdselfservecluster Aurora Serverless v2 database cluster'
+      'aws:copilot:description': 'The fsdfundapplicationbuildercluster Aurora Serverless v2 database cluster'
     Type: 'AWS::RDS::DBCluster'
     Properties:
       MasterUsername:
-        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:username}}" ]]  # pragma: allowlist secret
+        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:username}}" ]]  # pragma: allowlist secret
       MasterUserPassword:
-        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:password}}" ]]  # pragma: allowlist secret
-      DatabaseName: !Ref fsdselfserveclusterDBName
+        !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:password}}" ]]  # pragma: allowlist secret
+      DatabaseName: !Ref fsdfundapplicationbuilderclusterDBName
       Engine: 'aurora-postgresql'
       EngineVersion: '14.4'
-      DBClusterParameterGroupName: !Ref fsdselfserveclusterDBClusterParameterGroup
-      DBSubnetGroupName: !Ref fsdselfserveclusterDBSubnetGroup
+      DBClusterParameterGroupName: !Ref fsdfundapplicationbuilderclusterDBClusterParameterGroup
+      DBSubnetGroupName: !Ref fsdfundapplicationbuilderclusterDBSubnetGroup
       Port: 5432
       StorageEncrypted: true
       BackupRetentionPeriod: 8
       VpcSecurityGroupIds:
-        - !Ref fsdselfserveclusterDBClusterSecurityGroup
+        - !Ref fsdfundapplicationbuilderclusterDBClusterSecurityGroup
       ServerlessV2ScalingConfiguration:
         # Replace "All" below with "!Ref Env" to set different autoscaling limits per environment.
-        MinCapacity: !FindInMap [fsdselfserveclusterEnvScalingConfigurationMap, All, DBMinCapacity]
-        MaxCapacity: !FindInMap [fsdselfserveclusterEnvScalingConfigurationMap, All, DBMaxCapacity]
-  fsdselfserveclusterDBWriterInstance:
+        MinCapacity: !FindInMap [fsdfundapplicationbuilderclusterEnvScalingConfigurationMap, All, DBMinCapacity]
+        MaxCapacity: !FindInMap [fsdfundapplicationbuilderclusterEnvScalingConfigurationMap, All, DBMaxCapacity]
+  fsdfundapplicationbuilderclusterDBWriterInstance:
     Metadata:
-      'aws:copilot:description': 'The fsdselfservecluster Aurora Serverless v2 writer instance'
+      'aws:copilot:description': 'The fsdfundapplicationbuildercluster Aurora Serverless v2 writer instance'
     Type: 'AWS::RDS::DBInstance'
     Properties:
-      DBClusterIdentifier: !Ref fsdselfserveclusterDBCluster
+      DBClusterIdentifier: !Ref fsdfundapplicationbuilderclusterDBCluster
       DBInstanceClass: db.serverless
       Engine: 'aurora-postgresql'
       PromotionTier: 1
@@ -130,11 +130,11 @@ Resources:
         - !GetAZs
           Ref: AWS::Region
 
-  fsdselfserveclusterSecretAuroraClusterAttachment:
+  fsdfundapplicationbuilderclusterSecretAuroraClusterAttachment:
     Type: AWS::SecretsManager::SecretTargetAttachment
     Properties:
-      SecretId: !Ref fsdselfserveclusterAuroraSecret
-      TargetId: !Ref fsdselfserveclusterDBCluster
+      SecretId: !Ref fsdfundapplicationbuilderclusterAuroraSecret
+      TargetId: !Ref fsdfundapplicationbuilderclusterDBCluster
       TargetType: AWS::RDS::DBCluster
 
   FormRunnerFormUploadsBucketAccessPolicy:
@@ -166,18 +166,18 @@ Outputs:
     Value:
       !Sub
       - "postgres://${USERNAME}:${PASSWORD}@${HOSTNAME}:${PORT}/${DBNAME}"
-      - USERNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:username}}" ]]  # pragma: allowlist secret
-        PASSWORD: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:password}}" ]]  # pragma: allowlist secret
-        HOSTNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:host}}" ]]  # pragma: allowlist secret
-        PORT: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:port}}" ]]  # pragma: allowlist secret
-        DBNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdselfserveclusterAuroraSecret, ":SecretString:dbname}}" ]]  # pragma: allowlist secret
+      - USERNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:username}}" ]]  # pragma: allowlist secret
+        PASSWORD: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:password}}" ]]  # pragma: allowlist secret
+        HOSTNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:host}}" ]]  # pragma: allowlist secret
+        PORT: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:port}}" ]]  # pragma: allowlist secret
+        DBNAME: !Join [ "",  [ '{{resolve:secretsmanager:', !Ref fsdfundapplicationbuilderclusterAuroraSecret, ":SecretString:dbname}}" ]]  # pragma: allowlist secret
 
-  fsdselfserveclusterSecret: # injected as FSDselfserveCLUSTER_SECRET environment variable by Copilot.
+  fsdfundapplicationbuilderclusterSecret: # injected as FSDfundapplicationbuilderCLUSTER_SECRET environment variable by Copilot.
     Description: "The JSON secret that holds the database username and password. Fields are 'host', 'port', 'dbname', 'username', 'password', 'dbClusterIdentifier' and 'engine'"
-    Value: !Ref fsdselfserveclusterAuroraSecret
-  fsdselfserveclusterSecurityGroup:
+    Value: !Ref fsdfundapplicationbuilderclusterAuroraSecret
+  fsdfundapplicationbuilderclusterSecurityGroup:
     Description: "The security group to attach to the workload."
-    Value: !Ref fsdselfserveclusterSecurityGroup
+    Value: !Ref fsdfundapplicationbuilderclusterSecurityGroup
   FormRunnerFormUploadsBucketAccessPolicyArn:
     Description: "The ARN of the ManagedPolicy to attach to the task role."
     Value: !Ref FormRunnerFormUploadsBucketAccessPolicy
