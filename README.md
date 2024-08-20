@@ -31,7 +31,7 @@ To run the e2e tests against the docker runner, set the following env vars:
 # Scripts
 ## reset-all-repos
 ### Usage 1
-Shell script to bulk clone git repositories from `https://github.com/communitiesuk`. Following repositories are cloned `("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder")`
+Shell script to bulk clone git repositories from `https://github.com/communitiesuk`. Following repositories are cloned `("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder-adapter")`
 
         scripts/reset-all-repos.sh -f /path/to/workspace/dir
 
@@ -100,7 +100,7 @@ This allows you to then configure your chosen debugger (in this case VS code) to
 Save your launch.json, navigate to the debug view and select this new configuration from the drop down, then click the green triangle button to connect the debugger. Add some breakpoints and you should be able to step through the code executing in the docker runner.
 
 ## Form Runner
-The form runner also runs in debug mode in docker compose, using the command `yarn runner startdebug`. There is a launch config inside the digital-form-builder repo called 'Docker Runner forms' - navigate to the debug view, select this configuration and launch the debugger. You can then set breakpoints in the typescript code to step through the runner code.
+The form runner also runs in debug mode in docker compose, using the command `yarn runner startdebug`. There is a launch config inside the digital-form-builder-adapter repo called 'Docker Runner forms' - navigate to the debug view, select this configuration and launch the debugger. You can then set breakpoints in the typescript code to step through the runner code.
 
 The debugger for the form-runner uses `nodemon` on port `9228` which is then exposed from the runner.
 

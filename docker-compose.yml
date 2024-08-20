@@ -144,14 +144,15 @@ services:
     depends_on:
       - localstack
     build:
-      context: ../digital-form-builder
-      dockerfile: ./fsd_config/Dockerfile
-    command: yarn runner startdebug
+      context: ../digital-form-builder-adapter
+      dockerfile: ./runner/Dockerfile
+    command: yarn runner production
     ports:
       - 3009:3009
       - 9228:9228
     environment:
       - LOG_LEVEL=debug
+      - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
