@@ -2,10 +2,6 @@ from uuid import uuid4
 
 import pytest
 
-from app.config_generator.generate_form import build_form_json
-from app.config_generator.scripts.generate_assessment_config import (
-    build_assessment_config,
-)
 from app.db.models import Component
 from app.db.models import ComponentType
 from app.db.models import Form
@@ -16,6 +12,8 @@ from app.db.models import Round
 from app.db.models import Section
 from app.db.queries.application import get_component_by_id
 from app.db.queries.fund import get_fund_by_id
+from app.export_config.generate_assessment_config import build_assessment_config
+from app.export_config.generate_form import build_form_json
 from tasks.test_data import BASIC_FUND_INFO
 from tasks.test_data import BASIC_ROUND_INFO
 
@@ -95,12 +93,15 @@ page_2_id = uuid4()
             ),
             Page(
                 page_id=page_2_id,
-                form_id=None,
+                form_id=form_id,
                 display_path="organisation-alternative-names",
                 name_in_apply_json={"en": "Alternative names of your organisation"},
                 form_index=2,
                 is_template=True,
             ),
+        ],
+        "default_next_pages": [
+            {"page_id": page_1_id, "default_next_page_id": page_2_id},
         ],
         "components": [
             Component(
