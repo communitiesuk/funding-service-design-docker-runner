@@ -1,16 +1,22 @@
 services:
   localstack:
-    image: localstack/localstack:2.2.0
+    image: localstack/localstack
     env_file: .awslocal.env
     environment:
       - SERVICES=s3,sqs
+      - DEBUG=1
+      - SQS_DEBUG=1
       - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
     ports:
-      - 4566:4566 # LocalStack endpoint
+      - "127.0.0.1:4566:4566"
+      # - 4566:4566 # LocalStack endpoint
       # - 4510-4559:4510-4559 # external services port range
     volumes:
-      - ./docker-localstack:/etc/localstack/init/ready.d
-      - localstack:/tmp/localstack
+      # - ./docker-localstack:/etc/localstack/init/ready.d
+      # - localstack:/tmp/localstack
+      - "./docker-localstack/setup-awslocal.sh:/etc/localstack/init/ready.d/script.sh"
+      - "/var/run/docker.sock:/var/run/docker.sock"
   fund-store:
     build:
       context: ../funding-service-design-fund-store
@@ -59,7 +65,7 @@ services:
       build:
         context: ../funding-service-design-authenticator
       volumes: ['../funding-service-design-authenticator:/app']
-      command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
+      command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
       ports:
         - 3004:8080
         - 5684:5678
@@ -70,6 +76,7 @@ services:
         - redis-data
       env_file: .awslocal.env
       environment:
+        - FLASK_ENV=development
         - REDIS_INSTANCE_URI=redis://redis-data:6379
         - ACCOUNT_STORE_API_HOST=http://account-store:8080
         - APPLICATION_STORE_API_HOST=http://application-store:8080
@@ -144,15 +151,14 @@ services:
     depends_on:
       - localstack
     build:
-      context: ../digital-form-builder-adapter
-      dockerfile: ./runner/Dockerfile
-    command: yarn runner production
+      context: ../digital-form-builder
+      dockerfile: ./fsd_config/Dockerfile
+    command: yarn runner startdebug
     ports:
       - 3009:3009
       - 9228:9228
     environment:
       - LOG_LEVEL=debug
-      - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="

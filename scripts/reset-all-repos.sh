@@ -13,7 +13,7 @@ while getopts 'wmfal:' OPTION; do
             reset_to_main=true
             ;;
         f)
-            echo """Will do a git clone of ("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder-adapter")"""
+            echo """Will do a git clone of ("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder")"""
             fresh_clone=true
             wipe_postgres=false
             reset_to_main=false
@@ -59,7 +59,7 @@ if [ "$fresh_clone" = true ] ; then
     echo -------------------------------------------------------------------------
     echo ========= Cloning repo digital-form-builder =======
     cd $workspace_dir
-    git clone https://github.com/communitiesuk/digital-form-builder-adapter.git
+    git clone https://github.com/communitiesuk/digital-form-builder.git
     echo -------------------------------------------------------------------------
 fi
 
@@ -89,8 +89,8 @@ if [ "$reset_to_main" = true ] ; then
     git pull
     done
 
-    echo ========= Resetting "digital-form-builder-adapter" =======
-    cd $workspace_dir/digital-form-builder-adapter
+    echo ========= Resetting "digital-form-builder" =======
+    cd $workspace_dir/digital-form-builder
     git status
     git checkout main
     git pull
@@ -110,8 +110,8 @@ if [ "$git_log" = true ] ; then
     git log -n 1 --format=format:%H
     done
     echo -------------------------------------------------------------------------
-    cd $workspace_dir/digital-form-builder-adapter
-    echo digital-form-builder-adapter
+    cd $workspace_dir/digital-form-builder
+    echo digital-form-builder
     git log -n 1 --format=format:%H
     echo -------------------------------------------------------------------------
 

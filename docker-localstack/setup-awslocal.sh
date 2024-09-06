@@ -5,9 +5,7 @@ if awslocal s3 ls | grep -q $AWS_BUCKET_NAME; then
   echo "Bucket already exists!"
 else
   awslocal s3api \
-  create-bucket --bucket $AWS_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
-  --region $AWS_REGION
+  create-bucket --bucket $AWS_BUCKET_NAME --region $AWS_REGION
   echo "Created Bucket $AWS_BUCKET_NAME!"
   awslocal s3api \
   put-bucket-cors --bucket $AWS_BUCKET_NAME \
@@ -28,9 +26,7 @@ if awslocal s3 ls | grep -q $AWS_MSG_BUCKET_NAME; then
   echo "Bucket already exists!"
 else
   awslocal s3api \
-  create-bucket --bucket $AWS_MSG_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
-  --region $AWS_REGION
+  create-bucket --bucket $AWS_MSG_BUCKET_NAME --region $AWS_REGION
   echo "Created Bucket $AWS_BUCKET_NAME!"
   awslocal s3api \
   put-bucket-cors --bucket $AWS_MSG_BUCKET_NAME \
