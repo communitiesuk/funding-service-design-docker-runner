@@ -1,16 +1,16 @@
 services:
   localstack:
-    image: localstack/localstack:2.2.0
+    image: localstack/localstack:3.7.2
     env_file: .awslocal.env
     environment:
       - SERVICES=s3,sqs
-      - DATA_DIR=/tmp/localstack/data
+      - PERSISTENCE=1
     ports:
       - 4566:4566 # LocalStack endpoint
       # - 4510-4559:4510-4559 # external services port range
     volumes:
       - ./docker-localstack:/etc/localstack/init/ready.d
-      - localstack:/tmp/localstack
+      - localstack:/var/lib/localstack
   fund-store:
     build:
       context: ../funding-service-design-fund-store

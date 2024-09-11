@@ -6,7 +6,6 @@ if awslocal s3 ls | grep -q $AWS_BUCKET_NAME; then
 else
   awslocal s3api \
   create-bucket --bucket $AWS_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
   --region $AWS_REGION
   echo "Created Bucket $AWS_BUCKET_NAME!"
   awslocal s3api \
@@ -29,7 +28,6 @@ if awslocal s3 ls | grep -q $AWS_MSG_BUCKET_NAME; then
 else
   awslocal s3api \
   create-bucket --bucket $AWS_MSG_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
   --region $AWS_REGION
   echo "Created Bucket $AWS_BUCKET_NAME!"
   awslocal s3api \
