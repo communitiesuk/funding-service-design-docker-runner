@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# AWS_REGION is being overwritten by localstack on startup, the other environement vars passed in are respected
+# This should be addressed in a future release https://github.com/localstack/localstack/issues/11387
+AWS_REGION=eu-west-2
+AWS_DEFAULT_REGION=eu-west-2
+
 # Create the bucket using awslocal
 if awslocal s3 ls | grep -q $AWS_BUCKET_NAME; then
   echo "Bucket already exists!"
