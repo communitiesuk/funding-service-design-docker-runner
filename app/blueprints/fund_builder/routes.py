@@ -24,12 +24,16 @@ from app.db.models.fund import Fund
 from app.db.models.round import Round
 from app.db.queries.application import clone_single_form
 from app.db.queries.application import clone_single_round
-from app.db.queries.application import delete_form
-from app.db.queries.application import delete_section
+from app.db.queries.application import delete_form_from_section
+from app.db.queries.application import delete_section_from_round
 from app.db.queries.application import get_all_template_forms
 from app.db.queries.application import get_form_by_id
 from app.db.queries.application import get_section_by_id
 from app.db.queries.application import insert_new_section
+from app.db.queries.application import move_form_down
+from app.db.queries.application import move_form_up
+from app.db.queries.application import move_section_down
+from app.db.queries.application import move_section_up
 from app.db.queries.application import update_section
 from app.db.queries.fund import add_fund
 from app.db.queries.fund import get_all_funds
@@ -72,8 +76,15 @@ def section(round_id):
         "round_id": str(round_id),
     }
     existing_section = None
+    # TODO there must be a better way than a pile of ifs...
     if request.args.get("action") == "remove":
-        delete_section(section_id=request.args.get("section_id"), cascade=True)
+        delete_section_from_round(round_id=round_id, section_id=request.args.get("section_id"), cascade=True)
+        return redirect(url_for("build_fund_bp.build_application", round_id=round_id))
+    if request.args.get("action") == "move_up":
+        move_section_up(round_id=round_id, section_index_to_move_up=int(request.args.get("index")))
+        return redirect(url_for("build_fund_bp.build_application", round_id=round_id))
+    if request.args.get("action") == "move_down":
+        move_section_down(round_id=round_id, section_index_to_move_down=int(request.args.get("index")))
         return redirect(url_for("build_fund_bp.build_application", round_id=round_id))
     if form.validate_on_submit():
         count_existing_sections = len(round_obj.sections)
@@ -116,17 +127,22 @@ def section(round_id):
     return render_template("section.html", form=form, **params)
 
 
-@build_fund_bp.route("/fund/round/<round_id>/section/<section_id>/forms", methods=["POST"])
+@build_fund_bp.route("/fund/round/<round_id>/section/<section_id>/forms", methods=["POST", "GET"])
 def configure_forms_in_section(round_id, section_id):
-    if request.method == "POST":
+    if request.method == "GET":
         if request.args.get("action") == "remove":
             form_id = request.args.get("form_id")
-            delete_form(form_id=form_id, cascade=True)
-        else:
-            template_id = request.form.get("template_id")
-            section = get_section_by_id(section_id=section_id)
-            new_section_index = max(len(section.forms) + 1, 1)
-            clone_single_form(form_id=template_id, new_section_id=section_id, section_index=new_section_index)
+            delete_form_from_section(section_id=section_id, form_id=form_id, cascade=True)
+        if request.args.get("action") == "move_up":
+            move_form_up(section_id=section_id, form_index_to_move_up=int(request.args.get("index")))
+        if request.args.get("action") == "move_down":
+            move_form_down(section_id=section_id, form_index_to_move_down=int(request.args.get("index")))
+
+    if request.method == "POST":
+        template_id = request.form.get("template_id")
+        section = get_section_by_id(section_id=section_id)
+        new_section_index = max(len(section.forms) + 1, 1)
+        clone_single_form(form_id=template_id, new_section_id=section_id, section_index=new_section_index)
 
     return redirect(url_for("build_fund_bp.section", round_id=round_id, section_id=section_id))
 
