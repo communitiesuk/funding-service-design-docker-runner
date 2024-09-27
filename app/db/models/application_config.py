@@ -41,6 +41,26 @@ class ComponentType(Enum):
     CLIENT_SIDE_FILE_UPLOAD_FIELD = "ClientSideFileUploadField"
     WEBSITE_FIELD = "WebsiteField"
     MULTILINE_TEXT_FIELD = "MultilineTextField"
+    NUMBER_FIELD = "NumberField"
+    DATE_FIELD = "DateField"
+    DATE_TIME_FIELD = "DateTimeField"
+    DATE_TIME_PARTS_FIELD = "DateTimePartsField"
+    SELECT_FIELD = "SelectField"
+    INSET_TEXT_FIELD = "InsetText"
+    DETAILS_FIELD = "Details"
+    LIST_FIELD = "List"
+    AUTO_COMPLETE_FIELD = "AutocompleteField"
+    FILE_UPLOAD_FIELD = "FileUploadField"
+    MONTH_YEAR_FIELD = "MonthYearField"
+    TIME_FIELD = "TimeField"
+
+
+READ_ONLY_COMPONENTS = [
+    ComponentType.HTML,
+    ComponentType.PARA,
+    ComponentType.INSET_TEXT_FIELD,
+    ComponentType.DETAILS_FIELD,
+]
 
 
 @dataclass
@@ -196,7 +216,8 @@ class Component(BaseModel):
         nullable=True,  # will be null where this is a template and not linked to a theme
     )
     # TODO make these 2 json so we can do welsh?
-    title = Column(String())
+    title = Column(String(), nullable=True)
+    content = Column(String(), nullable=True)
     hint_text = Column(String(), nullable=True)
     options = Column(JSON(none_as_null=False))
     type = Column(ENUM(ComponentType))
@@ -208,7 +229,7 @@ class Component(BaseModel):
     conditions = Column(JSON(none_as_null=True))
     source_template_id = Column(UUID(as_uuid=True), nullable=True)
     runner_component_name = Column(
-        String(), nullable=False
+        String(), nullable=True  # None for display only fields
     )  # TODO add validation to make sure it's only letters, numbers and _
     list_id = Column(
         UUID(as_uuid=True),

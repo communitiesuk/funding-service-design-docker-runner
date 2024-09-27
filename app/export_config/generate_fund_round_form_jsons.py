@@ -12,7 +12,6 @@ form_schema = {
     "type": "object",
     "properties": {
         "name": {"type": "string"},
-        "metadata": {"type": "object"},
         "startPage": {"type": "string"},
         "sections": {"type": "array"},
         "pages": {
@@ -32,7 +31,8 @@ form_schema = {
                                     "properties": {"hideTitle": {"type": "boolean"}, "classes": {"type": "string"}},
                                 },
                                 "type": {"type": "string"},
-                                "title": {"type": "string"},
+                                "title": {"type": ["string", "null"]},
+                                "content": {"type": ["string", "null"]},
                                 "hint": {"type": "string"},
                                 "schema": {"type": "object"},
                                 "name": {"type": "string"},
@@ -48,7 +48,6 @@ form_schema = {
         },
         "lists": {"type": "array"},
         "conditions": {"type": "array"},
-        "fees": {"type": "array"},
         "outputs": {
             "type": "array",
         },
@@ -56,15 +55,13 @@ form_schema = {
         # Add other top-level keys as needed
     },
     "required": [
-        "metadata",
         "startPage",
+        "name",
         "pages",
         "lists",
         "conditions",
-        "fees",
         "outputs",
         "skipSummary",
-        "name",
         "sections",
     ],
 }

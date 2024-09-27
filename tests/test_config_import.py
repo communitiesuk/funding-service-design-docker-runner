@@ -1,17 +1,27 @@
 import json
 import os
 
+import pytest
+
 from app.db.models import Component
 from app.db.models import Form
 from app.db.models import Page
 from app.import_config.load_form_json import load_form_jsons
 
 
-def test_generate_config_for_round_valid_input(seed_dynamic_data, _db):
+# add files in /test_data t orun the below test against each file
+@pytest.mark.parametrize(
+    "filename",
+    [
+        "optional-all-components.json",
+        "required-all-components.json",
+    ],
+)
+def test_generate_config_for_round_valid_input(seed_dynamic_data, _db, filename):
     form_configs = []
-    filename = "test-import-form.json"
     script_dir = os.path.dirname(__file__)
-    file_path = os.path.join(script_dir, filename)
+    test_data_dir = os.path.join(script_dir, "test_data")
+    file_path = os.path.join(test_data_dir, filename)
     with open(file_path, "r") as json_file:
         form = json.load(json_file)
         form["filename"] = filename
@@ -19,10 +29,10 @@ def test_generate_config_for_round_valid_input(seed_dynamic_data, _db):
     load_form_jsons(form_configs)
 
     expected_form_count = 1
-    expected_page_count_for_form = 19
-    expected_component_count_for_form = 25
+    expected_page_count_for_form = 8
+    expected_component_count_for_form = 27
     # check form config is in the database
-    forms = _db.session.query(Form).filter(Form.template_name == "test-import-form.json")
+    forms = _db.session.query(Form).filter(Form.template_name == filename)
     assert forms.count() == expected_form_count
     form = forms.first()
     pages = _db.session.query(Page).filter(Page.form_id == form.form_id)

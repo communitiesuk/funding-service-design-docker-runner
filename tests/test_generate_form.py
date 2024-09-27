@@ -245,29 +245,28 @@ id2 = uuid4()
                 title="test_title",
                 type=ComponentType.TEXT_FIELD,
                 conditions=[
-                    {"name": "test_condition", "operator": "is", "value": "yes"},
+                    {
+                        "name": "test_condition",
+                        "display_name": "display name",
+                        "operator": "is",
+                        "value": {"type": "Value", "value": "yes", "display": "yes"},
+                        "destination_page_path": "./who-knows",
+                        "coordinator": None,
+                    },
                 ],
                 runner_component_name="test_name",
             ),
             [
                 {
-                    "displayName": "test_condition",
+                    "displayName": "display name",
                     "name": "test_condition",
                     "value": {
-                        "name": "test_condition",
+                        "name": "display name",
                         "conditions": [
                             {
-                                "field": {
-                                    "name": "test_name",
-                                    "type": "TextField",
-                                    "display": "test_title",
-                                },
+                                "field": {"name": "test_name", "type": "TextField", "display": "test_title"},
                                 "operator": "is",
-                                "value": {
-                                    "type": "Value",
-                                    "value": "yes",
-                                    "display": "yes",
-                                },
+                                "value": {"type": "Value", "value": "yes", "display": "yes"},
                             }
                         ],
                     },
@@ -280,53 +279,49 @@ id2 = uuid4()
                 title="test_title_2",
                 type=ComponentType.TEXT_FIELD,
                 conditions=[
-                    {"name": "test_condition", "operator": "is", "value": "yes"},
-                    {"name": "test_condition2", "operator": "is", "value": "no"},
+                    {
+                        "name": "test_condition",
+                        "display_name": "display name",
+                        "operator": "is",
+                        "value": {"type": "Value", "value": "yes", "display": "yes"},
+                        "destination_page_path": "./who-knows",
+                    },
+                    {
+                        "name": "test_condition2",
+                        "display_name": "display name",
+                        "operator": "is",
+                        "value": {"type": "Value", "value": "no", "display": "no"},
+                        "destination_page_path": "./who-knows2",
+                    },
                 ],
                 runner_component_name="test_name",
             ),
             [
                 {
-                    "displayName": "test_condition",
+                    "displayName": "display name",
                     "name": "test_condition",
                     "value": {
-                        "name": "test_condition",
+                        "name": "display name",
                         "conditions": [
                             {
-                                "field": {
-                                    "name": "test_name",
-                                    "type": "TextField",
-                                    "display": "test_title_2",
-                                },
+                                "field": {"name": "test_name", "type": "TextField", "display": "test_title_2"},
                                 "operator": "is",
-                                "value": {
-                                    "type": "Value",
-                                    "value": "yes",
-                                    "display": "yes",
-                                },
-                            },
+                                "value": {"type": "Value", "value": "yes", "display": "yes"},
+                            }
                         ],
                     },
                 },
                 {
-                    "displayName": "test_condition2",
+                    "displayName": "display name",
                     "name": "test_condition2",
                     "value": {
-                        "name": "test_condition2",
+                        "name": "display name",
                         "conditions": [
                             {
-                                "field": {
-                                    "name": "test_name",
-                                    "type": "TextField",
-                                    "display": "test_title_2",
-                                },
+                                "field": {"name": "test_name", "type": "TextField", "display": "test_title_2"},
                                 "operator": "is",
-                                "value": {
-                                    "type": "Value",
-                                    "value": "no",
-                                    "display": "no",
-                                },
-                            },
+                                "value": {"type": "Value", "value": "no", "display": "no"},
+                            }
                         ],
                     },
                 },
@@ -471,16 +466,20 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
                             type=ComponentType.TEXT_FIELD,
                             conditions=[
                                 {
-                                    "name": "organisation_other_names_no",
-                                    "operator": "is",
-                                    "value": "no",
+                                    "name": "orgno",
+                                    "display_name": "organisation_other_names_no",
+                                    "value": {"type": "Value", "value": "no", "display": "no"},
                                     "destination_page_path": "summary",
+                                    "operator": "is",
+                                    "coordinator": None,
                                 },
                                 {
-                                    "name": "organisation_other_names_yes",
+                                    "name": "orgyes",
+                                    "display_name": "organisation_other_names_yes",
                                     "operator": "is",
-                                    "value": "yes",
+                                    "value": {"type": "Value", "value": "yes", "display": "yes"},
                                     "destination_page_path": "organisation-alternative-names",
+                                    "coordinator": None,
                                 },
                             ],
                             runner_component_name="test_c_1",
@@ -537,11 +536,11 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
                 "/organisation-name": [
                     {
                         "path": "/summary",
-                        "condition": "organisation_other_names_no",
+                        "condition": "orgno",
                     },
                     {
                         "path": "/organisation-alternative-names",
-                        "condition": "organisation_other_names_yes",
+                        "condition": "orgyes",
                     },
                 ],
                 "/organisation-alternative-names": [{"path": "/summary"}],
@@ -549,7 +548,7 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
             [
                 {
                     "displayName": "organisation_other_names_no",
-                    "name": "organisation_other_names_no",
+                    "name": "orgno",
                     "value": {
                         "name": "organisation_other_names_no",
                         "conditions": [
@@ -571,7 +570,7 @@ def test_build_navigation_no_conditions(mocker, input_partial_json, input_pages,
                 },
                 {
                     "displayName": "organisation_other_names_yes",
-                    "name": "organisation_other_names_yes",
+                    "name": "orgyes",
                     "value": {
                         "name": "organisation_other_names_yes",
                         "conditions": [

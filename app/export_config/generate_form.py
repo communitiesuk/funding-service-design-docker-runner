@@ -3,16 +3,16 @@ import copy
 from app.db.models import Component
 from app.db.models import Form
 from app.db.models import Page
+from app.db.models.application_config import READ_ONLY_COMPONENTS
+from app.db.models.application_config import ComponentType
 from app.db.queries.application import get_list_by_id
 from app.db.queries.application import get_template_page_by_display_path
 
 BASIC_FORM_STRUCTURE = {
-    "metadata": {},
     "startPage": None,
     "pages": [],
     "lists": [],
     "conditions": [],
-    "fees": [],
     "sections": [],
     "outputs": [],
     "skipSummary": False,
@@ -43,28 +43,35 @@ def build_conditions(component: Component) -> list:
     """
     results = []
     for condition in component.conditions:
+        condition_entry = {
+            "field": {
+                "name": component.runner_component_name,
+                "type": component.type.value,
+                "display": component.title,
+            },
+            "operator": condition["operator"],
+            "value": condition["value"],
+        }
+
+        # Add 'coordinator' only if it exists
+        if condition.get("coordinator"):
+            condition_entry["coordinator"] = condition.get("coordinator")
+
+        if condition["name"] in [c["name"] for c in results]:
+            # If this condition already exists, add it to the existing condition
+            existing_condition = next(c for c in results if c["name"] == condition["name"])
+            existing_condition["value"]["conditions"].append(condition_entry)
+            continue
+
         result = {
-            "displayName": condition["name"],
+            "displayName": condition["display_name"],
             "name": condition["name"],
             "value": {
-                "name": condition["name"],
-                "conditions": [
-                    {
-                        "field": {
-                            "name": component.runner_component_name,
-                            "type": component.type.value,
-                            "display": component.title,
-                        },
-                        "operator": condition["operator"],
-                        "value": {
-                            "type": "Value",
-                            "value": condition["value"],
-                            "display": condition["value"],
-                        },
-                    }
-                ],
+                "name": condition["display_name"],
+                "conditions": [condition_entry],
             },
         }
+
         results.append(result)
 
     return results
@@ -74,21 +81,40 @@ def build_component(component: Component) -> dict:
     """
     Builds the component json in form runner format for the supplied Component object
     """
-    built_component = {
-        "options": component.options or {},
-        "type": component.type.value,
-        "title": component.title,
-        "hint": component.hint_text or "",
-        "schema": {},
-        "name": component.runner_component_name,
-        "metadata": {
-            # "fund_builder_id": str(component.component_id) TODO why do we need this?
-        },
-    }
+    # Depends on component (if read only type then this needs to be a different structure)
+
+    if component.type in READ_ONLY_COMPONENTS:
+        built_component = {
+            "type": component.type.value if component.type else None,
+            "content": component.content,
+            "options": component.options or {},
+            "schema": {},
+            "title": component.title,
+            "name": component.runner_component_name,
+        }
+        # Remove keys with None values (it varies for read only components)
+        built_component = {k: v for k, v in built_component.items() if v is not None}
+    else:
+        built_component = {
+            "options": component.options or {},
+            "type": component.type.value,
+            "title": component.title,
+            "hint": component.hint_text or "",
+            "schema": {},
+            "name": component.runner_component_name,
+            "metadata": {
+                # "fund_builder_id": str(component.component_id) TODO why do we need this?
+            },
+        }
     # add a reference to the relevant list if this component use a list
-    if component.lizt:
+    if component.type.value is ComponentType.YES_NO_FIELD.value:
+        # implicit list
+        built_component.update({"values": {"type": "listRef"}})
+    elif component.lizt:
         built_component.update({"list": component.lizt.name})
         built_component["metadata"].update({"fund_builder_list_id": str(component.list_id)})
+        built_component.update({"values": {"type": "listRef"}})
+
     return built_component
 
 
@@ -222,7 +248,7 @@ def build_start_page(content: str, form: Form) -> dict:
             "next": [{"path": f"/{form.pages[0].display_path}"}],
         }
     )
-    ask_about = '<p class="govuk-body">We will ask you about:</p> <ul>'
+    ask_about = "<p class='govuk-body'>We will ask you about:</p> <ul>"
     for page in form.pages:
         ask_about += f"<li>{page.name_in_apply_json['en']}</li>"
     ask_about += "</ul>"
@@ -232,7 +258,7 @@ def build_start_page(content: str, form: Form) -> dict:
             "name": "start-page-content",
             "options": {},
             "type": "Html",
-            "content": f'<p class="govuk-body">{content}</p>{ask_about}',
+            "content": f"<p class='govuk-body'>{content}</p>{ask_about}",
             "schema": {},
         }
     )
