@@ -79,7 +79,11 @@ page_2_id = uuid4()
 @pytest.mark.seed_config(
     {
         "funds": [Fund(fund_id=fund_id, short_name="UTFWC", **BASIC_FUND_INFO)],
-        "rounds": [Round(round_id=round_id, fund_id=fund_id, short_name="UTRWC", **BASIC_ROUND_INFO)],
+        "rounds": [
+            Round(
+                round_id=round_id, title_json={"en": "UT RWC"}, fund_id=fund_id, short_name="UTRWC", **BASIC_ROUND_INFO
+            )
+        ],
         "sections": [
             Section(
                 section_id=section_id, index=1, round_id=round_id, name_in_apply_json={"en": "Organisation Information"}
@@ -289,6 +293,9 @@ output_base_path = Path("app") / "export_config" / "output"
         ("org-info.json", 18, 43),
         ("optional-all-components.json", 8, 27),
         ("required-all-components.json", 8, 27),
+        ("favourite-colours-sarah.json", 4, 1),
+        # TODO see why this fails
+        ("Organisation-and-local-authority-information-template.json", 16, 24),
     ],
 )
 def test_generate_config_for_round_valid_input(
@@ -388,3 +395,164 @@ def test_generate_config_for_round_valid_input(
         directory_path = output_base_path / round_short_name
         if directory_path.exists():
             shutil.rmtree(directory_path)
+
+
+# colour_json={
+#     "metadata": {},
+#     "startPage": "/what-is-your-favourite-colour-sarah",
+#     "pages": [
+#         {
+#             "title": "What is your favourite colour? Sarah",
+#             "path": "/what-is-your-favourite-colour-sarah",
+#             "components": [
+#                 {
+#                     "name": "OPEHhy",
+#                     "options": {
+#                         "hideTitle": True
+#                     },
+#                     "type": "RadiosField",
+#                     "title": "Favourite Colour",
+#                     "list": "iLMNKs"
+#                 }
+#             ],
+#             "next": [
+#                 {
+#                     "path": "/red-page-title",
+#                     "condition": "FyEDLl"
+#                 },
+#                 {
+#                     "path": "/green",
+#                     "condition": "wLwzXz"
+#                 },
+#                 {
+#                     "path": "/summary",
+#                     "condition": "CMLrkp"
+#                 }
+#             ]
+#         },
+#         {
+#             "path": "/red-page-title",
+#             "title": "Red PAge Title",
+#             "components": [],
+#             "next": [
+#                 {
+#                     "path": "/summary"
+#                 }
+#             ]
+#         },
+#         {
+#             "title": "Summary",
+#             "path": "/summary",
+#             "controller": "./pages/summary.js",
+#             "components": [],
+#             "next": []
+#         },
+#         {
+#             "path": "/green",
+#             "title": "Green",
+#             "components": [],
+#             "next": [
+#                 {
+#                     "path": "/summary"
+#                 }
+#             ]
+#         }
+#     ],
+#     "lists": [
+#         {
+#             "title": "Colours",
+#             "name": "iLMNKs",
+#             "type": "string",
+#             "items": [
+#                 {
+#                     "text": "Red",
+#                     "value": "red"
+#                 },
+#                 {
+#                     "text": "Green",
+#                     "value": "green"
+#                 },
+#                 {
+#                     "text": "Blue",
+#                     "value": "blue"
+#                 }
+#             ]
+#         }
+#     ],
+#     "sections": [],
+#     "conditions": [
+#         {
+#             "displayName": "red",
+#             "name": "FyEDLl",
+#             "value": {
+#                 "name": "red",
+#                 "conditions": [
+#                     {
+#                         "field": {
+#                             "name": "OPEHhy",
+#                             "type": "RadiosField",
+#                             "display": "Favourite Colour"
+#                         },
+#                         "operator": "is",
+#                         "value": {
+#                             "type": "Value",
+#                             "value": "red",
+#                             "display": "red"
+#                         }
+#                     }
+#                 ]
+#             }
+#         },
+#         {
+#             "displayName": "green",
+#             "name": "wLwzXz",
+#             "value": {
+#                 "name": "green",
+#                 "conditions": [
+#                     {
+#                         "field": {
+#                             "name": "OPEHhy",
+#                             "type": "RadiosField",
+#                             "display": "Favourite Colour"
+#                         },
+#                         "operator": "is",
+#                         "value": {
+#                             "type": "Value",
+#                             "value": "green",
+#                             "display": "green"
+#                         }
+#                     }
+#                 ]
+#             }
+#         },
+#         {
+#             "displayName": "blue",
+#             "name": "CMLrkp",
+#             "value": {
+#                 "name": "blue",
+#                 "conditions": [
+#                     {
+#                         "field": {
+#                             "name": "OPEHhy",
+#                             "type": "RadiosField",
+#                             "display": "Favourite Colour"
+#                         },
+#                         "operator": "is",
+#                         "value": {
+#                             "type": "Value",
+#                             "value": "blue",
+#                             "display": "blue"
+#                         }
+#                     }
+#                 ]
+#             }
+#         }
+#     ],
+#     "fees": [],
+#     "outputs": [],
+#     "version": 2,
+#     "skipSummary": False,
+#     "feeOptions": {},
+#     "markAsComplete": False
+# }
+# def test_import_fave_colours():

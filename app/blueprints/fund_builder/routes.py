@@ -44,10 +44,7 @@ from app.db.queries.round import get_round_by_id
 from app.db.queries.round import update_round
 from app.export_config.generate_all_questions import print_html
 from app.export_config.generate_form import build_form_json
-from app.export_config.generate_fund_round_config import (
-    generate_application_display_config,
-)
-from app.export_config.generate_fund_round_config import generate_fund_config
+from app.export_config.generate_fund_round_config import generate_config_for_round
 from app.export_config.generate_fund_round_form_jsons import (
     generate_form_jsons_for_round,
 )
@@ -121,6 +118,7 @@ def section(round_id):
         ]
 
     params["breadcrumb_items"] = [
+        {"text": "Home", "href": url_for(BUILD_FUND_BP_INDEX)},
         {"text": fund_obj.name_json["en"], "href": url_for("build_fund_bp.view_fund", fund_id=fund_obj.fund_id)},
         {
             "text": round_obj.title_json["en"],
@@ -190,6 +188,7 @@ def build_application(round_id):
     round = get_round_by_id(round_id)
     fund = get_fund_by_id(round.fund_id)
     breadcrumb_items = [
+        {"text": "Home", "href": url_for(BUILD_FUND_BP_INDEX)},
         {"text": fund.name_json["en"], "href": url_for("build_fund_bp.view_fund", fund_id=fund.fund_id)},
         {"text": round.title_json["en"], "href": "#"},
     ]
@@ -405,7 +404,12 @@ def create_new_round(form):
         display_logo_on_pdf_exports=form.display_logo_on_pdf_exports.data == "true",
         mark_as_complete_enabled=form.mark_as_complete_enabled.data == "true",
         is_expression_of_interest=form.is_expression_of_interest.data == "true",
-        feedback_survey_config=form.feedback_survey_config.data,
+        feedback_survey_config={
+            "has_feedback_survey": form.feedback_survey_config.data,
+            "has_section_feedback": False,
+            "is_feedback_survey_optional": False,
+            "is_section_feedback_optional": False,
+        },
         eligibility_config={"has_eligibility": form.eligibility_config.data},
         eoi_decision_schema={"en": form.eoi_decision_schema.data, "cy": None},
     )
@@ -420,16 +424,17 @@ def preview_form(form_id):
     """
     form = get_form_by_id(form_id)
     form_json = build_form_json(form)
+    form_id = form.runner_publish_name
 
     try:
         publish_response = requests.post(
-            url=f"{Config.FORM_RUNNER_URL}/publish", json={"id": form.runner_publish_name, "configuration": form_json}
+            url=f"{Config.FORM_RUNNER_URL}/publish", json={"id": form_id, "configuration": form_json}
         )
         if not str(publish_response.status_code).startswith("2"):
             return "Error during form publish", 500
     except Exception as e:
         return f"unable to publish form: {str(e)}", 500
-    return redirect(f"{Config.FORM_RUNNER_URL_REDIRECT}/{form.runner_publish_name}")
+    return redirect(f"{Config.FORM_RUNNER_URL_REDIRECT}/{form_id}")
 
 
 @build_fund_bp.route("/download/<form_id>", methods=["GET"])
@@ -505,8 +510,7 @@ def view_form_questions(round_id, form_id):
 def create_export_files(round_id):
     generate_form_jsons_for_round(round_id)
     generate_all_round_html(round_id)
-    generate_application_display_config(round_id)
-    generate_fund_config(round_id)
+    generate_config_for_round(round_id)
     round_short_name = get_round_by_id(round_id).short_name
 
     # Directory to zip
