@@ -297,6 +297,7 @@ output_base_path = Path("app") / "export_config" / "output"
         ("favourite-colours-sarah.json", 4, 1),
         ("Organisation-and-local-authority-information-template.json", 16, 24),
         ("test-section.json", 3, 1),
+        ("test-import-form.json", 19, 25),
     ],
 )
 def test_generate_config_for_round_valid_input(
@@ -363,6 +364,9 @@ def test_generate_config_for_round_valid_input(
         input_condition_count = len(input_form.get("conditions", []))
         output_condition_count = len(output_form.get("conditions", []))
         assert output_condition_count <= input_condition_count  # sometime we remove specified but unused conditions
+        # not all sections specified in input are used, we only store those referenced in the form pages
+        for section in output_form.get("sections", []):
+            assert section in input_form.get("sections", [])
 
         # check that content of each page (including page[components] and page[next] within form[pages] is the same
         for input_page in input_form["pages"]:
@@ -371,10 +375,12 @@ def test_generate_config_for_round_valid_input(
             output_page = next((p for p in output_form["pages"] if p["path"] == input_page["path"]), None)
             assert input_page["path"] == output_page["path"]
             assert input_page["title"] == output_page["title"]
+
             if input_page.get("next", None):
                 for next_dict in input_page["next"]:
                     # find next in output page
                     output_next = next((n for n in output_page["next"] if n["path"] == next_dict["path"]), None)
+
                     assert next_dict["path"] == output_next["path"]
                     assert next_dict.get("condition", None) == output_next.get("condition", None)
 

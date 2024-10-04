@@ -24,9 +24,6 @@ def upgrade():
             sa.Column("schema", postgresql.JSON(none_as_null=True, astext_type=sa.Text()), nullable=True)
         )
 
-    with op.batch_alter_table("page", schema=None) as batch_op:
-        batch_op.add_column(sa.Column("section", sa.String(), nullable=True))
-
     with op.batch_alter_table("round", schema=None) as batch_op:
         batch_op.alter_column(
             "application_reminder_sent", existing_type=sa.BOOLEAN(), server_default=None, existing_nullable=False
@@ -142,9 +139,6 @@ def downgrade():
             server_default=sa.text("false"),
             existing_nullable=False,
         )
-
-    with op.batch_alter_table("page", schema=None) as batch_op:
-        batch_op.drop_column("section")
 
     with op.batch_alter_table("component", schema=None) as batch_op:
         batch_op.drop_column("schema")

@@ -183,6 +183,7 @@ def test_generate_form_jsons_for_round_valid_input(seed_dynamic_data):
                             },
                         ],
                         "next": [{"path": "/summary"}],
+                        "section": None,
                     },
                     {
                         "path": "/intro-about-your-organisation",
@@ -199,6 +200,7 @@ def test_generate_form_jsons_for_round_valid_input(seed_dynamic_data):
                         ],
                         "next": [{"path": "/organisation-name"}],
                         "controller": "./pages/start.js",
+                        "section": None,
                     },
                     {
                         "path": "/summary",
@@ -207,6 +209,7 @@ def test_generate_form_jsons_for_round_valid_input(seed_dynamic_data):
                         "next": [],
                         "section": "uLwBuz",
                         "controller": "./pages/summary.js",
+                        "section": "uLwBuz",
                     },
                 ],
                 "lists": [
