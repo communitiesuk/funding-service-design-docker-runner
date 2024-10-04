@@ -44,14 +44,9 @@ def _build_condition(condition_data, destination_page_path) -> Condition:
     return result
 
 
-def _get_component_by_runner_name(db, runner_component_name, page_id):
+def _get_component_by_runner_name(db, runner_component_name):
 
-    return (
-        db.session.query(Component)
-        .filter(Component.runner_component_name == runner_component_name)
-        .filter(Component.page_id == page_id)
-        .first()
-    )
+    return db.session.query(Component).filter(Component.runner_component_name == runner_component_name).first()
 
 
 def add_conditions_to_components(db, page: dict, conditions: dict, page_id):
@@ -73,7 +68,7 @@ def add_conditions_to_components(db, page: dict, conditions: dict, page_id):
 
                     # Use the cache to reduce database queries
                     if runner_component_name not in components_cache:
-                        component_to_update = _get_component_by_runner_name(db, runner_component_name, page_id)
+                        component_to_update = _get_component_by_runner_name(db, runner_component_name)
                         components_cache[runner_component_name] = component_to_update
                     else:
                         component_to_update = components_cache[runner_component_name]
@@ -158,8 +153,8 @@ def insert_page_as_template(page, form_id):
     return new_page
 
 
-def find_page_by_path(path):
-    page = db.session.query(Page).filter(Page.display_path == path.lstrip("/")).first()
+def find_page_by_path(path, form_id):
+    page = db.session.query(Page).filter(Page.display_path == path.lstrip("/"), Page.form_id == form_id).first()
     return page
 
 
@@ -199,7 +194,13 @@ def insert_form_config(form_config, form_id):
             )
             inserted_components.append(inserted_component)
         db.session.flush()  # flush to make components available for conditions
+
+    # conditions span across pages in a form
+    for page in form_config.get("pages", []):
+        # get page id
+        inserted_page = find_page_by_path(page["path"], form_id)
         add_conditions_to_components(db, page, form_config["conditions"], inserted_page.page_id)
+
     insert_page_default_next_page(form_config.get("pages", None), inserted_pages)
     db.session.flush()
     return inserted_pages, inserted_components
