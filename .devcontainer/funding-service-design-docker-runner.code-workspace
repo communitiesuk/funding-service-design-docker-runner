@@ -1,0 +1,35 @@
+{
+    "folders": [
+        {
+            "path": ".."
+        },
+        {
+            "path": "../apps/digital-form-builder-adapter"
+        },
+        {
+            "path": "../apps/funding-service-design-account-store"
+        },
+        {
+            "path": "../apps/funding-service-design-application-store"
+        },
+        {
+            "path": "../apps/funding-service-design-assessment"
+        },
+        {
+            "path": "../apps/funding-service-design-assessment-store"
+        },
+        {
+            "path": "../apps/funding-service-design-authenticator"
+        },
+        {
+            "path": "../apps/funding-service-design-frontend"
+        },
+        {
+            "path": "../apps/funding-service-design-fund-store"
+        },
+        {
+            "path": "../apps/funding-service-design-notification"
+        }
+    ],
+    "settings": {}
+}

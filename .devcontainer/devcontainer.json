@@ -1,0 +1,15 @@
+{
+    "name": "funding-service-design-docker-runner",
+    "postCreateCommand": "./scripts/reset-all-repos.sh -f",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            },
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode"
+            ],
+        }
+    }
+}
