@@ -1,8 +1,13 @@
 #!/bin/bash
+
 wipe_postgres=false
 reset_to_main=false
 fresh_clone=false
 git_log=false
+repo_root=$(dirname $(dirname $(realpath $0)))
+apps_dir="${repo_root}/apps"
+declare -a repos=("funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-assessment-store" "funding-service-design-account-store" "funding-service-design-application-store" "funding-service-design-frontend" "funding-service-design-fund-store" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-utils")
+
 while getopts 'wmfal:' OPTION; do
     case "$OPTION" in
         w)
@@ -13,7 +18,8 @@ while getopts 'wmfal:' OPTION; do
             reset_to_main=true
             ;;
         f)
-            echo """Will do a git clone of ("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder-adapter")"""
+            echo -e "Will do a git clone of:"
+            printf '* %s\n' "${repos[@]}"
             fresh_clone=true
             wipe_postgres=false
             reset_to_main=false
@@ -23,17 +29,13 @@ while getopts 'wmfal:' OPTION; do
             git_log=true
             ;;
         ?)
-            echo "script usage: $(basename §$0) [-w -m -f -l] workspace_dir"
+            echo "script usage: $(basename §$0) [-w -m -f -l]"
             exit 1
     esac
 done
 shift "$(($OPTIND -1))"
 
-workspace_dir=${1:-$(dirname $(pwd))}
-fsd="funding-service-design"
-
 echo ============================================
-echo Workspace dir: $workspace_dir
 echo Wipe postgres: $wipe_postgres
 echo Reset all to main: $reset_to_main
 echo Fresh clone repos: $fresh_clone
@@ -41,26 +43,16 @@ echo ============================================
 
 if [ "$fresh_clone" = true ] ; then
 
-    declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
-                    "application-store" "frontend" "fund-store" "notification")
-
-    git_remote_prefix=https://github.com/communitiesuk/funding-service-design-
+    git_remote_prefix=git@github.com:communitiesuk/
 
     for repo in "${repos[@]}"
     do
     echo -------------------------------------------------------------------------
     echo ========= Cloning repo "$repo" =======
-    cd $workspace_dir
     repo_path="${git_remote_prefix}${repo}.git"
-    git clone ${repo_path}
+    git clone ${repo_path} ${apps_dir}/${repo}
     echo -------------------------------------------------------------------------
     done
-
-    echo -------------------------------------------------------------------------
-    echo ========= Cloning repo digital-form-builder =======
-    cd $workspace_dir
-    git clone https://github.com/communitiesuk/digital-form-builder-adapter.git
-    echo -------------------------------------------------------------------------
 fi
 
 if [ "$wipe_postgres" = true ] ; then
@@ -70,49 +62,33 @@ if [ "$wipe_postgres" = true ] ; then
     echo docker rm postgres --force
 fi
 
-declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
-                "application-store" "frontend" "fund-store" "notification")
-
 if [ "$reset_to_main" = true ] ; then
     echo Resetting all repos to main
-
-    cd $workspace_dir
-
 
     for repo in "${repos[@]}"
     do
     echo -------------------------------------------------------------------------
     echo ========= Resetting "$repo" =======
-    cd $workspace_dir/$fsd-$repo
+    cd ${apps_dir}/$repo
     git status
     git checkout main
     git pull
     done
 
-    echo ========= Resetting "digital-form-builder-adapter" =======
-    cd $workspace_dir/digital-form-builder-adapter
-    git status
-    git checkout main
-    git pull
     echo -------------------------------------------------------------------------
+    cd ${repo_root}
 fi
+
 if [ "$git_log" = true ] ; then
     echo Running git log
-
-    cd $workspace_dir
-
 
     for repo in "${repos[@]}"
     do
     echo -------------------------------------------------------------------------
-    cd $workspace_dir/$fsd-$repo
+    cd ${apps_dir}/$repo
     echo $repo
     git log -n 1 --format=format:%H
     done
     echo -------------------------------------------------------------------------
-    cd $workspace_dir/digital-form-builder-adapter
-    echo digital-form-builder-adapter
-    git log -n 1 --format=format:%H
-    echo -------------------------------------------------------------------------
-
+    cd ${repo_root}
 fi
