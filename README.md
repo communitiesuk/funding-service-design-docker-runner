@@ -13,6 +13,15 @@
 * Apps should be running on localhost on the ports in the [docker-compose.yml](docker-compose.yml) `ports` key before the `:`
 * Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up`.
 
+## How to run in a GitHub codespace
+
+* Go to https://github.com/communitiesuk/funding-service-design-docker-runner
+* Click '< > Code ' -> '...' -> 'New with options' 
+* Choose a 4-core machine and click start.
+* Once VS Code has finished loading, open the command palette (Cmd+Shift+P) and type 'open workspace', then select 'funding-service-design-docker-runner/.devcontainer/funding-service-design-docker-runner.code-workspace'
+* Create a file `.env` and populate it appropriately.
+* In the terminal, run 'docker compose up'. Wait for everything to build and then go to the 'Ports' tab and click the URLs/browser buttons for Apply and Assess to open them in a new browser tab.
+
 ## Troubleshooting
 * Check you have the `main` branch and latest revision of each repo checked out - see `reset-all-repos` script below
 * If dependencies have changed you may need to rebuild the docker images using `docker compose build`
