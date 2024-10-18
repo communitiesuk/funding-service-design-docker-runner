@@ -3,6 +3,10 @@ reset_venv=false
 install_pre_commit=false
 build_static_files=false
 
+repo_root=$(dirname $(dirname $(realpath $0)))
+workspace_dir="${repo_root}/apps"
+declare -a repos=("funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-assessment-store" "funding-service-design-account-store" "funding-service-design-application-store" "funding-service-design-frontend" "funding-service-design-fund-store" "funding-service-design-notification" "digital-form-builder-adapter")
+
 while getopts 'vps:' OPTION; do
     case "$OPTION" in
         v)
@@ -18,14 +22,11 @@ while getopts 'vps:' OPTION; do
             build_static_files=true
             ;;
         ?)
-            echo "script usage: $(basename §$0) [-v -p -s ] workspace_dir"
+            echo "script usage: $(basename §$0) [-v -p -s ]"
             exit 1
     esac
 done
 shift "$(($OPTIND -1))"
-
-workspace_dir=${1:-$(dirname $(pwd))}
-fsd="funding-service-design"
 
 echo ============================================
 echo Workspace dir: $workspace_dir
@@ -36,74 +37,65 @@ echo ============================================
 
 echo Creating virtual environments
 
-cd $workspace_dir
-
-declare -a repos=("authenticator" "assessment" "assessment-store" "account-store"
-                "application-store" "frontend" "fund-store" "notification")
-
-# declare -a repos=("authenticator")
-
 for repo in "${repos[@]}"
 do
-echo -------------------------------------------------------------------------
-cd $workspace_dir/$fsd-$repo
-echo $(pwd)
+    echo -------------------------------------------------------------------------
+    cd $workspace_dir/$repo
+    echo $(pwd)
 
-if [ "$reset_venv" = true ] ; then
-    echo Removing the Virtual environment for $fsd-$repo ...
-    rm -rf .venv
-fi
+    if [ "$reset_venv" = true ] ; then
+        echo Removing the Virtual environment for $repo ...
+        rm -rf .venv
+    fi
 
-echo ========= Creating virtual environments for "$repo" =======
-if [ -d ".venv" ]
-then
-    echo Virtual environment already exists for $fsd-$repo ...
-    echo Upgrading the dependencies...
+    echo ========= Creating virtual environments for "$repo" =======
+    if [ -d ".venv" ]
+    then
+        echo Virtual environment already exists for $repo ...
+        echo Upgrading the dependencies...
 
-    # Activate venv
-    if [ -d ".venv/bin" ];then
-        source .venv/bin/activate # mac pc
+        # Activate venv
+        if [ -d ".venv/bin" ];then
+            source .venv/bin/activate # mac pc
+        else
+            source .venv/Scripts/activate # windows pc
+        fi
+
+        # Upgrade the dependencies
+        pip install -r requirements-dev.txt --upgrade
     else
-        source .venv/Scripts/activate # windows pc
+        # Create venv
+        python -m venv .venv
+
+        # Activate venv
+        if [ -d ".venv/bin" ];then
+            source .venv/bin/activate # mac pc
+        else
+            source .venv/Scripts/activate # windows pc
+        fi
+
+        # Install the dependencies
+        python -m pip install --upgrade pip && pip install pip-tools
+        echo Installing the dependencies...
+        pip install -r requirements-dev.txt
     fi
 
-    # Upgrade the dependencies
-    pip install -r requirements-dev.txt --upgrade
-else
-    # Create venv
-    python -m venv .venv
-
-    # Activate venv
-    if [ -d ".venv/bin" ];then
-        source .venv/bin/activate # mac pc
-    else
-        source .venv/Scripts/activate # windows pc
+    if [ "$install_pre_commit" = true ] ; then
+        echo Installing the pre-commit hooks...
+        pre-commit install
     fi
 
-    # Install the dependencies
-    python -m pip install --upgrade pip && pip install pip-tools
-    pip-compile requirements.in
-    pip-compile requirements-dev.in
-    echo Installing the dependencies...
-    pip install -r requirements-dev.txt
-fi
-
-if [ "$install_pre_commit" = true ] ; then
-    echo Installing the pre-commit hooks...
-    pre-commit install
-fi
-
-if [ "$build_static_files" = true ] ; then
-    static_repos_array=("authenticator" "assessment" "frontend")
-    if [[ " ${static_repos_array[*]} " =~ " $repo " ]]; then
-        echo Building the static files...
-        export FLASK_ENV=development
-        python build.py
+    if [ "$build_static_files" = true ] ; then
+        static_repos_array=("authenticator" "assessment" "frontend")
+        if [[ " ${static_repos_array[*]} " =~ " $repo " ]]; then
+            echo Building the static files...
+            export FLASK_ENV=development
+            python build.py
+        fi
     fi
-fi
 
-# deactivate python venv
-deactivate
+    # deactivate python venv
+    deactivate
 
-echo -------------------------------------------------------------------------
+    echo -------------------------------------------------------------------------
 done

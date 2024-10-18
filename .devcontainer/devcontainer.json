@@ -1,6 +1,6 @@
 {
     "name": "funding-service-design-docker-runner",
-    "postCreateCommand": "./scripts/reset-all-repos.sh -f && code .devcontainer/funding-service-design-docker-runner.code-workspace",
+    "postCreateCommand": "./scripts/reset-all-repos.sh -f && ./scripts/install-venv-all-repos.sh ps",
     "customizations": {
         "vscode": {
             "settings": {
