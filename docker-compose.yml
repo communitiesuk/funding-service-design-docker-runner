@@ -85,12 +85,16 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - AUTHENTICATOR_HOST=http://localhost:3004
+      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     env_file: .awslocal.env
     ports:
       - 3010:8080
       - 5689:5678
+    networks:
+      default:
+        aliases:
+          - assessment.levellingup.gov.localhost
     profiles: [ pre ]
 
   frontend:
@@ -108,9 +112,9 @@ services:
       - USE_LOCAL_DATA=False
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://fund-store:8080
-      - FORMS_SERVICE_PUBLIC_HOST=http://localhost:3009
-      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner:3009
-      - AUTHENTICATOR_HOST=http://localhost:3004
+      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - FLASK_DEBUG=1
       - FLASK_ENV=development
@@ -120,6 +124,10 @@ services:
     ports:
       - 3008:8080
       - 5688:5678
+    networks:
+      default:
+        aliases:
+          - frontend.levellingup.gov.localhost
     profiles: [ pre ]
 
   form-runner:
@@ -139,16 +147,20 @@ services:
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
-      - CONTACT_US_URL=http://localhost:3008/contact_us
-      - FEEDBACK_LINK=http://localhost:3008/feedback
-      - COOKIE_POLICY_URL=http://localhost:3008/cookie_policy
-      - ACCESSIBILITY_STATEMENT_URL=http://localhost:3008/accessibility_statement
-      - SERVICE_START_PAGE=http://localhost:3008/account
-      - MULTIFUND_URL=http://localhost:3008/account
-      - LOGOUT_URL=http://localhost:3004/sessions/sign-out
-      - PRIVACY_POLICY_URL=http://localhost:3008/privacy
-      - ELIGIBILITY_RESULT_URL=http://localhost:3008/eligibility-result
+      - CONTACT_US_URL=http://frontend.levellingup.gov.localhost:3008/contact_us
+      - FEEDBACK_LINK=http://frontend.levellingup.gov.localhost:3008/feedback
+      - COOKIE_POLICY_URL=http://frontend.levellingup.gov.localhost:3008/cookie_policy
+      - ACCESSIBILITY_STATEMENT_URL=http://frontend.levellingup.gov.localhost:3008/accessibility_statement
+      - SERVICE_START_PAGE=http://frontend.levellingup.gov.localhost:3008/account
+      - MULTIFUND_URL=http://frontend.levellingup.gov.localhost:3008/account
+      - LOGOUT_URL=http://authenticator.levellingup.gov.localhost:3004/sessions/sign-out
+      - PRIVACY_POLICY_URL=http://frontend.levellingup.gov.localhost:3008/privacy
+      - ELIGIBILITY_RESULT_URL=http://frontend.levellingup.gov.localhost:3008/eligibility-result
     env_file: .awslocal.env
+    networks:
+      default:
+        aliases:
+          - form-runner.levellingup.gov.localhost
     profiles: [ pre ]
 
   authenticator:
@@ -169,10 +181,17 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://fund-store:8080
-      - AUTHENTICATOR_HOST=http://localhost:3004
+      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-      - APPLICANT_FRONTEND_HOST=http://localhost:3008
-      - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
+      - APPLICANT_FRONTEND_HOST=http://frontend.levellingup.gov.localhost:3008
+      - ASSESSMENT_FRONTEND_HOST=http://assessment.levellingup.gov.localhost:3010
+      - POST_AWARD_FRONTEND_HOST=http://find-monitoring-data.levellingup.gov.localhost:4001
+      - POST_AWARD_SUBMIT_HOST=http://submit-monitoring-data.levellingup.gov.localhost:4001
+      - COOKIE_DOMAIN=.levellingup.gov.localhost
+    networks:
+      default:
+        aliases:
+          - authenticator.levellingup.gov.localhost
 
   notification:
     build:
@@ -218,6 +237,11 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - find-monitoring-data.levellingup.gov.localhost
+          - submit-monitoring-data.levellingup.gov.localhost
     profiles: [ post ]
 
   data-store-celery:
@@ -286,3 +310,6 @@ services:
 
 volumes:
   localstack: null
+
+networks:
+  default:
