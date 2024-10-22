@@ -161,7 +161,9 @@ services:
       - 5684:5678
     depends_on:
       - redis-data
-    env_file: .awslocal.env
+    env_file:
+      - .env # For the AZURE_AD_* variables
+      - .awslocal.env
     environment:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
@@ -171,10 +173,6 @@ services:
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
       - APPLICANT_FRONTEND_HOST=http://localhost:3008
       - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
-      #  Uncomment to test Azure AD locally once credentials are set in .env - see README
-      # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
-      # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
-      # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
 
   notification:
     build:
