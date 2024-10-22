@@ -189,6 +189,64 @@ services:
       - FLASK_ENV=development
       - AWS_MSG_BUCKET_NAME=fsd-notification-bucket
 
+  data-store:
+    # http://github.com/communitiesuk/funding-service-design-post-award-data-store
+    build:
+      context: ./apps/funding-service-design-post-award-data-store
+      args:
+        REQUIREMENTS: requirements-dev.txt
+    command: >
+      bash -c " flask db upgrade && \ flask db-data seed-ref && \ flask db-data seed-sample-data && \ ${VSC_DEBUG:-flask run -p 4001 -h 0.0.0.0} "
+    volumes:
+      - './apps/funding-service-design-post-award-data-store:/app'
+    stdin_open: true
+    tty: true
+    ports:
+      - 4001:4001
+      - 5687:5678
+    env_file:
+      - .env
+      - .awslocal.env
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
+      - FIND_SERVICE_BASE_URL=http://find-monitoring-data.levellingup.gov.localhost:4001
+      - REDIS_URL=redis://redis-data:6379/1
+      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+
+  data-store-celery:
+    build:
+      context: ./apps/funding-service-design-post-award-data-store
+      args:
+        REQUIREMENTS: requirements-dev.txt
+    command: >
+      bash -c " if [ \"$CELERY_AUTO_REFRESH\" = \"true\" ]; then
+          watchfiles 'celery -A app.celery_app worker --loglevel INFO' --filter python;
+      else
+          celery -A app.celery_app worker --loglevel INFO;
+      fi "
+    volumes: [ './apps/funding-service-design-post-award-data-store:/app' ]
+    depends_on:
+      redis-data:
+        condition: service_started
+      database:
+        condition: service_healthy
+    env_file:
+      - .env
+      - .awslocal.env
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
+      - FIND_SERVICE_BASE_URL=http://find-monitoring-data.levellingup.gov.localhost:4001
+      - REDIS_URL=redis://redis-data:6379/1
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
   redis-data:
     image: redis
     ports:
@@ -201,9 +259,14 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store
+      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test
     ports:
       - 5432:5432
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   localstack:
     image: localstack/localstack:3.7.2
@@ -213,7 +276,7 @@ services:
       - PERSISTENCE=1
     ports:
       - 4566:4566 # LocalStack endpoint
-      # - 4510-4559:4510-4559 # external services port range
+      - 4510-4559:4510-4559 # external services port range
     volumes:
       - ./docker-localstack:/etc/localstack/init/ready.d
       - localstack:/var/lib/localstack

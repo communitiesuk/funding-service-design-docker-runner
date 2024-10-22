@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# <- Pre-award environment ->
 # AWS_REGION is being overwritten by localstack on startup, the other environement vars passed in are respected
 # This should be addressed in a future release https://github.com/localstack/localstack/issues/11387
 AWS_REGION=eu-west-2
@@ -99,3 +100,15 @@ else
 
   echo "Created SQS Queue: $SQS_NOTIFICATION_QUEUE_URL!"
 fi
+# <- Pre-award environment ->
+
+
+# <- Post-award environment ->
+for bucket in ${AWS_S3_BUCKET_FAILED_FILES} ${AWS_S3_BUCKET_SUCCESSFUL_FILES} ${AWS_S3_BUCKET_FIND_DOWNLOAD_FILES}; do
+  if awslocal s3 ls | grep -q ${bucket}; then
+    echo "Bucket ${bucket} already exists!"
+  else
+    awslocal s3api create-bucket --bucket ${bucket} --create-bucket-configuration LocationConstraint=eu-west-2 --region eu-west-2
+  fi
+done
+# <- Post-award environment ->
