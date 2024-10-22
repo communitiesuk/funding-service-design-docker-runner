@@ -11,6 +11,7 @@ services:
     volumes:
       - ./docker-localstack:/etc/localstack/init/ready.d
       - localstack:/var/lib/localstack
+
   fund-store:
     build:
       context: ../funding-service-design-fund-store
@@ -22,8 +23,9 @@ services:
       - 3001:8080
       - 5681:5678
     depends_on:
-    - database
-    volumes: ['../funding-service-design-fund-store:/app']
+      - database
+    volumes: [ '../funding-service-design-fund-store:/app' ]
+
   application-store:
     build:
       context: ../funding-service-design-application-store
@@ -41,84 +43,89 @@ services:
     depends_on:
       - database
       - localstack
-    volumes: ['../funding-service-design-application-store:/app']
+    volumes: [ '../funding-service-design-application-store:/app' ]
+
   account-store:
-      build:
-        context: ../funding-service-design-account-store
-      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"]
-      environment:
-        - FLASK_ENV=development
-        - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
-      volumes: ['../funding-service-design-account-store:/app']
-      ports:
-        - 3003:8080
-        - 5683:5678
-      depends_on:
-        - database
+    build:
+      context: ../funding-service-design-account-store
+    command: [ "sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
+    volumes: [ '../funding-service-design-account-store:/app' ]
+    ports:
+      - 3003:8080
+      - 5683:5678
+    depends_on:
+      - database
+
   authenticator:
-      build:
-        context: ../funding-service-design-authenticator
-      volumes: ['../funding-service-design-authenticator:/app']
-      command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
-      ports:
-        - 3004:8080
-        - 5684:5678
-      depends_on:
-        - fund-store
-        - account-store
-        - notification
-        - redis-data
-      env_file: .awslocal.env
-      environment:
-        - REDIS_INSTANCE_URI=redis://redis-data:6379
-        - ACCOUNT_STORE_API_HOST=http://account-store:8080
-        - APPLICATION_STORE_API_HOST=http://application-store:8080
-        - FUND_STORE_API_HOST=http://fund-store:8080
-        - AUTHENTICATOR_HOST=http://localhost:3004
-        - NOTIFICATION_SERVICE_HOST=http://notification:8080
-        - APPLICANT_FRONTEND_HOST=http://localhost:3008
-        - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
-        #  Uncomment to test Azure AD locally once credentials are set in .env - see README
-        # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
-        # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
-        # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
+    build:
+      context: ../funding-service-design-authenticator
+    volumes: [ '../funding-service-design-authenticator:/app' ]
+    command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
+    ports:
+      - 3004:8080
+      - 5684:5678
+    depends_on:
+      - fund-store
+      - account-store
+      - notification
+      - redis-data
+    env_file: .awslocal.env
+    environment:
+      - REDIS_INSTANCE_URI=redis://redis-data:6379
+      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - AUTHENTICATOR_HOST=http://localhost:3004
+      - NOTIFICATION_SERVICE_HOST=http://notification:8080
+      - APPLICANT_FRONTEND_HOST=http://localhost:3008
+      - ASSESSMENT_FRONTEND_HOST=http://localhost:3010
+      #  Uncomment to test Azure AD locally once credentials are set in .env - see README
+      # - AZURE_AD_CLIENT_ID=${AZURE_AD_CLIENT_ID}
+      # - AZURE_AD_CLIENT_SECRET=${AZURE_AD_CLIENT_SECRET}
+      # - AZURE_AD_TENANT_ID=${AZURE_AD_TENANT_ID}
+
   assessment-store:
-      build:
-        context: ../funding-service-design-assessment-store
-      volumes: ['../funding-service-design-assessment-store:/app']
-      command: ["sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"]
-      ports:
-        - 3005:8080
-        - 5685:5678
-      environment:
-        - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
-        - APPLICATION_STORE_API_HOST=http://application-store:8080
-      env_file: .awslocal.env
-      depends_on:
-        - database
-        - localstack
+    build:
+      context: ../funding-service-design-assessment-store
+    volumes: [ '../funding-service-design-assessment-store:/app' ]
+    command: [ "sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
+    ports:
+      - 3005:8080
+      - 5685:5678
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
+      - APPLICATION_STORE_API_HOST=http://application-store:8080
+    env_file: .awslocal.env
+    depends_on:
+      - database
+      - localstack
+
   notification:
-      build:
-        context: ../funding-service-design-notification
-      volumes: ['../funding-service-design-notification:/app']
-      command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m wsgi"]
-      ports:
-        - 3006:8080
-        - 5686:5678
-      env_file: .awslocal.env
-      environment:
-        - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
-        - FLASK_DEBUG=1
-        - FLASK_ENV=development
-        - AWS_MSG_BUCKET_NAME=fsd-notification-bucket
+    build:
+      context: ../funding-service-design-notification
+    volumes: [ '../funding-service-design-notification:/app' ]
+    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
+    ports:
+      - 3006:8080
+      - 5686:5678
+    env_file: .awslocal.env
+    environment:
+      - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
+      - FLASK_DEBUG=1
+      - FLASK_ENV=development
+      - AWS_MSG_BUCKET_NAME=fsd-notification-bucket
+
   frontend:
     build:
       context: ../funding-service-design-frontend
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
-    volumes: ['../funding-service-design-frontend:/app']
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+    volumes: [ '../funding-service-design-frontend:/app' ]
+    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080" ]
     depends_on:
       - application-store
       - fund-store
@@ -139,8 +146,9 @@ services:
       - SECRET_KEY=dc_key
     env_file: .awslocal.env
     ports:
-        - 3008:8080
-        - 5688:5678
+      - 3008:8080
+      - 5688:5678
+
   form-runner:
     depends_on:
       - localstack
@@ -168,25 +176,28 @@ services:
       - PRIVACY_POLICY_URL=http://localhost:3008/privacy
       - ELIGIBILITY_RESULT_URL=http://localhost:3008/eligibility-result
     env_file: .awslocal.env
+
   redis-data:
     image: redis
     ports:
       - 6379:6379
+
   database:
-      image: postgres
-      volumes:
-        - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
-      restart: always
-      environment:
-        - POSTGRES_PASSWORD=password
-        - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store
-      ports:
-        - 5432:5432
+    image: postgres
+    volumes:
+      - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store
+    ports:
+      - 5432:5432
+
   assessment:
     build:
       context: ../funding-service-design-assessment
-    volumes: ['../funding-service-design-assessment:/app']
-    command: ["sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+    volumes: [ '../funding-service-design-assessment:/app' ]
+    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080" ]
     depends_on:
       - assessment-store
       - fund-store
@@ -206,5 +217,6 @@ services:
     ports:
       - 3010:8080
       - 5689:5678
+
 volumes:
   localstack: null
