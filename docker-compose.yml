@@ -10,7 +10,8 @@ services:
       - 3001:8080
       - 5681:5678
     depends_on:
-      - database
+      database:
+        condition: service_healthy
     volumes: [ './apps/funding-service-design-fund-store:/app' ]
 
   application-store:
@@ -28,8 +29,10 @@ services:
       - 3002:8080
       - 5682:5678
     depends_on:
-      - database
-      - localstack
+      database:
+        condition: service_healthy
+      localstack:
+        condition: service_started
     volumes: [ './apps/funding-service-design-application-store:/app' ]
 
   account-store:
@@ -44,7 +47,8 @@ services:
       - 3003:8080
       - 5683:5678
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   assessment-store:
     build:
@@ -59,8 +63,10 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
     env_file: .awslocal.env
     depends_on:
-      - database
-      - localstack
+      database:
+        condition: service_healthy
+      localstack:
+        condition: service_started
 
   assessment:
     build:
