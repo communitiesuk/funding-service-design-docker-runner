@@ -1,3 +1,5 @@
+name: one-funding-service
+
 services:
   fund-store:
     build:
