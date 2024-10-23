@@ -1,3 +1,5 @@
 .env
 /apps/*
 !/apps/.gitkeep
+/certs/*
+!/certs/.gitkeep
