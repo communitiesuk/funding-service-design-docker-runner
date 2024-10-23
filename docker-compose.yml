@@ -242,6 +242,8 @@ services:
       - FIND_SERVICE_BASE_URL=https://one-find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
       - AUTHENTICATOR_HOST=https://one-authenticator.levellingup.gov.localhost:3004
+      - SUBMIT_HOST=one-submit-monitoring-data.levellingup.gov.localhost:4001
+      - FIND_HOST=one-find-monitoring-data.levellingup.gov.localhost:4001
     restart: unless-stopped
     depends_on:
       database:
