@@ -1,4 +1,4 @@
-name: one-funding-service
+name: funding-service
 
 services:
   fund-store:
@@ -76,8 +76,10 @@ services:
   assessment:
     build:
       context: ./apps/funding-service-design-assessment
-    volumes: [ './apps/funding-service-design-assessment:/app' ]
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080" ]
+    volumes:
+      - './apps/funding-service-design-assessment:/app'
+      - './certs:/app-certs'
+    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     depends_on:
       - redis-data
       - localstack
@@ -87,7 +89,7 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     env_file: .awslocal.env
     ports:
@@ -105,8 +107,10 @@ services:
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
-    volumes: [ './apps/funding-service-design-frontend:/app' ]
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080" ]
+    volumes:
+      - './apps/funding-service-design-frontend:/app'
+      - './certs:/app-certs'
+    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     depends_on:
       - redis-data
       - localstack
@@ -116,7 +120,7 @@ services:
       - FUND_STORE_API_HOST=http://fund-store:8080
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - FLASK_DEBUG=1
       - FLASK_ENV=development
@@ -149,15 +153,15 @@ services:
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
-      - CONTACT_US_URL=http://frontend.levellingup.gov.localhost:3008/contact_us
-      - FEEDBACK_LINK=http://frontend.levellingup.gov.localhost:3008/feedback
-      - COOKIE_POLICY_URL=http://frontend.levellingup.gov.localhost:3008/cookie_policy
-      - ACCESSIBILITY_STATEMENT_URL=http://frontend.levellingup.gov.localhost:3008/accessibility_statement
-      - SERVICE_START_PAGE=http://frontend.levellingup.gov.localhost:3008/account
-      - MULTIFUND_URL=http://frontend.levellingup.gov.localhost:3008/account
-      - LOGOUT_URL=http://authenticator.levellingup.gov.localhost:3004/sessions/sign-out
-      - PRIVACY_POLICY_URL=http://frontend.levellingup.gov.localhost:3008/privacy
-      - ELIGIBILITY_RESULT_URL=http://frontend.levellingup.gov.localhost:3008/eligibility-result
+      - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
+      - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
+      - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
+      - ACCESSIBILITY_STATEMENT_URL=https://frontend.levellingup.gov.localhost:3008/accessibility_statement
+      - SERVICE_START_PAGE=https://frontend.levellingup.gov.localhost:3008/account
+      - MULTIFUND_URL=https://frontend.levellingup.gov.localhost:3008/account
+      - LOGOUT_URL=https://authenticator.levellingup.gov.localhost:3004/sessions/sign-out
+      - PRIVACY_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/privacy
+      - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
     env_file: .awslocal.env
     networks:
       default:
@@ -168,8 +172,10 @@ services:
   authenticator:
     build:
       context: ./apps/funding-service-design-authenticator
-    volumes: [ './apps/funding-service-design-authenticator:/app' ]
-    command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0"
+    volumes:
+      - './apps/funding-service-design-authenticator:/app'
+      - './certs:/app-certs'
+    command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
     ports:
       - 3004:8080
       - 5684:5678
@@ -183,12 +189,12 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://fund-store:8080
-      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - NOTIFICATION_SERVICE_HOST=http://notification:8080
-      - APPLICANT_FRONTEND_HOST=http://frontend.levellingup.gov.localhost:3008
-      - ASSESSMENT_FRONTEND_HOST=http://assessment.levellingup.gov.localhost:3010
-      - POST_AWARD_FRONTEND_HOST=http://find-monitoring-data.levellingup.gov.localhost:4001
-      - POST_AWARD_SUBMIT_HOST=http://submit-monitoring-data.levellingup.gov.localhost:4001
+      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
+      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
+      - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
+      - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
       - COOKIE_DOMAIN=.levellingup.gov.localhost
     networks:
       default:
@@ -218,9 +224,10 @@ services:
       args:
         REQUIREMENTS: requirements-dev.txt
     command: >
-      bash -c " flask db upgrade && \ flask db-data seed-ref && \ flask db-data seed-sample-data && \ ${VSC_DEBUG:-flask run -p 4001 -h 0.0.0.0} "
+      bash -c " flask db upgrade && \ flask db-data seed-ref && \ flask db-data seed-sample-data && \ ${VSC_DEBUG:-flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem}"
     volumes:
       - './apps/funding-service-design-post-award-data-store:/app'
+      - './certs:/app-certs'
     stdin_open: true
     tty: true
     ports:
@@ -232,9 +239,9 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
-      - FIND_SERVICE_BASE_URL=http://find-monitoring-data.levellingup.gov.localhost:4001
+      - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
-      - AUTHENTICATOR_HOST=http://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
     restart: unless-stopped
     depends_on:
       database:
@@ -269,7 +276,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
-      - FIND_SERVICE_BASE_URL=http://find-monitoring-data.levellingup.gov.localhost:4001
+      - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
     stdin_open: true
     tty: true
