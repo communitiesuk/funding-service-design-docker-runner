@@ -37,3 +37,7 @@ up: default
 .PHONY: down
 down: default
 	docker compose down
+
+.PHONY: build
+build: default
+	docker compose build
