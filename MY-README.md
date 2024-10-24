@@ -7,7 +7,7 @@ While this is in development (and maybe into the future), everything is cloned i
 ## Pre-requisites
 
 * SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos.
-* `pyenv` installed and integrated with your shell.
+* `uv` installed
 
 ## How to get started
 

@@ -51,6 +51,10 @@ if [ "$fresh_clone" = true ] ; then
     echo ========= Cloning repo "$repo" =======
     repo_path="${git_remote_prefix}${repo}.git"
     git clone ${repo_path} ${apps_dir}/${repo}
+    cd ${apps_dir}/${repo}
+    git pull
+    git checkout proto/uv-requirements
+    cd ../..
     echo -------------------------------------------------------------------------
     done
 fi
