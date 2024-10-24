@@ -50,7 +50,7 @@ do
 
     if [ "$install_pre_commit" = true ] ; then
         echo Installing the pre-commit hooks...
-        pre-commit install
+        uv run pre-commit install
     fi
 
     if [ "$build_static_files" = true ] ; then
