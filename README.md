@@ -3,7 +3,7 @@
 ## Pre-requisite software
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 * SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos. SSH key instructions for github are [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
-* [`pyenv`](https://github.com/pyenv/pyenv) installed and integrated with your shell. Install Python 3.10 and 3.11.
+* [`uv`](https://docs.astral.sh/uv/) installed.
 * [`nvm`](https://github.com/nvm-sh/nvm) installed.
   * Install node v20 `nvm install 20`
   * Install Yarn globally with `npm i -g yarn`.
@@ -65,7 +65,7 @@ To run just the post-award services, execute `make post up`.
 * Check you have the `main` branch and latest revision of each repo checked out - see the `reset-all-repos` section below
 * If dependencies have changed you may need to rebuild the docker images using `make build`
 * To run an individual app rather than all of them, run `docker compose up <appname>` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml)
-* If you get an error about a database not existing, try running `make down` followed by `make up`. This will remove and re-create any existing containers and volumes allowing the new databases to be created.
+* If you get an error about a database not existing, try running `make down`, `make clean-build,` followed by `make up`. This will remove and re-create any existing containers and volumes allowing the new databases to be created.
 
 
 ## Running e2e tests

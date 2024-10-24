@@ -93,6 +93,7 @@ services:
       - 3005:8080
       - 5685:5678
     environment:
+      - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
       - APPLICATION_STORE_API_HOST=http://application-store:8080
     env_file: .awslocal.env

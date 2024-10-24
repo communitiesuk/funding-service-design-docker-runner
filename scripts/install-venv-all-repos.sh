@@ -48,41 +48,11 @@ do
         rm -rf .venv
     fi
 
-    echo ========= Creating virtual environments for "$repo" =======
-    if [ -d ".venv" ]
-    then
-        echo Virtual environment already exists for $repo ...
-        echo Upgrading the dependencies...
-
-        # Activate venv
-        if [ -d ".venv/bin" ];then
-            source .venv/bin/activate # mac pc
-        else
-            source .venv/Scripts/activate # windows pc
-        fi
-
-        # Upgrade the dependencies
-        pip install -r requirements-dev.txt --upgrade
-    else
-        # Create venv
-        python -m venv .venv
-
-        # Activate venv
-        if [ -d ".venv/bin" ];then
-            source .venv/bin/activate # mac pc
-        else
-            source .venv/Scripts/activate # windows pc
-        fi
-
-        # Install the dependencies
-        python -m pip install --upgrade pip && pip install pip-tools
-        echo Installing the dependencies...
-        pip install -r requirements-dev.txt
-    fi
+    uv sync
 
     if [ "$install_pre_commit" = true ] ; then
         echo Installing the pre-commit hooks...
-        pre-commit install
+        uv run pre-commit install
     fi
 
     if [ "$build_static_files" = true ] ; then
@@ -90,12 +60,9 @@ do
         if [[ " ${static_repos_array[*]} " =~ " $repo " ]]; then
             echo Building the static files...
             export FLASK_ENV=development
-            python build.py
+            uv run python build.py
         fi
     fi
-
-    # deactivate python venv
-    deactivate
 
     echo -------------------------------------------------------------------------
 done
