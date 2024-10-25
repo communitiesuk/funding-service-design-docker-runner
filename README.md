@@ -1,65 +1,99 @@
 # Funding Service Design Runner
 
-## Prerequisites
-*  [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-*  All funding-service-design apps (listed as `context` keys in [docker-compose.yml](docker-compose.yml) must be checked out in the parent directory on this repository
+## Pre-requisite software
+* [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+* SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos.
+* [`pyenv`](https://github.com/pyenv/pyenv) installed and integrated with your shell. Install Python 3.10 and 3.11.
+* [`nvm`](https://github.com/nvm-sh/nvm) installed.
+  * Install Yarn globally with `npm i -g yarn`.
 
-## How to run
-* Copy `.env.example` to `.env` and complete the missing values
-  * `GOV_NOTIFY_API_KEY`: retrieve value of `GOV.UK Notify Test Key` from bitwarden vault
-  * `AWS_XXX`: all these values can be found by connecting to cloudfoundry and running `cf service-key form-uploads-dev local-testing`
-  * `AZURE_AD_*`: retrieve values from bitwarden vault - values named `AZURE AD TEST XXX`
-* `docker compose up`
-* Apps should be running on localhost on the ports in the [docker-compose.yml](docker-compose.yml) `ports` key before the `:`
-* Note: When testing locally using the docker runner, docker might use the cached version of fsd_utils (or any another depedency). To avoid this and pick up your intended changes, run `docker compose build <service_name> --no-cache` first before running `docker compose up`.
+## Required setup
+1. Copy `.env.example` to `.env` and fill in any required missing values.
+2. Edit your `/etc/hosts` file and add the following line at the end:
+  * `127.0.0.1    submit-monitoring-data.levellingup.gov.localhost find-monitoring-data.levellingup.gov.localhost authenticator.levellingup.gov.localhost assessment.levellingup.gov.localhost frontend.levellingup.gov.localhost localstack host.docker.internal`
+3. Run `./scripts/reset-all-repos.sh -f` to git clone all repos into `./apps`
+4. Run `./scripts/install-venv-all-repos.sh -v -p -s` to create and populate venvs in all repos and install pre-commit hooks.
+  * Note: there are some pre-existing issues with the script sometimes not picking the correct python version, may need some manual finagling until that is addressed.
+5. Run `make certs` to install a root certificate authority and generate appropriate certificates for our localhost domains.
+  * If you are on a MHCLG laptop, your default user is unlikely to have `sudo` permission, which is required, so you may need to take the following steps instead:
+    * Find your STANDARD_USER (that you use normally) and ADMIN_USER (that can use `sudo`) account names. Substitute appropriately in the following commands:
+    * `su - <ADMIN_USER>`
+    * `cd` to the directory *above* this docker-runner repo.
+    * run `sudo chown -R <ADMIN_USER>:staff funding-service-design-docker-runner`
+    * `cd funding-service-design-docker-runner`
+    * `make certs`  # Read the output - should be no apparent errors.
+    * `cd ..`
+    * `sudo chown -R <STANDARD_USER>:staff funding-service-design-docker-runner`
+    * `exit` to return to your standard user shell.
+
+## Running the Funding Service
+
+Depending on which part(s) of the Funding Service you wish to run, you have a few options.
+
+To run everything, execute `make up`.
+
+To run just the pre-award services, execute `make pre up`.
+
+To run just the post-award services, execute `make post up`.
+
+
+### Service domains:
+
+* Authenticator: https://authenticator.levellingup.gov.localhost:3004
+  * Example URL: https://authenticator.levellingup.gov.localhost:3004/service/magic-links/new?fund=cof&round=r2w3
+
+* Apply: https://frontend.levellingup.gov.localhost:3008
+  * Example URL: https://frontend.levellingup.gov.localhost:3008/funding-round/cof/r2w3
+
+* Assess: https://assessment.levellingup.gov.localhost:3010
+  * Example URL: https://assessment.levellingup.gov.localhost:3010/assess/assessor_tool_dashboard/
+
+* Find: https://find-monitoring-data.levellingup.gov.localhost:4001
+  * Example URL: https://find-monitoring-data.levellingup.gov.localhost:4001/download
+
+* Submit: https://submit-monitoring-data.levellingup.gov.localhost:4001
+  * Example URL: https://submit-monitoring-data.levellingup.gov.localhost:4001/dashboard
 
 ## Troubleshooting
-* Check you have the `main` branch and latest revision of each repo checked out - see `reset-all-repos` script below
-* If dependencies have changed you may need to rebuild the docker images using `docker compose build`
-* To run an individual app rather than all of them, run `docker compose up appname` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml)
-* If you get an error about a database not existing, try running `docker compose down` followed by `docker compose up` this will remove and re-create any existing containers and volumes allowing the new databases to be created.
-* If file upload is not working with an error about credentials, you need to uncomment [these lines](https://github.com/communitiesuk/funding-service-design-docker-runner/blob/d13af481818fbd6398c3583e49a33edd6fb19496/docker-compose.yml#L114-L116) in `docker-compose.yml` and put the credentials in your `.env` file. The credentials are stored in the DLUHC BitWarden vault. (Same applies for file uploads in assessment or SSO in authentication for example.)
+* Check you have the `main` branch and latest revision of each repo checked out - see the `reset-all-repos` section below
+* If dependencies have changed you may need to rebuild the docker images using `make build`
+* To run an individual app rather than all of them, run `docker compose up <appname>` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml)
+* If you get an error about a database not existing, try running `make down` followed by `make up`. This will remove and re-create any existing containers and volumes allowing the new databases to be created.
 
 
 ## Running e2e tests
 To run the e2e tests against the docker runner, set the following env vars:
 
-        export TARGET_URL_FRONTEND=http://localhost:3008
-        export TARGET_URL_AUTHENTICATOR=http://localhost:3004
-        export TARGET_URL_FORM_RUNNER=http://localhost:3009
+        export TARGET_URL_FRONTEND=https://frontend.levellingup.gov.localhost:3008
+        export TARGET_URL_AUTHENTICATOR=https://authenticator.levellingup.gov.localhost:3004
+        export TARGET_URL_FORM_RUNNER=https://form-runner.levellingup.gov.localhost:3009
 
 # Scripts
 ## reset-all-repos
 ### Usage 1
-Shell script to bulk clone git repositories from `https://github.com/communitiesuk`. Following repositories are cloned `("authenticator" "assessment" "assessment-store" "account-store" "application-store" "frontend" "fund-store" "notification" "digital-form-builder-adapter")`
+Shell script to bulk clone the core Funding Service git repositories from `https://github.com/communitiesuk`.
 
-        scripts/reset-all-repos.sh -f /path/to/workspace/dir
+        scripts/reset-all-repos.sh -f
 
 ### Usage 2
 Also used to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps. Also optionally 'resets' the postgres image by forcefully removing it - useful if your local migrations get out of sync with the code or you need to start with a blank DB.
 
-        scripts/reset-all-repos.sh -wm /path/to/workspace/dir
+        scripts/reset-all-repos.sh -wm
 
 Where
 - w: if supplied, will wipe the postgres image
 - m: if supplied, will reset all repos to main
-- f: if supplied, will do a git clone of FSD repos in workspace dir(make sure workspace dir has only docker-runner)
-- path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
+- f: if supplied, will do a git clone of FSD repos into the `apps` subdirectory.
 
 ## install-venv-all-repos
 Shell script to go through each repo in turn, create a virtual environment and install the dependencies. This is useful when you just started setting up and want to bulk create the virtual environments for all the repos, which reduces the manual effort of creating venv in each repo. Also optionally 'resets' the virtual environments by forcefully removing it - useful if you have issues with dependencies conflicts or change python versions or you need to start with a fresh setup.
 
-        scripts/install-venv-all-repos.sh -vps /path/to/workspace/dir
+        scripts/install-venv-all-repos.sh -vps
 
 Where
 - v: if supplied, will wipe existing virtual environment & create a new one
 - p: if supplied, will install pre-commit hooks
-- s: if supplied, will build the static files in assessment, frontend & authenticator repos
-- path/to/workspace/dir: absolute path to your local directory where all the repos are checked out. Expects them all named the same as the git repos, eg. `funding-service-design-assessment-store`.
-
-To upgrade the depedencies, run the below command
-
-        scripts/install-venv-all-repos.sh /path/to/workspace/dir
+- s: if supplied, will build the static files for services that serve HTML.
 
 
 # Running in debug mode (VS Code)
@@ -78,7 +112,6 @@ To then expose the debug port 5678 to allow a debugger interface to connect, eac
                 - 5681:5678
 
 This allows you to then configure your chosen debugger (in this case VS code) to connect on that port. Add the following to the `configurations` block in the launch.json (if not already present) for the particular app you want to debug, where port matches the one exposes in docker-compose.
-
 
         {
             "name": "Docker runner",
@@ -119,8 +152,6 @@ If you experience any issues with localstack setup. Try below steps to resolve
 
         sed -i -e 's/\r$//' docker-localstack/setup-awslocal.sh
 
-3. If file upload doesn't work with an error like 'could not resolve host.docker.internal' make sure this is mapped in your `hosts` file. Sometimes this doesn't happen on install, but you can update it afterwards, more details [here](https://dluhcdigital.atlassian.net/wiki/spaces/FS/pages/79205102/Running+Access+Funding+Locally#localstack-on-Mac-OS---if-you-are-unable-to-update-your-hosts-file) (plus a workaround).
-
 ### AWS CLI in localstack
 `aws` cli is available as `awslocal` in the localstack container. To access `awslocal` cli, bash into the localstack container.
 
@@ -153,5 +184,5 @@ awslocal sqs send-message --queue-url http://localstack:4566/000000000000/import
 ```
 
 ## Gotchas
-- If you can't connect, make sure you didn't get a port conflict error when running `docker compose up` - your environment may have different ports already in use.
+- If you can't connect, make sure you didn't get a port conflict error when running `make up` - your environment may have different ports already in use.
 - If breakpoints aren't working, make sure you didn't get a path mapping error when starting the apps - there's a chance the `pathMappings` element in the launch.json may need tweaking (aka `localRoot` for the form-runner config).
