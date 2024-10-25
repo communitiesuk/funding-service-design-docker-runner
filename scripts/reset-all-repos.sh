@@ -8,24 +8,19 @@ repo_root=$(dirname $(dirname $(realpath $0)))
 apps_dir="${repo_root}/apps"
 declare -a repos=("funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-assessment-store" "funding-service-design-account-store" "funding-service-design-application-store" "funding-service-design-frontend" "funding-service-design-fund-store" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils")
 
-while getopts 'wmfal:' OPTION; do
+while getopts 'fml' OPTION; do
     case "$OPTION" in
-        w)
-            wipe_postgres=true
+        f)
+            echo -e "Will do a git clone of:"
+            printf '* %s\n' "${repos[@]}"
+            fresh_clone=true
             ;;
         m)
             echo Will reset all repos to main
             reset_to_main=true
             ;;
-        f)
-            echo -e "Will do a git clone of:"
-            printf '* %s\n' "${repos[@]}"
-            fresh_clone=true
-            wipe_postgres=false
-            reset_to_main=false
-            ;;
         l)
-            echo "Running git log for all repos"
+            echo "Showing latest commit hash for all repos"
             git_log=true
             ;;
         ?)
@@ -36,9 +31,9 @@ done
 shift "$(($OPTIND -1))"
 
 echo ============================================
-echo Wipe postgres: $wipe_postgres
-echo Reset all to main: $reset_to_main
 echo Fresh clone repos: $fresh_clone
+echo Reset all to main: $reset_to_main
+echo Show latest commit: $git_log
 echo ============================================
 
 if [ "$fresh_clone" = true ] ; then
@@ -53,13 +48,6 @@ if [ "$fresh_clone" = true ] ; then
     git clone ${repo_path} ${apps_dir}/${repo}
     echo -------------------------------------------------------------------------
     done
-fi
-
-if [ "$wipe_postgres" = true ] ; then
-    echo Wiping postgres
-    echo ...not implemented yet...
-    echo docker compose down
-    echo docker rm postgres --force
 fi
 
 if [ "$reset_to_main" = true ] ; then

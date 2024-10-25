@@ -76,14 +76,14 @@ Shell script to bulk clone the core Funding Service git repositories from `https
         scripts/reset-all-repos.sh -f
 
 ### Usage 2
-Also used to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps. Also optionally 'resets' the postgres image by forcefully removing it - useful if your local migrations get out of sync with the code or you need to start with a blank DB.
+Also used to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps.
 
-        scripts/reset-all-repos.sh -wm
+        scripts/reset-all-repos.sh -fml
 
 Where
-- w: if supplied, will wipe the postgres image
-- m: if supplied, will reset all repos to main
 - f: if supplied, will do a git clone of FSD repos into the `apps` subdirectory.
+- m: if supplied, will reset all repos to main
+- l: if supplied, will show the latest commit hash for each repo
 
 ## install-venv-all-repos
 Shell script to go through each repo in turn, create a virtual environment and install the dependencies. This is useful when you just started setting up and want to bulk create the virtual environments for all the repos, which reduces the manual effort of creating venv in each repo. Also optionally 'resets' the virtual environments by forcefully removing it - useful if you have issues with dependencies conflicts or change python versions or you need to start with a fresh setup.
