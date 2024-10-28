@@ -1,57 +1,40 @@
 #!/bin/bash
 
-# <- Pre-award environment ->
 # AWS_REGION is being overwritten by localstack on startup, the other environement vars passed in are respected
 # This should be addressed in a future release https://github.com/localstack/localstack/issues/11387
 AWS_REGION=eu-west-2
 AWS_DEFAULT_REGION=eu-west-2
 
-# Create the bucket using awslocal
-if awslocal s3 ls | grep -q $AWS_BUCKET_NAME; then
-  echo "Bucket already exists!"
-else
-  awslocal s3api \
-  create-bucket --bucket $AWS_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
-  --region $AWS_REGION
-  echo "Created Bucket $AWS_BUCKET_NAME!"
-  awslocal s3api \
-  put-bucket-cors --bucket $AWS_BUCKET_NAME \
-  --cors-configuration '{
-    "CORSRules": [
-      {
-        "AllowedOrigins": ["*"],
-        "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-        "AllowedHeaders": ["*"]
-      }
-    ]
-  }'
-  echo "Created CORS rule!"
-fi
+function create_aws_bucket {
+  if awslocal s3 ls | grep -q "$1"; then
+    echo "Bucket already exists!"
+  else
+    awslocal s3api \
+    create-bucket --bucket "$1" \
+    --create-bucket-configuration LocationConstraint=$AWS_REGION \
+    --region $AWS_REGION
+    echo "Created Bucket $1!"
+    awslocal s3api \
+    put-bucket-cors --bucket "$1" \
+    --cors-configuration '{
+      "CORSRules": [
+        {
+          "AllowedOrigins": ["*"],
+          "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+          "AllowedHeaders": ["*"]
+        }
+      ]
+    }'
+    echo "Created CORS rule!"
+  fi
+}
 
-# Create the bucket using awslocal for notification service
-if awslocal s3 ls | grep -q $AWS_MSG_BUCKET_NAME; then
-  echo "Bucket already exists!"
-else
-  awslocal s3api \
-  create-bucket --bucket $AWS_MSG_BUCKET_NAME \
-  --create-bucket-configuration LocationConstraint=$AWS_REGION \
-  --region $AWS_REGION
-  echo "Created Bucket $AWS_BUCKET_NAME!"
-  awslocal s3api \
-  put-bucket-cors --bucket $AWS_MSG_BUCKET_NAME \
-  --cors-configuration '{
-    "CORSRules": [
-      {
-        "AllowedOrigins": ["*"],
-        "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
-        "AllowedHeaders": ["*"]
-      }
-    ]
-  }'
-  echo "Created CORS rule!"
-fi
+# <- Pre-award environment ->
 
+# Create buckets using awslocal
+for bucket in "$AWS_BUCKET_NAME" "$AWS_MSG_BUCKET_NAME"; do
+  create_aws_bucket "$bucket"
+done
 
 # Create the Fifo SQS Queue & DLQ using awslocal
 if awslocal sqs list-queues | grep -q $AWS_DLQ_IMPORT_APP_QUEUE_NAME; then
@@ -105,10 +88,6 @@ fi
 
 # <- Post-award environment ->
 for bucket in ${AWS_S3_BUCKET_FAILED_FILES} ${AWS_S3_BUCKET_SUCCESSFUL_FILES} ${AWS_S3_BUCKET_FIND_DOWNLOAD_FILES}; do
-  if awslocal s3 ls | grep -q ${bucket}; then
-    echo "Bucket ${bucket} already exists!"
-  else
-    awslocal s3api create-bucket --bucket ${bucket} --create-bucket-configuration LocationConstraint=eu-west-2 --region eu-west-2
-  fi
+  create_aws_bucket "$bucket"
 done
 # <- Post-award environment ->
