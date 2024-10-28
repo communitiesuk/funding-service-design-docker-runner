@@ -224,7 +224,11 @@ services:
       args:
         REQUIREMENTS: requirements-dev.txt
     command: >
-      bash -c " flask db upgrade && \ flask db-data seed-ref && \ flask db-data seed-sample-data && \ ${VSC_DEBUG:-flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem}"
+      bash -c "\
+      flask db upgrade && \
+      flask db-data seed-ref && \
+      flask db-data seed-sample-data && \
+      python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
     volumes:
       - './apps/funding-service-design-post-award-data-store:/app'
       - './certs:/app-certs'
