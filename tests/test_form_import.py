@@ -52,6 +52,7 @@ def test_build_conditions(input_condition, exp_result):
                             name="condition a",
                             conditions=[SubCondition(field={"name": "c1"}, operator="is", value={}, coordinator=None)],
                         ),
+                        source_page_path="next-a",
                     )
                 )
             ],
@@ -72,6 +73,7 @@ def test_build_conditions(input_condition, exp_result):
                                 SubCondition(field={"name": "c1"}, operator="is", value={}, coordinator="or"),
                             ],
                         ),
+                        source_page_path="next-a",
                     )
                 )
             ],

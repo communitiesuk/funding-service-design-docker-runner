@@ -20,10 +20,11 @@ from app.db.models import Form  # noqa:E402
 from app.db.models import Page  # noqa:E402
 from app.shared.data_classes import Condition  # noqa:E402
 from app.shared.data_classes import ConditionValue  # noqa:E402
+from app.shared.data_classes import FormSection  # noqa:E402
 from app.shared.helpers import find_enum  # noqa:E402
 
 
-def _build_condition(condition_data, destination_page_path) -> Condition:
+def _build_condition(condition_data, source_page_path, destination_page_path) -> Condition:
     sub_conditions = []
     for c in condition_data["value"]["conditions"]:
         sc = {
@@ -40,6 +41,7 @@ def _build_condition(condition_data, destination_page_path) -> Condition:
         display_name=condition_data["displayName"],
         value=condition_value,
         destination_page_path=destination_page_path,
+        source_page_path=source_page_path,
     )
     return result
 
@@ -74,7 +76,7 @@ def add_conditions_to_components(db, page: dict, conditions: dict, page_id):
                         component_to_update = components_cache[runner_component_name]
 
                     # Create a new Condition instance with a different variable name
-                    new_condition = _build_condition(condition_data, destination_page_path=path["path"])
+                    new_condition = _build_condition(condition_data, page["path"], destination_page_path=path["path"])
 
                     # Add the new condition to the conditions list of the component to update
                     if component_to_update.conditions:
@@ -134,7 +136,13 @@ def insert_component_as_template(component, page_id, page_index, lizts):
     return new_component
 
 
-def insert_page_as_template(page, form_id):
+def insert_page_as_template(page, form_id, form_config):
+    section_config = None
+    if page.get("section"):
+        # find section in form_config
+        section = next((s for s in form_config["sections"] if s["name"] == page["section"]), None)
+        section_config = FormSection(**section).as_dict()
+
     new_page = Page(
         form_id=form_id,
         display_path=page.get("path").lstrip("/"),
@@ -143,7 +151,7 @@ def insert_page_as_template(page, form_id):
         controller=page.get("controller", None),
         is_template=True,
         template_name=page.get("title", None),
-        section=page.get("section", None),
+        section=section_config,
     )
     try:
         db.session.add(new_page)
@@ -185,7 +193,7 @@ def insert_form_config(form_config, form_id):
     for page in form_config.get("pages", []):
         if page["path"] == start_page_path:
             page["controller"] = "start.js"
-        inserted_page = insert_page_as_template(page, form_id)
+        inserted_page = insert_page_as_template(page, form_id, form_config)
         inserted_pages.append(inserted_page)
         db.session.flush()  # flush to get the page id
         for c_idx, component in enumerate(page.get("components", [])):
@@ -195,7 +203,7 @@ def insert_form_config(form_config, form_id):
             inserted_components.append(inserted_component)
         db.session.flush()  # flush to make components available for conditions
 
-    # conditions span across pages in a form
+    # conditions span across pages in a form so we need all components available before adding conditions
     for page in form_config.get("pages", []):
         # get page id
         inserted_page = find_page_by_path(page["path"], form_id)

@@ -1,4 +1,5 @@
 import copy
+import json
 from dataclasses import asdict
 
 from app.db.models import Component
@@ -122,6 +123,7 @@ def build_page(page: Page = None) -> dict:
         {
             "path": f"/{page.display_path}",
             "title": page.name_in_apply_json["en"],
+            "section": page.section["name"] if page.section else None,
         }
     )
     # Having a 'null' controller element breaks the form-json, needs to not be there if blank
@@ -166,7 +168,10 @@ def build_navigation(partial_form_json: dict, input_pages: list[Page]) -> dict:
             for condition in component.conditions:
                 destination_path = f"/{condition['destination_page_path'].lstrip('/')}"
 
-                this_page_in_results["next"].append(
+                # find source page of condition
+                source_path = condition["source_page_path"]
+                source_page = next(p for p in input_pages if p.display_path == source_path)
+                source_page["next"].append(
                     {
                         "path": destination_path,
                         "condition": condition["name"],
@@ -206,7 +211,7 @@ def _find_page_by_controller(pages, controller_name) -> dict:
     return next((p for p in pages if p.controller and p.controller.endswith(controller_name)), None)
 
 
-def build_start_page(content: str, form: Form) -> dict:
+def build_start_page(content: str, form: Form, section=None) -> dict:
     """
     Builds the start page which contains just an html component comprising a bullet
     list of the headings of all pages in this form
@@ -217,6 +222,7 @@ def build_start_page(content: str, form: Form) -> dict:
             "title": form.name_in_apply_json["en"],
             "path": f"/intro-{human_to_kebab_case(form.name_in_apply_json['en'])}",
             "controller": "./pages/start.js",
+            "section": json.loads(section)["name"] if section else None,
         }
     )
     ask_about = None
@@ -265,7 +271,12 @@ def build_form_json(form: Form) -> dict:
     for page in form.pages:
         results["pages"].append(build_page(page=page))
         if page.section:
-            results["sections"].append(page.section)
+            section_dict = page.section
+            # only keep keys with value
+            cleaned_section_dict = {k: v for k, v in section_dict.items() if v is not None and v != ""}
+            # only add section is doesnt already exist
+            if cleaned_section_dict not in results["sections"]:
+                results["sections"].append(cleaned_section_dict)
 
     # start page is the page with the controller ending start.js
     start_page = _find_page_by_controller(form.pages, "start.js")
