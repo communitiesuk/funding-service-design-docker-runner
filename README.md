@@ -6,6 +6,7 @@
 * [`pyenv`](https://github.com/pyenv/pyenv) installed and integrated with your shell. Install Python 3.10 and 3.11.
 * [`nvm`](https://github.com/nvm-sh/nvm) installed.
   * Install Yarn globally with `npm i -g yarn`.
+* [`mkcert`](https://github.com/FiloSottile/mkcert) installed.
 
 ## Required setup
 1. Copy `.env.example` to `.env` and fill in any required missing values.
