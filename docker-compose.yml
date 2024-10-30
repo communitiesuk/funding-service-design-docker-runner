@@ -137,6 +137,7 @@ services:
 
   form-runner:
     depends_on:
+      - redis-data
       - localstack
     build:
       context: ./apps/digital-form-builder-adapter
@@ -161,6 +162,8 @@ services:
       - LOGOUT_URL=https://authenticator.levellingup.gov.localhost:3004/sessions/sign-out
       - PRIVACY_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/privacy
       - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
+      - SINGLE_REDIS=true
+      - FORM_RUNNER_ADAPTER_REDIS_INSTANCE_URI=redis://redis-data:6379
     env_file: .awslocal.env
     networks:
       default:
