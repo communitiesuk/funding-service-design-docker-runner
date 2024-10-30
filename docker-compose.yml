@@ -26,7 +26,6 @@ services:
       - FUND_STORE_API_HOST=http://fund-store:8080
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - NOTIFICATION_SERVICE_HOST=http://notification:8080
     env_file: .awslocal.env
     ports:
       - 3002:8080
@@ -180,6 +179,7 @@ services:
       - 3004:8080
       - 5684:5678
     depends_on:
+      - localstack
       - redis-data
     env_file:
       - .env # For the AZURE_AD_* variables
@@ -190,7 +190,6 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://fund-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
-      - NOTIFICATION_SERVICE_HOST=http://notification:8080
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
@@ -209,6 +208,8 @@ services:
     ports:
       - 3006:8080
       - 5686:5678
+    depends_on:
+      - localstack
     env_file: .awslocal.env
     environment:
       - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
