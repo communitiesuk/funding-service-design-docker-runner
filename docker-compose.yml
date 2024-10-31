@@ -100,41 +100,6 @@ services:
           - assessment.levellingup.gov.localhost
     profiles: [ pre ]
 
-  frontend:
-    build:
-      context: ./apps/funding-service-design-frontend
-      dockerfile: Dockerfile
-      args:
-        - USE_DEV_REQUIREMENTS=true
-    volumes:
-      - './apps/funding-service-design-frontend:/app'
-      - './certs:/app-certs'
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
-    depends_on:
-      - redis-data
-      - localstack
-    environment:
-      - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
-      - FUND_STORE_API_HOST=http://fund-store:8080
-      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - FLASK_DEBUG=1
-      - FLASK_ENV=development
-      - REDIS_INSTANCE_URI=redis://redis-data:6379
-      - SECRET_KEY=dc_key
-    env_file: .awslocal.env
-    ports:
-      - 3008:8080
-      - 5688:5678
-    networks:
-      default:
-        aliases:
-          - frontend.levellingup.gov.localhost
-    profiles: [ pre ]
-
   form-runner:
     depends_on:
       - redis-data
@@ -193,7 +158,7 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://fund-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
-      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
+      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:4001
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
       - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
@@ -250,6 +215,15 @@ services:
       - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
+
+      # apply config
+      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - FLASK_DEBUG=1
+      - REDIS_INSTANCE_URI=redis://redis-data:6379
     restart: unless-stopped
     depends_on:
       database:
@@ -259,6 +233,7 @@ services:
         aliases:
           - find-monitoring-data.levellingup.gov.localhost
           - submit-monitoring-data.levellingup.gov.localhost
+          - frontend.levellingup.gov.localhost
     profiles: [ post ]
 
   data-store-celery:
