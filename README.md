@@ -28,6 +28,7 @@
     * `sudo chown -R <STANDARD_USER>:staff funding-service-design-docker-runner`
     * `exit` to return to your standard user shell.
   * If you hit the error `SecTrustSettingsSetTrustSettings: The authorization was denied since no user interaction was possible.` when doing the above `su -` steps, then you may need to actually logout and login as your admin user instead of using `su`
+  * If you subsequently hit git errors that mention `dubious ownership in repository` this is to do with changing the directoery permissions above. A terminal restart should fix this.
 
 ## Running the Funding Service
 
