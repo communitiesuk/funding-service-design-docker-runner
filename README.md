@@ -2,9 +2,10 @@
 
 ## Pre-requisite software
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-* SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos.
+* SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos. SSH key instructions for github are [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 * [`pyenv`](https://github.com/pyenv/pyenv) installed and integrated with your shell. Install Python 3.10 and 3.11.
 * [`nvm`](https://github.com/nvm-sh/nvm) installed.
+  * Install node v20 `nvm install 20`
   * Install Yarn globally with `npm i -g yarn`.
 * [`mkcert`](https://github.com/FiloSottile/mkcert) installed.
 
@@ -27,6 +28,7 @@
     * `sudo chown -R <STANDARD_USER>:staff funding-service-design-docker-runner`
     * `exit` to return to your standard user shell.
   * If you hit the error `SecTrustSettingsSetTrustSettings: The authorization was denied since no user interaction was possible.` when doing the above `su -` steps, then you may need to actually logout and login as your admin user instead of using `su`
+  * If you subsequently hit git errors that mention `dubious ownership in repository` this is to do with changing the directoery permissions above. A terminal restart should fix this.
 
 ## Running the Funding Service
 
