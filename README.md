@@ -2,7 +2,7 @@
 
 ## Pre-requisite software
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-* SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos.
+* SSH keys set up with GitHub so that you can clone over SSH, not https. And access to all of the Funding Service repos. SSH key instructions for github are [here](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account)
 * [`pyenv`](https://github.com/pyenv/pyenv) installed and integrated with your shell. Install Python 3.10 and 3.11.
 * [`nvm`](https://github.com/nvm-sh/nvm) installed.
   * Install Yarn globally with `npm i -g yarn`.
