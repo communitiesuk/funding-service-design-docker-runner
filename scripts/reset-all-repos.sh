@@ -6,7 +6,7 @@ fresh_clone=false
 git_log=false
 repo_root=$(dirname $(dirname $(realpath $0)))
 apps_dir="${repo_root}/apps"
-declare -a repos=("funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-assessment-store" "funding-service-design-account-store" "funding-service-design-application-store" "funding-service-design-frontend" "funding-service-design-fund-store" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils")
+declare -a repos=("funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-assessment-store" "funding-service-design-account-store" "funding-service-design-application-store" "funding-service-design-frontend" "funding-service-design-fund-store" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils" "funding-service-pre-award-stores")
 
 while getopts 'fml' OPTION; do
     case "$OPTION" in
