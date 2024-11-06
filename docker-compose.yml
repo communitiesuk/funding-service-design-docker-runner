@@ -19,7 +19,7 @@ services:
         condition: service_healthy
       localstack:
         condition: service_started
-    volumes: 
+    volumes:
       - './apps/funding-service-pre-award-stores:/app'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
