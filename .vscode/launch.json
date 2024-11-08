@@ -5,11 +5,41 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Docker Runner: Account Store",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5683
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-account-store",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Application Store",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5682
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-application-store",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
             "name": "Docker Runner: Assessment",
             "type": "debugpy",
             "request": "attach",
             "connect": {
-                "host": "assessment.levellingup.gov.localhost",
+                "host": "localhost",
                 "port": 5689
             },
             "pathMappings": [
@@ -24,12 +54,87 @@
             "type": "debugpy",
             "request": "attach",
             "connect": {
-                "host": "assessment.levellingup.gov.localhost",
+                "host": "localhost",
                 "port": 5685
             },
             "pathMappings": [
                 {
                     "localRoot": "${workspaceFolder}/apps/funding-service-design-assessment-store",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Authenticator",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5684
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-authenticator",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Data Store",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5687
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-post-award-data-store",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Frontend",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5688
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-frontend",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Fund Store",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5681
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-fund-store",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Notification",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5686
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-notification",
                     "remoteRoot": "."
                 }
             ]
