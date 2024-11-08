@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Docker Runner: Assessment",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "assessment.levellingup.gov.localhost",
+                "port": 5689
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-assessment",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
+            "name": "Docker Runner: Assessment Store",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "assessment.levellingup.gov.localhost",
+                "port": 5685
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-assessment-store",
+                    "remoteRoot": "."
+                }
+            ]
+        }
+    ]
+}
