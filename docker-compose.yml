@@ -21,10 +21,10 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    volumes: 
-      - './apps/funding-service-design-fund-application-builder:/app' 
+    volumes:
+      - './apps/funding-service-design-fund-application-builder:/app'
       - './certs:/app-certs'
-    
+
     profiles: [ pre ]
     networks:
       default:
