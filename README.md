@@ -43,6 +43,9 @@ To run just the post-award services, execute `make post up`.
 
 ### Service domains:
 
+* Fund Application Builder (FAB): https://fund-application-builder.levellingup.gov.localhost:3011
+  * Example URL: https://fund-application-builder.levellingup.gov.localhost:3011
+
 * Authenticator: https://authenticator.levellingup.gov.localhost:3004
   * Example URL: https://authenticator.levellingup.gov.localhost:3004/service/magic-links/new?fund=cof&round=r2w3
 
