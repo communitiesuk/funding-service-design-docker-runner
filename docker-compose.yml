@@ -23,6 +23,10 @@ services:
         condition: service_healthy
     volumes: [ './apps/funding-service-design-fund-application-builder:/app' ]
     profiles: [ pre ]
+    networks:
+      default:
+        aliases:
+          - fund-application-builder.levellingup.gov.localhost
 
 
   fund-store:
