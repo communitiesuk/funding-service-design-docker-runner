@@ -1,6 +1,30 @@
 name: funding-service
 
 services:
+  fab:
+    build:
+      context: ./apps/funding-service-design-fund-application-builder
+      dockerfile: Dockerfile
+      args:
+        - USE_DEV_REQUIREMENTS=true
+    command: ["sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080"]
+    environment:
+      - FORM_RUNNER_INTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORM_RUNNER_EXTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store   # pragma: allowlist secret
+      - FLASK_DEBUG=0
+      - FLASK_ENV=development
+      - SECRET_KEY=local
+    ports:
+      - 3011:8080
+      - 5690:5678
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes: [ './apps/funding-service-design-fund-application-builder:/app' ]
+    profiles: [ pre ]
+
+
   fund-store:
     build:
       context: ./apps/funding-service-design-fund-store
@@ -303,7 +327,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test
+      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test,fab_store
     ports:
       - 5432:5432
     healthcheck:
