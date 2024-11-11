@@ -12,7 +12,7 @@
 ## Required setup
 1. Copy `.env.example` to `.env` and fill in any required missing values.
 2. Edit your `/etc/hosts` file and add the following line at the end:
-  * `127.0.0.1    submit-monitoring-data.levellingup.gov.localhost find-monitoring-data.levellingup.gov.localhost authenticator.levellingup.gov.localhost assessment.levellingup.gov.localhost frontend.levellingup.gov.localhost localstack`
+  * `127.0.0.1    submit-monitoring-data.levellingup.gov.localhost find-monitoring-data.levellingup.gov.localhost authenticator.levellingup.gov.localhost assessment.levellingup.gov.localhost frontend.levellingup.gov.localhost localstack fund-application-builder.levellingup.gov.localhost`
 3. Run `./scripts/reset-all-repos.sh -f` to git clone all repos into `./apps`
 4. Run `./scripts/install-venv-all-repos.sh -v -p -s` to create and populate venvs in all repos and install pre-commit hooks.
   * Note: there are some pre-existing issues with the script sometimes not picking the correct python version, may need some manual finagling until that is addressed.
@@ -42,6 +42,9 @@ To run just the post-award services, execute `make post up`.
 
 
 ### Service domains:
+
+* Fund Application Builder (FAB): https://fund-application-builder.levellingup.gov.localhost:3011
+  * Example URL: https://fund-application-builder.levellingup.gov.localhost:3011
 
 * Authenticator: https://authenticator.levellingup.gov.localhost:3004
   * Example URL: https://authenticator.levellingup.gov.localhost:3004/service/magic-links/new?fund=cof&round=r2w3
