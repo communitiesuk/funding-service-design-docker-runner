@@ -7,11 +7,11 @@ services:
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
-    command: ["sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"]
+    command: [ "sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     environment:
       - FORM_RUNNER_INTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORM_RUNNER_EXTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store   # pragma: allowlist secret
+      - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store # pragma: allowlist secret
       - FLASK_DEBUG=0
       - FLASK_ENV=development
       - SECRET_KEY=local
@@ -30,7 +30,6 @@ services:
       default:
         aliases:
           - fund-application-builder.levellingup.gov.localhost
-
 
   fund-store:
     build:
@@ -260,11 +259,12 @@ services:
       args:
         REQUIREMENTS: requirements-dev.txt
     command: >
-      bash -c "\
-      flask db upgrade && \
-      flask db-data seed-ref && \
-      flask db-data seed-sample-data && \
-      python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
+      bash -c "
+        flask db upgrade &&
+        flask db-data seed-ref &&
+        flask db-data seed-sample-data &&
+        python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
+      "
     volumes:
       - './apps/funding-service-design-post-award-data-store:/app'
       - './certs:/app-certs'
