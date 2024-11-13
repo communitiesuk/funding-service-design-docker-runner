@@ -55,7 +55,7 @@ services:
     command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
     environment:
       - FLASK_ENV=development
-      - FUND_STORE_API_HOST=http://fund-store:8080
+      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
     env_file: .awslocal.env
@@ -111,6 +111,27 @@ services:
         condition: service_started
     profiles: [ pre ]
 
+  pre-award-stores:
+    build:
+      context: ./apps/funding-service-pre-award-stores
+    command: bash -c "flask db upgrade && python -m fund_store.scripts.load_all_fund_rounds && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
+    env_file: .awslocal.env
+    ports:
+      - 3012:8080
+      - 5692:5678
+    depends_on:
+      database:
+        condition: service_healthy
+      localstack:
+        condition: service_started
+    volumes:
+      - './apps/funding-service-pre-award-stores:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
+    profiles: [ pre ]
+
   assessment:
     build:
       context: ./apps/funding-service-design-assessment
@@ -124,7 +145,7 @@ services:
       - localstack
     environment:
       - FLASK_ENV=development
-      - FUND_STORE_API_HOST=http://fund-store:8080
+      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
@@ -157,7 +178,7 @@ services:
     environment:
       - USE_LOCAL_DATA=False
       - APPLICATION_STORE_API_HOST=http://application-store:8080
-      - FUND_STORE_API_HOST=http://fund-store:8080
+      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
@@ -233,7 +254,7 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - APPLICATION_STORE_API_HOST=http://application-store:8080
-      - FUND_STORE_API_HOST=http://fund-store:8080
+      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
@@ -349,7 +370,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test,fab_store
+      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test,fab_store,pre_award_stores,pre_award_stores_test
     ports:
       - 5432:5432
     healthcheck:

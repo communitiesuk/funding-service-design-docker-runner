@@ -65,6 +65,21 @@
             ]
         },
         {
+            "name": "Docker Runner: Pre-Award Stores",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5692
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-pre-award-stores",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
             "name": "Docker Runner: Authenticator",
             "type": "debugpy",
             "request": "attach",
