@@ -7,11 +7,11 @@ services:
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
-    command: ["sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"]
+    command: [ "sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     environment:
       - FORM_RUNNER_INTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORM_RUNNER_EXTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store   # pragma: allowlist secret
+      - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store # pragma: allowlist secret
       - FLASK_DEBUG=0
       - FLASK_ENV=development
       - SECRET_KEY=local
@@ -24,13 +24,12 @@ services:
     volumes:
       - './apps/funding-service-design-fund-application-builder:/app'
       - './certs:/app-certs'
-
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
     networks:
       default:
         aliases:
           - fund-application-builder.levellingup.gov.localhost
-
 
   fund-store:
     build:
@@ -45,7 +44,9 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    volumes: [ './apps/funding-service-design-fund-store:/app' ]
+    volumes:
+      - './apps/funding-service-design-fund-store:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
 
   application-store:
@@ -66,7 +67,9 @@ services:
         condition: service_healthy
       localstack:
         condition: service_started
-    volumes: [ './apps/funding-service-design-application-store:/app' ]
+    volumes:
+      - './apps/funding-service-design-application-store:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
 
   account-store:
@@ -76,7 +79,9 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/account_store
-    volumes: [ './apps/funding-service-design-account-store:/app' ]
+    volumes:
+      - './apps/funding-service-design-account-store:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     ports:
       - 3003:8080
       - 5683:5678
@@ -87,12 +92,15 @@ services:
   assessment-store:
     build:
       context: ./apps/funding-service-design-assessment-store
-    volumes: [ './apps/funding-service-design-assessment-store:/app' ]
+    volumes:
+      - './apps/funding-service-design-assessment-store:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
     ports:
       - 3005:8080
       - 5685:5678
     environment:
+      - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
       - APPLICATION_STORE_API_HOST=http://application-store:8080
     env_file: .awslocal.env
@@ -109,6 +117,7 @@ services:
     volumes:
       - './apps/funding-service-design-assessment:/app'
       - './certs:/app-certs'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     depends_on:
       - redis-data
@@ -140,6 +149,7 @@ services:
     volumes:
       - './apps/funding-service-design-frontend:/app'
       - './certs:/app-certs'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
     depends_on:
       - redis-data
@@ -208,6 +218,7 @@ services:
     volumes:
       - './apps/funding-service-design-authenticator:/app'
       - './certs:/app-certs'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
     ports:
       - 3004:8080
@@ -237,7 +248,9 @@ services:
   notification:
     build:
       context: ./apps/funding-service-design-notification
-    volumes: [ './apps/funding-service-design-notification:/app' ]
+    volumes:
+      - './apps/funding-service-design-notification:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
     ports:
       - 3006:8080
@@ -256,17 +269,17 @@ services:
     # http://github.com/communitiesuk/funding-service-design-post-award-data-store
     build:
       context: ./apps/funding-service-design-post-award-data-store
-      args:
-        REQUIREMENTS: requirements-dev.txt
     command: >
-      bash -c "\
-      flask db upgrade && \
-      flask db-data seed-ref && \
-      flask db-data seed-sample-data && \
-      python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
+      bash -c "
+        flask db upgrade &&
+        flask db-data seed-ref &&
+        flask db-data seed-sample-data &&
+        python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 4001 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
+      "
     volumes:
       - './apps/funding-service-design-post-award-data-store:/app'
       - './certs:/app-certs'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     stdin_open: true
     tty: true
     ports:
@@ -303,7 +316,9 @@ services:
       else
           celery -A app.celery_app worker --loglevel INFO;
       fi "
-    volumes: [ './apps/funding-service-design-post-award-data-store:/app' ]
+    volumes:
+      - './apps/funding-service-design-post-award-data-store:/app'
+      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     depends_on:
       redis-data:
         condition: service_started

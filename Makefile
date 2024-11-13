@@ -41,3 +41,7 @@ down: default
 .PHONY: build
 build: default
 	docker compose build
+
+.PHONY: clean-build
+clean-build: default
+	docker compose build --no-cache
