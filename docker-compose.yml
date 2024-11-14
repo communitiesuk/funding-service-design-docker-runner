@@ -49,28 +49,28 @@ services:
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
 
-  application-store:
-    build:
-      context: ./apps/funding-service-design-application-store
-    command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
-    environment:
-      - FLASK_ENV=development
-      - FUND_STORE_API_HOST=http://fund-store:8080
-      - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
-    env_file: .awslocal.env
-    ports:
-      - 3002:8080
-      - 5682:5678
-    depends_on:
-      database:
-        condition: service_healthy
-      localstack:
-        condition: service_started
-    volumes:
-      - './apps/funding-service-design-application-store:/app'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    profiles: [ pre ]
+  # application-store:
+  #   build:
+  #     context: ./apps/funding-service-design-application-store
+  #   command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
+  #   environment:
+  #     - FLASK_ENV=development
+  #     - FUND_STORE_API_HOST=http://fund-store:8080
+  #     - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
+  #     - ACCOUNT_STORE_API_HOST=http://account-store:8080
+  #   env_file: .awslocal.env
+  #   ports:
+  #     - 3002:8080
+  #     - 5682:5678
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     localstack:
+  #       condition: service_started
+  #   volumes:
+  #     - './apps/funding-service-design-application-store:/app'
+  #     - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
+  #   profiles: [ pre ]
 
   account-store:
     build:
@@ -102,7 +102,9 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://assessment-store:8080/apply
+      - FUND_STORE_API_HOST=http://fund-store:8080
+      - ACCOUNT_STORE_API_HOST=http://account-store:8080
     env_file: .awslocal.env
     depends_on:
       database:
@@ -125,8 +127,8 @@ services:
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://fund-store:8080
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
-      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
+      - APPLICATION_STORE_API_HOST=http://assessment-store:8080/apply
+      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080/assess
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
@@ -156,7 +158,7 @@ services:
       - localstack
     environment:
       - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://assessment-store:8080/apply
       - FUND_STORE_API_HOST=http://fund-store:8080
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
@@ -193,7 +195,7 @@ services:
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["application-store"]}'
+      - 'NODE_CONFIG={"safelist": ["assessment-store"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
       - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
@@ -232,7 +234,7 @@ services:
     environment:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://assessment-store:8080/apply
       - FUND_STORE_API_HOST=http://fund-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
