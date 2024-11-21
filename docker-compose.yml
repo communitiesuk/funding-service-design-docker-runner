@@ -114,7 +114,13 @@ services:
   pre-award-stores:
     build:
       context: ./apps/funding-service-pre-award-stores
-    command: bash -c "flask db upgrade && python -m fund_store.scripts.load_all_fund_rounds && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
+    command: >
+      bash -c "
+      flask db upgrade && \
+      python -m fund_store.scripts.load_all_fund_rounds && \
+      python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code CTDF && \
+      python -m debugpy --listen 0.0.0.0:5678 -m wsgi
+      "
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
