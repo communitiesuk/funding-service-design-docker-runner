@@ -31,24 +31,6 @@ services:
         aliases:
           - fund-application-builder.levellingup.gov.localhost
 
-  fund-store:
-    build:
-      context: ./apps/funding-service-design-fund-store
-    command: bash -c "flask db upgrade && python -m scripts.load_all_fund_rounds && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
-    environment:
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@database:5432/fund_store
-    ports:
-      - 3001:8080
-      - 5681:5678
-    depends_on:
-      database:
-        condition: service_healthy
-    volumes:
-      - './apps/funding-service-design-fund-store:/app'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    profiles: [ pre ]
-
   application-store:
     build:
       context: ./apps/funding-service-design-application-store
