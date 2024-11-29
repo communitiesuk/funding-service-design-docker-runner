@@ -84,7 +84,7 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
     env_file: .awslocal.env
     depends_on:
       database:
@@ -106,6 +106,8 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
+      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
+      - ACCOUNT_STORE_API_HOST=http://account-store:8080
     env_file: .awslocal.env
     ports:
       - 3012:8080
@@ -134,7 +136,7 @@ services:
     environment:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
@@ -165,7 +167,7 @@ services:
       - localstack
     environment:
       - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
+      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
@@ -202,7 +204,7 @@ services:
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["application-store"]}'
+      - 'NODE_CONFIG={"safelist": ["application-store", "pre-award-stores"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
       - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
@@ -241,7 +243,6 @@ services:
     environment:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
