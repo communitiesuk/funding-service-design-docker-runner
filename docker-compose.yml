@@ -137,7 +137,7 @@ services:
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
     env_file: .awslocal.env
     ports:
@@ -169,7 +169,7 @@ services:
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - FLASK_DEBUG=1
       - FLASK_ENV=development
@@ -200,7 +200,7 @@ services:
       - LOG_LEVEL=debug
       - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
-      - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
+      - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:4004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
       - 'NODE_CONFIG={"safelist": ["application-store"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
@@ -209,7 +209,7 @@ services:
       - ACCESSIBILITY_STATEMENT_URL=https://frontend.levellingup.gov.localhost:3008/accessibility_statement
       - SERVICE_START_PAGE=https://frontend.levellingup.gov.localhost:3008/account
       - MULTIFUND_URL=https://frontend.levellingup.gov.localhost:3008/account
-      - LOGOUT_URL=https://authenticator.levellingup.gov.localhost:3004/sessions/sign-out
+      - LOGOUT_URL=https://authenticator.levellingup.gov.localhost:4004/sessions/sign-out
       - PRIVACY_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/privacy
       - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
       - SINGLE_REDIS=true
@@ -230,7 +230,7 @@ services:
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
     ports:
-      - 3004:8080
+      - 4004:8080
       - 5684:5678
     depends_on:
       - localstack
@@ -243,7 +243,7 @@ services:
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - APPLICATION_STORE_API_HOST=http://application-store:8080
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
@@ -302,7 +302,7 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
       - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:3004
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
     restart: unless-stopped
     depends_on:
       database:
