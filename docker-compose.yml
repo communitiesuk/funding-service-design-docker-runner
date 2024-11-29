@@ -31,29 +31,6 @@ services:
         aliases:
           - fund-application-builder.levellingup.gov.localhost
 
-  application-store:
-    build:
-      context: ./apps/funding-service-design-application-store
-    command: bash -c "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi"
-    environment:
-      - FLASK_ENV=development
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - DATABASE_URL=postgresql://postgres:password@database:5432/application_store
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
-    env_file: .awslocal.env
-    ports:
-      - 3002:8080
-      - 5682:5678
-    depends_on:
-      database:
-        condition: service_healthy
-      localstack:
-        condition: service_started
-    volumes:
-      - './apps/funding-service-design-application-store:/app'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    profiles: [ pre ]
-
   account-store:
     build:
       context: ./apps/funding-service-design-account-store
@@ -204,7 +181,7 @@ services:
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=http://localhost:3004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["application-store", "pre-award-stores"]}'
+      - 'NODE_CONFIG={"safelist": ["pre-award-stores"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
       - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
@@ -359,7 +336,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,application_store,fund_store,data_store,data_store_test,fab_store,pre_award_stores,pre_award_stores_test
+      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,data_store,data_store_test,fab_store,pre_award_stores,pre_award_stores_test
     ports:
       - 5432:5432
     healthcheck:
