@@ -56,6 +56,7 @@ services:
       flask db upgrade && \
       python -m fund_store.scripts.load_all_fund_rounds && \
       python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code CTDF && \
+      python -m invoke -r assessment_store seed-local-assessment-store-db && \
       python -m debugpy --listen 0.0.0.0:5678 -m wsgi
       "
     environment:
@@ -63,6 +64,7 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
     env_file: .awslocal.env
     ports:
       - 3012:8080
