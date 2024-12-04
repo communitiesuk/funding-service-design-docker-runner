@@ -46,8 +46,8 @@ To run just the post-award services, execute `make post up`.
 * Fund Application Builder (FAB): https://fund-application-builder.levellingup.gov.localhost:3011
   * Example URL: https://fund-application-builder.levellingup.gov.localhost:3011
 
-* Authenticator: https://authenticator.levellingup.gov.localhost:3004
-  * Example URL: https://authenticator.levellingup.gov.localhost:3004/service/magic-links/new?fund=cof&round=r2w3
+* Authenticator: https://authenticator.levellingup.gov.localhost:4004
+  * Example URL: https://authenticator.levellingup.gov.localhost:4004/service/magic-links/new?fund=cof&round=r2w3
 
 * Apply: https://frontend.levellingup.gov.localhost:3008
   * Example URL: https://frontend.levellingup.gov.localhost:3008/funding-round/cof/r2w3
@@ -72,7 +72,7 @@ To run just the post-award services, execute `make post up`.
 To run the e2e tests against the docker runner, set the following env vars:
 
         export TARGET_URL_FRONTEND=https://frontend.levellingup.gov.localhost:3008
-        export TARGET_URL_AUTHENTICATOR=https://authenticator.levellingup.gov.localhost:3004
+        export TARGET_URL_AUTHENTICATOR=https://authenticator.levellingup.gov.localhost:4004
         export TARGET_URL_FORM_RUNNER=https://form-runner.levellingup.gov.localhost:3009
 
 # Scripts
