@@ -3,3 +3,5 @@
 !/apps/.gitkeep
 /certs/*
 !/certs/.gitkeep
+/fund-round/*
+!/fund-round/.gitkeep
