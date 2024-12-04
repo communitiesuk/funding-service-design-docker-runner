@@ -68,15 +68,18 @@ if [ "$reset_to_main" = true ] ; then
 fi
 
 if [ "$git_log" = true ] ; then
-    echo Running git log
+    echo -e "Running git log\n"
+
+    outfile=$(mktemp)
+
+    echo $'Repository\tBranch name\tCommit hash' > ${outfile}
 
     for repo in "${repos[@]}"
     do
-    echo -------------------------------------------------------------------------
     cd ${apps_dir}/$repo
-    echo $repo
-    git log -n 1 --format=format:%H
+    echo -e "$repo\t$(git rev-parse --abbrev-ref HEAD)\t$(git rev-parse --short=8 HEAD)" >> ${outfile}
     done
-    echo -------------------------------------------------------------------------
     cd ${repo_root}
+
+    cat ${outfile} | sort | column -t -s $'\t'
 fi
