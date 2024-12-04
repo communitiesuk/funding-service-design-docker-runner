@@ -48,28 +48,6 @@ services:
       database:
         condition: service_healthy
 
-  assessment-store:
-    build:
-      context: ./apps/funding-service-design-assessment-store
-    volumes:
-      - './apps/funding-service-design-assessment-store:/app'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: [ "sh", "-c", "flask db upgrade && python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
-    ports:
-      - 3005:8080
-      - 5685:5678
-    environment:
-      - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@database:5432/assessment_store
-      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
-    env_file: .awslocal.env
-    depends_on:
-      database:
-        condition: service_healthy
-      localstack:
-        condition: service_started
-    profiles: [ pre ]
-
   pre-award-stores:
     build:
       context: ./apps/funding-service-pre-award-stores
@@ -78,6 +56,7 @@ services:
       flask db upgrade && \
       python -m fund_store.scripts.load_all_fund_rounds && \
       python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code CTDF && \
+      python -m invoke -r assessment_store seed-local-assessment-store-db && \
       python -m debugpy --listen 0.0.0.0:5678 -m wsgi
       "
     environment:
@@ -85,6 +64,7 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
     env_file: .awslocal.env
     ports:
       - 3012:8080
@@ -114,7 +94,7 @@ services:
       - FLASK_ENV=development
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
-      - ASSESSMENT_STORE_API_HOST=http://assessment-store:8080
+      - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - REDIS_INSTANCE_URI=redis://redis-data:6379
