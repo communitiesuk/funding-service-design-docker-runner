@@ -20,21 +20,6 @@
             ]
         },
         {
-            "name": "Docker Runner: Application Store",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5682
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-design-application-store",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        {
             "name": "Docker Runner: Assessment",
             "type": "debugpy",
             "request": "attach",
@@ -45,21 +30,6 @@
             "pathMappings": [
                 {
                     "localRoot": "${workspaceFolder}/apps/funding-service-design-assessment",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        {
-            "name": "Docker Runner: Assessment Store",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5685
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-design-assessment-store",
                     "remoteRoot": "."
                 }
             ]
@@ -120,21 +90,6 @@
             "pathMappings": [
                 {
                     "localRoot": "${workspaceFolder}/apps/funding-service-design-frontend",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        {
-            "name": "Docker Runner: Fund Store",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5681
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-design-fund-store",
                     "remoteRoot": "."
                 }
             ]
