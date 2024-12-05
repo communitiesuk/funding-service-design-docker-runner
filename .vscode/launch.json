@@ -35,21 +35,6 @@
             ]
         },
         {
-            "name": "Docker Runner: Pre-Award Stores",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5692
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-pre-award-stores",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        {
             "name": "Docker Runner: Authenticator",
             "type": "debugpy",
             "request": "attach",
@@ -108,6 +93,36 @@
                     "remoteRoot": "."
                 }
             ]
+        },
+        {
+            "name": "Docker Runner: Pre-Award Stores",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5692
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-pre-award-stores",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Docker Runner: ALL THE APPS",
+            "configurations": [
+                "Docker Runner: Account Store",
+                "Docker Runner: Assessment",
+                "Docker Runner: Authenticator",
+                "Docker Runner: Data Store",
+                "Docker Runner: Frontend",
+                "Docker Runner: Notification",
+                "Docker Runner: Pre-Award Stores"
+            ],
+            "stopAll": true
         }
     ]
 }
