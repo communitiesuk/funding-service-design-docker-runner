@@ -80,6 +80,21 @@
             ]
         },
         {
+            "name": "Docker Runner: Fund Application Builder",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5690
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}/apps/funding-service-design-fund-application-builder",
+                    "remoteRoot": "."
+                }
+            ]
+        },
+        {
             "name": "Docker Runner: Notification",
             "type": "debugpy",
             "request": "attach",
@@ -119,6 +134,7 @@
                 "Docker Runner: Authenticator",
                 "Docker Runner: Data Store",
                 "Docker Runner: Frontend",
+                "Docker Runner: Fund Application Builder",
                 "Docker Runner: Notification",
                 "Docker Runner: Pre-Award Stores"
             ],
