@@ -234,10 +234,53 @@ mkdir -p "$FUND_STORE_DEST_DIR"
 FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${fund_short_name,,}_${round_short_name,,}.py"  # Lowercase
 cp "$FUND_STORE_FILE" "$FUND_STORE_FILE_DEST"
 
+ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award-stores/assessment_store/config/mappings/assessment_mapping_fund_round.py"
+echo "Editing  $ASSESS_STORE_CONFIG_FILE"
+
+unscored_sections="[]"
+if [[ -f "$SELECTED_DIR/mapping/unscored_sections.py" ]]; then
+    print_message "unscored_sections file found"
+    unscored_sections=$(cat "$SELECTED_DIR/mapping/unscored_sections.py")
+    unscored_sections=$(printf '%s' "$unscored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
+else
+    print_message "No unscored_sections"
+fi
+
+scored_sections="[]"
+if [[ -f "$SELECTED_DIR/mapping/scored_sections.py" ]]; then
+    print_message "scored_sections file found"
+    scored_sections=$(cat "$SELECTED_DIR/mapping/scored_sections.py")
+    scored_sections=$(printf '%s' "$scored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
+else
+    print_message "No scored_sections"
+fi
+
+sed -i "/fund_round_to_assessment_mapping = {/a \\
+    \"$fund_id:$round_id\": {\\
+        \"schema_id\": \"${fund_short_name}_${round_short_name}_assessment\",\\
+        \"unscored_sections\": ${unscored_sections},\\
+        \"scored_criteria\": ${scored_sections},\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+
+sed -i "/fund_round_data_key_mappings = {/a \\
+    \"${fund_short_name}${round_short_name}\": {\\
+        \"location\": None,\\
+        \"asset_type\": None,\\
+        \"funding_one\": None,\\
+        \"funding_two\": None,\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+
+sed -i "/fund_round_mapping_config = {/a \\
+    \"${fund_short_name}${round_short_name}\": {\\
+        \"fund_id\": \"$fund_id\",\\
+        \"round_id\": \"$round_id\",\\
+        \"type_of_application\": \"$fund_short_name\",\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+
 print_message "Commit changes"
 commit_changes \
     "$APPS_DIR/funding-service-pre-award-stores" \
-    "Adding ${fund_short_name}-${round_short_name} script"
+    "Adding ${fund_short_name}-${round_short_name} config"
 
 print_prompt "Press [Enter] to continue."
 read
@@ -312,60 +355,6 @@ commit_changes \
 
 print_prompt "Press [Enter] to continue."
 read
-
-print_header "Step 7: Working on 'funding-service-design-assessment-store':"
-print_message "Create new branch if needed"
-create_git_branch \
-    "$APPS_DIR/funding-service-design-assessment-store" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
-
-ASSESS_STORE_CONFIG_FILE="apps/funding-service-design-assessment-store/config/mappings/assessment_mapping_fund_round.py"
-echo "Editing  $ASSESS_STORE_CONFIG_FILE"
-
-unscored_sections="[]"
-if [[ -f "$SELECTED_DIR/mapping/unscored_sections.py" ]]; then
-    print_message "unscored_sections file found"
-    unscored_sections=$(cat "$SELECTED_DIR/mapping/unscored_sections.py")
-    unscored_sections=$(printf '%s' "$unscored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
-else
-    print_message "No unscored_sections"
-fi
-
-scored_sections="[]"
-if [[ -f "$SELECTED_DIR/mapping/scored_sections.py" ]]; then
-    print_message "scored_sections file found"
-    scored_sections=$(cat "$SELECTED_DIR/mapping/scored_sections.py")
-    scored_sections=$(printf '%s' "$scored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
-else
-    print_message "No scored_sections"
-fi
-
-sed -i "/fund_round_to_assessment_mapping = {/a \\
-    \"$fund_id:$round_id\": {\\
-        \"schema_id\": \"${fund_short_name}_${round_short_name}_assessment\",\\
-        \"unscored_sections\": ${unscored_sections},\\
-        \"scored_criteria\": ${scored_sections},\\
-    }," "$ASSESS_STORE_CONFIG_FILE"
-
-sed -i "/fund_round_data_key_mappings = {/a \\
-    \"${fund_short_name}${round_short_name}\": {\\
-        \"location\": None,\\
-        \"asset_type\": None,\\
-        \"funding_one\": None,\\
-        \"funding_two\": None,\\
-    }," "$ASSESS_STORE_CONFIG_FILE"
-
-sed -i "/fund_round_mapping_config = {/a \\
-    \"${fund_short_name}${round_short_name}\": {\\
-        \"fund_id\": \"$fund_id\",\\
-        \"round_id\": \"$round_id\",\\
-        \"type_of_application\": \"$fund_short_name\",\\
-    }," "$ASSESS_STORE_CONFIG_FILE"
-
-print_message "Commit changes"
-commit_changes \
-    "$APPS_DIR/funding-service-design-assessment-store" \
-    "Adding ${fund_short_name}-${round_short_name} config"
 
 # print_header "Step 8: Seed fund on 'make up':"
 # docker exec funding-service-pre-award-stores-1 python -m scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code $fund_short_name
