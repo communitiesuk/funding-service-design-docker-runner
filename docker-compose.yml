@@ -60,7 +60,7 @@ services:
       bash -c "
       flask db upgrade && \
       python -m fund_store.scripts.load_all_fund_rounds && \
-      python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code CTDF && \
+      python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code DPIF && \
       python -m invoke -r assessment_store seed-local-assessment-store-db && \
       python -m debugpy --listen 0.0.0.0:5678 -m wsgi
       "
