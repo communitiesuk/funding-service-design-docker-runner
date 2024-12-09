@@ -5,7 +5,7 @@ build_static_files=false
 
 repo_root=$(dirname $(dirname $(realpath $0)))
 workspace_dir="${repo_root}/apps"
-declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-account-store" "funding-service-design-frontend" "funding-service-design-notification" "funding-service-design-post-award-data-store")
+declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-authenticator" "funding-service-design-assessment" "funding-service-design-account-store" "funding-service-pre-award-frontend" "funding-service-design-notification" "funding-service-design-post-award-data-store")
 
 while getopts 'vps' OPTION; do
     case "$OPTION" in

@@ -113,14 +113,14 @@ services:
           - assessment.levellingup.gov.localhost
     profiles: [ pre ]
 
-  frontend:
+  pre-award-frontend:
     build:
-      context: ./apps/funding-service-design-frontend
+      context: ./apps/funding-service-pre-award-frontend
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
     volumes:
-      - './apps/funding-service-design-frontend:/app'
+      - './apps/funding-service-pre-award-frontend:/app'
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
