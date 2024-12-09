@@ -65,7 +65,7 @@
             ]
         },
         {
-            "name": "Docker Runner: Frontend",
+            "name": "Docker Runner: Pre-Award Frontend",
             "type": "debugpy",
             "request": "attach",
             "connect": {
@@ -74,7 +74,7 @@
             },
             "pathMappings": [
                 {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-design-frontend",
+                    "localRoot": "${workspaceFolder}/apps/funding-service-pre-award-frontend",
                     "remoteRoot": "."
                 }
             ]
@@ -133,7 +133,7 @@
                 "Docker Runner: Assessment",
                 "Docker Runner: Authenticator",
                 "Docker Runner: Data Store",
-                "Docker Runner: Frontend",
+                "Docker Runner: Pre-Award Frontend",
                 "Docker Runner: Fund Application Builder",
                 "Docker Runner: Notification",
                 "Docker Runner: Pre-Award Stores"
