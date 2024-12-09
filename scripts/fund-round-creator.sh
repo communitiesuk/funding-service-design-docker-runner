@@ -255,14 +255,14 @@ else
     print_message "No scored_sections"
 fi
 
-sed -i "/fund_round_to_assessment_mapping = {/a \\
+sed -i '' -e "/fund_round_to_assessment_mapping = {/a \\
     \"$fund_id:$round_id\": {\\
         \"schema_id\": \"${fund_short_name}_${round_short_name}_assessment\",\\
         \"unscored_sections\": ${unscored_sections},\\
         \"scored_criteria\": ${scored_sections},\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i "/fund_round_data_key_mappings = {/a \\
+sed -i '' -e "/fund_round_data_key_mappings = {/a \\
     \"${fund_short_name}${round_short_name}\": {\\
         \"location\": None,\\
         \"asset_type\": None,\\
@@ -270,7 +270,7 @@ sed -i "/fund_round_data_key_mappings = {/a \\
         \"funding_two\": None,\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i "/fund_round_mapping_config = {/a \\
+sed -i '' -e "/fund_round_mapping_config = {/a \\
     \"${fund_short_name}${round_short_name}\": {\\
         \"fund_id\": \"$fund_id\",\\
         \"round_id\": \"$round_id\",\\
@@ -293,11 +293,11 @@ create_git_branch \
 
 ASSESS_CONFIG_FILE="apps/funding-service-design-assessment/config/envs/development.py"
 echo "Editing  $ASSESS_CONFIG_FILE"
-sed -i "/\"roles\": \[/a \\
+sed -i '' -e "/\"roles\": \[/a \\
             \"${fund_short_name_uppercase}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i "/\"roles\": \[/a \\
+sed -i '' -e "/\"roles\": \[/a \\
             \"${fund_short_name_uppercase}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i "/\"highest_role_map\": {/a \\
+sed -i '' -e "/\"highest_role_map\": {/a \\
             \"${fund_short_name_uppercase}\": \"DEBUG_USER_ROLE\",\\" "$ASSESS_CONFIG_FILE"
 
 print_message "Commit changes"
@@ -337,7 +337,7 @@ else
     email_id=$choice
 fi
 
-sed -i "/APPLICATION_RECORD_TEMPLATE_ID = {/a \\
+sed -i'' -e "/APPLICATION_RECORD_TEMPLATE_ID = {/a \\
         \"${fund_id}\": {\\
             \"fund_name\": \"${fund_short_name_uppercase}\",\\
             \"template_id\": {\\
@@ -345,7 +345,7 @@ sed -i "/APPLICATION_RECORD_TEMPLATE_ID = {/a \\
                 \"cy\": \"\"\\
             }\\
         }," "$NOTIFICATION_CONFIG_FILE"
-sed -i "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
+sed -i '' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
         \"${contact_email}\": \"$email_id\",\\" "$NOTIFICATION_CONFIG_FILE"
 
 print_message "Commit changes"
