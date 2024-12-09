@@ -34,7 +34,7 @@ services:
   account-store:
     build:
       context: ./apps/funding-service-design-account-store
-    command: 
+    command:
       bash -c "
       flask db upgrade && \
       python -m invoke seed-local-account-store && \
