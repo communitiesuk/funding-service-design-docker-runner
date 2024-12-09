@@ -155,9 +155,9 @@ with open('$FUND_STORE_FILE') as f:
 
 # Parse extracted data
 fund_id=$(echo "$extracted_data" | jq -r '.fund_id')
-fund_short_name=$(echo "$extracted_data" | jq -r '.fund_short_name')
+fund_short_name=$(echo "$extracted_data" | jq -r '.fund_short_name' | tr '[:upper:]' '[:lower:]')
 round_id=$(echo "$extracted_data" | jq -r '.round_id')
-round_short_name=$(echo "$extracted_data" | jq -r '.round_short_name')
+round_short_name=$(echo "$extracted_data" | jq -r '.round_short_name' | tr '[:upper:]' '[:lower:]')
 contact_email=$(echo "$extracted_data" | jq -r '.contact_email')
 fund_short_name_uppercase=$(echo "$fund_short_name" | tr 'a-z' 'A-Z')
 
@@ -183,11 +183,11 @@ print_header "Step 2: Working on 'digital-form-builder-adapter'"
 print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/digital-form-builder-adapter" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
+    "run-$fund_short_name-$round_short_name"
 
 print_message "Copy form_runner files to 'digital-form-builder-adapter'"
 FORM_JSON_DIR="$APPS_DIR/digital-form-builder-adapter/fsd_config/form_jsons"
-FORM_DIR_NAME="${fund_short_name,,}_${round_short_name,,}"
+FORM_DIR_NAME="${fund_short_name}_${round_short_name}"
 
 print_message "Copying form_runner files to $FORM_JSON_DIR/$FORM_DIR_NAME"
 FORM_DEST_DIR="$FORM_JSON_DIR/$FORM_DIR_NAME"
@@ -206,7 +206,7 @@ print_header "Step 3: Working on 'funding-service-design-frontend'"
 print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/funding-service-design-frontend" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
+    "run-$fund_short_name-$round_short_name"
 
 print_message "Copy html files to 'funding-service-design-frontend'"
 TEMPLATES_DIR="$APPS_DIR/funding-service-design-frontend/app/templates/all_questions/en"
@@ -224,14 +224,14 @@ print_header "Step 4: Working on 'funding-service-pre-award-stores':"
 print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/funding-service-pre-award-stores" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
+    "run-$fund_short_name-$round_short_name"
 
 print_message "Copy fund_store file to 'funding-service-pre-award-stores':"
 FUND_STORE_DEST_DIR="$APPS_DIR/funding-service-pre-award-stores/fund_store/config/fund_loader_config/FAB"
 
 print_message "Copying form_runner files to $FUND_STORE_DEST_DIR"
 mkdir -p "$FUND_STORE_DEST_DIR"
-FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${fund_short_name,,}_${round_short_name,,}.py"  # Lowercase
+FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${fund_short_name}_${round_short_name}.py"  # Lowercase
 cp "$FUND_STORE_FILE" "$FUND_STORE_FILE_DEST"
 
 ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award-stores/assessment_store/config/mappings/assessment_mapping_fund_round.py"
@@ -289,7 +289,7 @@ print_header "Step 5: Working on 'funding-service-design-assessment':"
 print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/funding-service-design-assessment" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
+    "run-$fund_short_name-$round_short_name"
 
 ASSESS_CONFIG_FILE="apps/funding-service-design-assessment/config/envs/development.py"
 echo "Editing  $ASSESS_CONFIG_FILE"
@@ -312,7 +312,7 @@ print_header "Step 6: Working on 'funding-service-design-notification':"
 print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/funding-service-design-notification" \
-    "run-${fund_short_name,,}-${round_short_name,,}"
+    "run-$fund_short_name-$round_short_name"
 
 NOTIFICATION_CONFIG_FILE="apps/funding-service-design-notification/config/envs/default.py"
 echo "Editing  $NOTIFICATION_CONFIG_FILE"
