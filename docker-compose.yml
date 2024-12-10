@@ -84,35 +84,6 @@ services:
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     profiles: [ pre ]
 
-  assessment:
-    build:
-      context: ./apps/funding-service-design-assessment
-    volumes:
-      - './apps/funding-service-design-assessment:/app'
-      - './certs:/app-certs'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
-    depends_on:
-      - redis-data
-      - localstack
-    environment:
-      - FLASK_ENV=development
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
-      - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - REDIS_INSTANCE_URI=redis://redis-data:6379
-    env_file: .awslocal.env
-    ports:
-      - 3010:8080
-      - 5689:5678
-    networks:
-      default:
-        aliases:
-          - assessment.levellingup.gov.localhost
-    profiles: [ pre ]
-
   pre-award-frontend:
     build:
       context: ./apps/funding-service-pre-award-frontend
@@ -124,6 +95,8 @@ services:
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
+    stdin_open: true
+    tty: true
     depends_on:
       - redis-data
       - localstack
@@ -136,18 +109,22 @@ services:
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - ACCOUNT_STORE_API_HOST=http://account-store:8080
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
+      - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
       - FLASK_DEBUG=1
       - FLASK_ENV=development
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
+      - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
     env_file: .awslocal.env
     ports:
       - 3008:8080
+      - 3010:8080
       - 5688:5678
     networks:
       default:
         aliases:
           - frontend.levellingup.gov.localhost
+          - assessment.levellingup.gov.localhost
     profiles: [ pre ]
 
   form-runner:
