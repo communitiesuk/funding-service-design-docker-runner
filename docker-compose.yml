@@ -15,6 +15,8 @@ services:
       - FLASK_DEBUG=0
       - FLASK_ENV=development
       - SECRET_KEY=local
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
     ports:
       - 3011:8080
       - 5690:5678
@@ -212,6 +214,7 @@ services:
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
       - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
+      - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
       - COOKIE_DOMAIN=.levellingup.gov.localhost
     networks:
       default:
