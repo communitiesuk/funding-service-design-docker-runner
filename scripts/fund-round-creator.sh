@@ -202,20 +202,29 @@ commit_changes \
 print_prompt "Press [Enter] to continue."
 read
 
-print_header "Step 3: Working on 'funding-service-design-frontend'"
+print_header "Step 3: Working on 'funding-service-pre-award-frontend'"
 print_message "Create new branch if needed"
 create_git_branch \
-    "$APPS_DIR/funding-service-design-frontend" \
+    "$APPS_DIR/funding-service-pre-award-frontend" \
     "run-$fund_short_name-$round_short_name"
 
-print_message "Copy html files to 'funding-service-design-frontend'"
-TEMPLATES_DIR="$APPS_DIR/funding-service-design-frontend/app/templates/all_questions/en"
+print_message "Copy html files to 'funding-service-pre-award-frontend'"
+TEMPLATES_DIR="$APPS_DIR/funding-service-pre-award-frontend/apply/templates/apply/all_questions/en"
 cp -r "$SELECTED_DIR/html/"* "$TEMPLATES_DIR/"
+
+ASSESS_CONFIG_FILE="$APPS_DIR/funding-service-pre-award-frontend/config/envs/development.py"
+echo "Editing  $ASSESS_CONFIG_FILE"
+sed -i'' -e "/\"roles\": \[/a \\
+            \"${fund_short_name_uppercase}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+sed -i'' -e "/\"roles\": \[/a \\
+            \"${fund_short_name_uppercase}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+sed -i'' -e "/\"highest_role_map\": {/a \\
+            \"${fund_short_name_uppercase}\": \"DEBUG_USER_ROLE\",\\" "$ASSESS_CONFIG_FILE"
 
 print_message "Commit changes"
 commit_changes \
-    "$APPS_DIR/funding-service-design-frontend" \
-    "Adding ${fund_short_name}-${round_short_name} template"
+    "$APPS_DIR/funding-service-pre-award-frontend" \
+    "Adding ${fund_short_name}-${round_short_name} template and config"
 
 print_prompt "Press [Enter] to continue."
 read
@@ -255,14 +264,14 @@ else
     print_message "No scored_sections"
 fi
 
-sed -i '' -e "/fund_round_to_assessment_mapping = {/a \\
+sed -i'' -e "/fund_round_to_assessment_mapping = {/a \\
     \"$fund_id:$round_id\": {\\
         \"schema_id\": \"${fund_short_name}_${round_short_name}_assessment\",\\
         \"unscored_sections\": ${unscored_sections},\\
         \"scored_criteria\": ${scored_sections},\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i '' -e "/fund_round_data_key_mappings = {/a \\
+sed -i'' -e "/fund_round_data_key_mappings = {/a \\
     \"${fund_short_name}${round_short_name}\": {\\
         \"location\": None,\\
         \"asset_type\": None,\\
@@ -270,7 +279,7 @@ sed -i '' -e "/fund_round_data_key_mappings = {/a \\
         \"funding_two\": None,\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i '' -e "/fund_round_mapping_config = {/a \\
+sed -i'' -e "/fund_round_mapping_config = {/a \\
     \"${fund_short_name}${round_short_name}\": {\\
         \"fund_id\": \"$fund_id\",\\
         \"round_id\": \"$round_id\",\\
@@ -280,29 +289,6 @@ sed -i '' -e "/fund_round_mapping_config = {/a \\
 print_message "Commit changes"
 commit_changes \
     "$APPS_DIR/funding-service-pre-award-stores" \
-    "Adding ${fund_short_name}-${round_short_name} config"
-
-print_prompt "Press [Enter] to continue."
-read
-
-print_header "Step 5: Working on 'funding-service-design-assessment':"
-print_message "Create new branch if needed"
-create_git_branch \
-    "$APPS_DIR/funding-service-design-assessment" \
-    "run-$fund_short_name-$round_short_name"
-
-ASSESS_CONFIG_FILE="apps/funding-service-design-assessment/config/envs/development.py"
-echo "Editing  $ASSESS_CONFIG_FILE"
-sed -i '' -e "/\"roles\": \[/a \\
-            \"${fund_short_name_uppercase}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i '' -e "/\"roles\": \[/a \\
-            \"${fund_short_name_uppercase}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i '' -e "/\"highest_role_map\": {/a \\
-            \"${fund_short_name_uppercase}\": \"DEBUG_USER_ROLE\",\\" "$ASSESS_CONFIG_FILE"
-
-print_message "Commit changes"
-commit_changes \
-    "$APPS_DIR/funding-service-design-assessment" \
     "Adding ${fund_short_name}-${round_short_name} config"
 
 print_prompt "Press [Enter] to continue."
@@ -345,7 +331,7 @@ sed -i'' -e "/APPLICATION_RECORD_TEMPLATE_ID = {/a \\
                 \"cy\": \"\"\\
             }\\
         }," "$NOTIFICATION_CONFIG_FILE"
-sed -i '' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
+sed -i'' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
         \"${contact_email}\": \"$email_id\",\\" "$NOTIFICATION_CONFIG_FILE"
 
 print_message "Commit changes"
@@ -355,8 +341,5 @@ commit_changes \
 
 print_prompt "Press [Enter] to continue."
 read
-
-# print_header "Step 8: Seed fund on 'make up':"
-# docker exec funding-service-pre-award-stores-1 python -m scripts.fund_round_loaders.load_fund_round_from_fab --fund_short_code $fund_short_name
 
 print_end "All steps completed successfully!"
