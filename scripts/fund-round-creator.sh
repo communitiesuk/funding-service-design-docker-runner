@@ -160,11 +160,12 @@ round_id=$(echo "$extracted_data" | jq -r '.round_id')
 round_short_name=$(echo "$extracted_data" | jq -r '.round_short_name' | tr '[:upper:]' '[:lower:]')
 contact_email=$(echo "$extracted_data" | jq -r '.contact_email')
 fund_short_name_uppercase=$(echo "$fund_short_name" | tr 'a-z' 'A-Z')
+round_short_name_uppercase=$(echo "$round_short_name" | tr 'a-z' 'A-Z')
 
 echo -e "Fund ID: \e[32m$fund_id\e[0m"
-echo -e "Fund Short Name: \e[32m$fund_short_name\e[0m"
+echo -e "Fund Short Name: \e[32m$fund_short_name_uppercase\e[0m"
 echo -e "Round ID: \e[32m$round_id\e[0m"
-echo -e "Round Short Name: \e[32m$round_short_name\e[0m"
+echo -e "Round Short Name: \e[32m$round_short_name_uppercase\e[0m"
 echo -e "Sections:"
 echo "$extracted_data" | jq -r '.sections[] | "  - Section Name: \(.name)\n    Form Name: \(.form // "N/A")"'
 
@@ -272,7 +273,7 @@ sed -i'' -e "/fund_round_to_assessment_mapping = {/a \\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
 sed -i'' -e "/fund_round_data_key_mappings = {/a \\
-    \"${fund_short_name}${round_short_name}\": {\\
+    \"${fund_short_name_uppercase}${round_short_name_uppercase}\": {\\
         \"location\": None,\\
         \"asset_type\": None,\\
         \"funding_one\": None,\\
@@ -280,7 +281,7 @@ sed -i'' -e "/fund_round_data_key_mappings = {/a \\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
 sed -i'' -e "/fund_round_mapping_config = {/a \\
-    \"${fund_short_name}${round_short_name}\": {\\
+    \"${fund_short_name_uppercase}${round_short_name_uppercase}\": {\\
         \"fund_id\": \"$fund_id\",\\
         \"round_id\": \"$round_id\",\\
         \"type_of_application\": \"$fund_short_name\",\\
