@@ -2,11 +2,6 @@
 
 set -e  # Exit on errors
 
-# Define directories
-FUND_ROUND_DIR="fund-round"
-APPS_DIR="apps"
-BRANCHES_CREATED=()  # Array to track created branches
-
 print_header() {
     echo -e "\n\e[1;34m$1\e[0m"
 }
@@ -23,28 +18,8 @@ print_error() {
     echo -e "\e[1;31m$1\e[0m"
 }
 
-print_end() {
-    echo -e "\n\e[1;36m$1\e[0m"
-}
-
-# Function to cleanup branches
-cleanup_branches() {
-    echo -e "\n\e[1;31mAn error occurred. Cleaning up created branches...\e[0m"
-    for branch_info in "${BRANCHES_CREATED[@]}"; do
-        repo_path=$(echo "$branch_info" | cut -d '|' -f 1)
-        branch_name=$(echo "$branch_info" | cut -d '|' -f 2)
-        echo "Deleting branch $branch_name in $repo_path..."
-        cd "$repo_path"
-        git checkout main  # Fallback to main/master
-        git branch -D "$branch_name" || true  # Force delete branch if it exists
-        cd - >/dev/null
-    done
-}
-
-# Trap to handle script errors
-trap cleanup_branches ERR
-
 create_git_branch() {
+    print_message "Create new branch if needed"
     local repo_path=$1
     local branch_name=$2
 
@@ -67,6 +42,7 @@ create_git_branch() {
 }
 
 commit_changes() {
+    print_message "Commit changes"
     local repo_path=$1
     local commit_message=$2
 
@@ -82,224 +58,281 @@ commit_changes() {
     cd - >/dev/null
 }
 
+# Function to select Fund Round directory
+select_directory() {
+    local dirs=()
+    local i=1
 
-###############################################################################
-#   Main script
-###############################################################################
+    # List all directories inside the fund-round directory
+    echo "Available directories in $1:" >&2
+    for dir in "$1"/*; do
+        if [[ -d "$dir" ]]; then
+            dirs+=("$dir")
+            echo "$i) $(basename "$dir")" >&2
+            ((i++))
+        fi
+    done
 
-# List all directories inside the fund-round directory
-print_header "Available directories in $FUND_ROUND_DIR:"
-dirs=()
-i=1
-for dir in "$FUND_ROUND_DIR"/*; do
-    if [[ -d "$dir" ]]; then
-        dirs+=("$dir")
-        echo "$i) $(basename "$dir")"
-        ((i++))
+    # Prompt the user to select a directory
+    print_prompt "Select a directory by number: " >&2
+    read -p "" choice
+
+    # Validate the user's choice
+    if [[ "$choice" -lt 1 || "$choice" -gt ${#dirs[@]} ]]; then
+        print_error "Invalid choice. Exiting." >&2
+        exit 1
     fi
-done
 
-# Prompt the user to select a directory
-print_prompt "Select a directory by number: "
-read -p "" choice
+    # Return the selected directory
+    echo "$(basename ${dirs[$choice-1]})"
+}
 
-# Validate the user's choice
-if [[ "$choice" -ge 1 && "$choice" -le ${#dirs[@]} ]]; then
-    SELECTED_DIR="${dirs[$choice-1]}"
-    print_message "Selected directory: $(basename "$SELECTED_DIR")"
-else
-    print_error "Invalid choice. Exiting."
-    exit 1
-fi
+#######################################
+#   Main script
+#######################################
 
-# Navigate to the fund_store directory
-FUND_STORE_DIR="$SELECTED_DIR/fund_store"
-if [[ ! -d "$FUND_STORE_DIR" ]]; then
-    print_error "Error: fund_store directory not found in $(basename "$SELECTED_DIR")."
-    exit 1
-fi
+FUND_ROUND_DIR="fund-round"
+APPS_DIR="apps"
+BRANCHES_CREATED=()  # Array to track created branches
+
+print_header "Step 0: Select Fund Round directory"
+FUND_ROUND=$(select_directory $FUND_ROUND_DIR)
+print_message "Selected directory: $FUND_ROUND"
+
+#######################################
+#   Step 1: Extract and confirm fund and round information
+#######################################
 
 print_header "Step 1: Extract and confirm fund and round information"
-FUND_STORE_FILE="$SELECTED_DIR/fund_store/round_config.py"
-if [[ ! -f "$FUND_STORE_FILE" ]]; then
-    print_error "Error: $FUND_STORE_FILE not found!"
+FUND_STORE_DIR="$FUND_ROUND_DIR/$FUND_ROUND/fund_store"
+FUND_STORE_FILE=$(find $FUND_STORE_DIR -maxdepth 1 -type f -print -quit)
+print_message "fund_store file: $FUND_STORE_FILE"
+
+print_prompt "Did you ruff formatted the form_runner? (1/0): "
+read -p "" confirm
+
+if [[ "$confirm" == "1" ]]; then
+    print_error "Exiting script. Come back after you ruff format the form_runner."
     exit 1
 fi
 
-# Extract fund and round information from the fund_store file
-extracted_data=$(python3 -c "
-import sys, json
-with open('$FUND_STORE_FILE') as f:
-    content = f.read()
-    start = content.find('LOADER_CONFIG = {')
-    if start == -1:
-        sys.exit('LOADER_CONFIG dictionary not found')
-    start += len('LOADER_CONFIG = ')
-    loader_config = eval(content[start:])
-    data = {
-        'fund_id': loader_config['fund_config']['id'],
-        'fund_short_name': loader_config['fund_config']['short_name'],
-        'round_id': loader_config['round_config']['id'],
-        'round_short_name': loader_config['round_config']['short_name'],
-        'contact_email': loader_config['round_config']['contact_email'],
-        'sections': [
-            {
-                'name': sec['section_name']['en'],
-                'form': sec['form_name_json']['en'] if 'form_name_json' in sec else None
-            }
-            for sec in loader_config['sections_config']
-        ]
-    }
-    print(json.dumps(data))
-")
+FUND_ID=$(grep -oP '"id": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
+FUND_SHORT_NAME=$(grep -oP '"short_name": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
+ROUND_ID=$(grep -oP '"id": "\K[^"]+' "$FUND_STORE_FILE" | tail -n 1)
+ROUND_SHORT_NAME=$(grep -oP '"short_name": "\K[^"]+' "$FUND_STORE_FILE" | tail -n 1)
+CONTACT_EMAIL=$(grep -oP '"contact_email": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1 | sed "s/'contact_email': '\([^']*\)'/\1/")
+FUND_SHORT_NAME_LOWERCASE=$(echo "$FUND_SHORT_NAME" | tr 'A-Z' 'a-z')
+ROUND_SHORT_NAME_LOWERCASE=$(echo "$ROUND_SHORT_NAME" | tr 'A-Z' 'a-z')
 
-# Parse extracted data
-fund_id=$(echo "$extracted_data" | jq -r '.fund_id')
-fund_short_name=$(echo "$extracted_data" | jq -r '.fund_short_name' | tr '[:upper:]' '[:lower:]')
-round_id=$(echo "$extracted_data" | jq -r '.round_id')
-round_short_name=$(echo "$extracted_data" | jq -r '.round_short_name' | tr '[:upper:]' '[:lower:]')
-contact_email=$(echo "$extracted_data" | jq -r '.contact_email')
-fund_short_name_uppercase=$(echo "$fund_short_name" | tr 'a-z' 'A-Z')
-round_short_name_uppercase=$(echo "$round_short_name" | tr 'a-z' 'A-Z')
+echo -e "Fund ID: \e[32m$FUND_ID\e[0m"
+echo -e "Fund Short Name: \e[32m$FUND_SHORT_NAME\e[0m"
+echo -e "Round ID: \e[32m$ROUND_ID\e[0m"
+echo -e "Round Short Name: \e[32m$ROUND_SHORT_NAME\e[0m"
+echo -e "Contact email: \e[32m$CONTACT_EMAIL\e[0m"
 
-echo -e "Fund ID: \e[32m$fund_id\e[0m"
-echo -e "Fund Short Name: \e[32m$fund_short_name_uppercase\e[0m"
-echo -e "Round ID: \e[32m$round_id\e[0m"
-echo -e "Round Short Name: \e[32m$round_short_name_uppercase\e[0m"
 echo -e "Sections:"
-echo "$extracted_data" | jq -r '.sections[] | "  - Section Name: \(.name)\n    Form Name: \(.form // "N/A")"'
+grep -oP '"section_name": \{[^}]*\}' "$FUND_STORE_FILE" | while read -r section_line; do
+    SECTION_NAME=$(echo "$section_line" | grep -oP '"en": "\K[^"]+')
+
+    echo -e "- \e[32m$SECTION_NAME\e[0m"
+done
+
+echo -e "Forms:"
+grep -oP '"form_name_json": \{[^}]*\}' "$FUND_STORE_FILE" | while read -r form_name_json_line; do
+    FORM_NAME=$(echo "$form_name_json_line" | grep -oP '"en": "\K[^"]+')
+
+    echo -e "- \e[32m$FORM_NAME\e[0m"
+done
 
 print_prompt "Is this information correct? (1/0): "
 read -p "" confirm
 
 if [[ "$confirm" != "1" ]]; then
-    print_error "Exiting script. Please check the LOADER_CONFIG file."
+    print_error "Exiting script. Please check LOADER_CONFIG."
     exit 1
 fi
 
 print_prompt "Press [Enter] to continue."
 read
 
+#######################################
+#   Step 2: Working on 'digital-form-builder-adapter'
+#######################################
+
 print_header "Step 2: Working on 'digital-form-builder-adapter'"
-print_message "Create new branch if needed"
+FORM_JSON_DIR="$APPS_DIR/digital-form-builder-adapter/fsd_config/form_jsons"
+FORM_DEST_DIR="$FORM_JSON_DIR/${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}"
+
 create_git_branch \
     "$APPS_DIR/digital-form-builder-adapter" \
-    "run-$fund_short_name-$round_short_name"
+    "run-${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE}"
 
 print_message "Copy form_runner files to 'digital-form-builder-adapter'"
-FORM_JSON_DIR="$APPS_DIR/digital-form-builder-adapter/fsd_config/form_jsons"
-FORM_DIR_NAME="${fund_short_name}_${round_short_name}"
-
-print_message "Copying form_runner files to $FORM_JSON_DIR/$FORM_DIR_NAME"
-FORM_DEST_DIR="$FORM_JSON_DIR/$FORM_DIR_NAME"
+print_message "Copying form_runner files to $FORM_JSON_DIR/${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}"
 mkdir -p "$FORM_DEST_DIR"
-cp -r "$SELECTED_DIR/form_runner/"* "$FORM_DEST_DIR/"
+cp -r "$FUND_ROUND_DIR/$FUND_ROUND/form_runner/"* "$FORM_DEST_DIR/"
 
-print_message "Commit changes"
-commit_changes \
+commit_changes  \
     "$APPS_DIR/digital-form-builder-adapter" \
-    "Adding ${fund_short_name}-${round_short_name} forms"
+    "Adding ${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE} forms"
 
 print_prompt "Press [Enter] to continue."
 read
+
+#######################################
+#   Step 3: Working on 'funding-service-pre-award-frontend'
+#######################################
 
 print_header "Step 3: Working on 'funding-service-pre-award-frontend'"
-print_message "Create new branch if needed"
+TEMPLATES_DIR="$APPS_DIR/funding-service-pre-award-frontend/apply/templates/apply/all_questions/en"
+ASSESS_CONFIG_FILE="$APPS_DIR/funding-service-pre-award-frontend/config/envs/development.py"
+
 create_git_branch \
     "$APPS_DIR/funding-service-pre-award-frontend" \
-    "run-$fund_short_name-$round_short_name"
+    "run-$FUND_SHORT_NAME_LOWERCASE-$ROUND_SHORT_NAME_LOWERCASE"
+
+print_message "Clean up html file of empty html classes 'funding-service-pre-award-frontend'"
+for file in "$FUND_ROUND_DIR/$FUND_ROUND/html"/*; do
+    sed -i 's/ <li class="">/<li>/g' $file
+done
 
 print_message "Copy html files to 'funding-service-pre-award-frontend'"
-TEMPLATES_DIR="$APPS_DIR/funding-service-pre-award-frontend/apply/templates/apply/all_questions/en"
-cp -r "$SELECTED_DIR/html/"* "$TEMPLATES_DIR/"
+cp -r "$FUND_ROUND_DIR/$FUND_ROUND/html/"* "$TEMPLATES_DIR/"
 
-ASSESS_CONFIG_FILE="$APPS_DIR/funding-service-pre-award-frontend/config/envs/development.py"
-echo "Editing  $ASSESS_CONFIG_FILE"
-sed -i'' -e "/\"roles\": \[/a \\
-            \"${fund_short_name_uppercase}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i'' -e "/\"roles\": \[/a \\
-            \"${fund_short_name_uppercase}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
-sed -i'' -e "/\"highest_role_map\": {/a \\
-            \"${fund_short_name_uppercase}\": \"DEBUG_USER_ROLE\",\\" "$ASSESS_CONFIG_FILE"
-
-print_message "Commit changes"
 commit_changes \
     "$APPS_DIR/funding-service-pre-award-frontend" \
-    "Adding ${fund_short_name}-${round_short_name} template and config"
+    "Adding ${FUND_SHORT_NAME_LOWERCASE-$ROUND_SHORT_NAME_LOWERCASE} template"
+
+print_prompt "Is it a new Fund? (1/0): "
+read -p "" confirm
+
+if [[ "$confirm" == "1" ]]; then
+    echo "Editing  $ASSESS_CONFIG_FILE"
+
+    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        sed -i'' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i'' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i'' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_COMMENTER\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i'' -e "/\"highest_role_map\": {/a \\
+            \"${FUND_SHORT_NAME}\": DEBUG_USER_ROLE,\\" "$ASSESS_CONFIG_FILE"
+    else
+        sed -i '' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_LEAD_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i '' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_ASSESSOR\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i '' -e "/\"roles\": \[/a \\
+            \"${FUND_SHORT_NAME}_COMMENTER\",\\" "$ASSESS_CONFIG_FILE"
+        sed -i '' -e "/\"highest_role_map\": {/a \\
+            \"${FUND_SHORT_NAME}\": DEBUG_USER_ROLE,\\" "$ASSESS_CONFIG_FILE"
+    fi
+
+    commit_changes \
+        "$APPS_DIR/funding-service-pre-award-frontend" \
+        "Adding ${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE} config"
+fi
 
 print_prompt "Press [Enter] to continue."
 read
 
+#######################################
+#   Step 4: Working on 'funding-service-pre-award-stores'
+#######################################
+
 print_header "Step 4: Working on 'funding-service-pre-award-stores':"
-print_message "Create new branch if needed"
+FUND_STORE_DEST_DIR="$APPS_DIR/funding-service-pre-award-stores/fund_store/config/fund_loader_config/FAB"
+FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}.py"
+ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award-stores/assessment_store/config/mappings/assessment_mapping_fund_round.py"
+
 create_git_branch \
     "$APPS_DIR/funding-service-pre-award-stores" \
-    "run-$fund_short_name-$round_short_name"
-
-print_message "Copy fund_store file to 'funding-service-pre-award-stores':"
-FUND_STORE_DEST_DIR="$APPS_DIR/funding-service-pre-award-stores/fund_store/config/fund_loader_config/FAB"
+    "run-$FUND_SHORT_NAME_LOWERCASE-$ROUND_SHORT_NAME_LOWERCASE"
 
 print_message "Copying form_runner files to $FUND_STORE_DEST_DIR"
 mkdir -p "$FUND_STORE_DEST_DIR"
-FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${fund_short_name}_${round_short_name}.py"  # Lowercase
 cp "$FUND_STORE_FILE" "$FUND_STORE_FILE_DEST"
 
-ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award-stores/assessment_store/config/mappings/assessment_mapping_fund_round.py"
 echo "Editing  $ASSESS_STORE_CONFIG_FILE"
 
 unscored_sections="[]"
-if [[ -f "$SELECTED_DIR/mapping/unscored_sections.py" ]]; then
+if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/mapping/unscored_sections.py" ]]; then
     print_message "unscored_sections file found"
-    unscored_sections=$(cat "$SELECTED_DIR/mapping/unscored_sections.py")
+    unscored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/mapping/unscored_sections.py")
     unscored_sections=$(printf '%s' "$unscored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
 else
     print_message "No unscored_sections"
 fi
 
 scored_sections="[]"
-if [[ -f "$SELECTED_DIR/mapping/scored_sections.py" ]]; then
+if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/mapping/scored_sections.py" ]]; then
     print_message "scored_sections file found"
-    scored_sections=$(cat "$SELECTED_DIR/mapping/scored_sections.py")
+    scored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/mapping/scored_sections.py")
     scored_sections=$(printf '%s' "$scored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
 else
     print_message "No scored_sections"
 fi
 
-sed -i'' -e "/fund_round_to_assessment_mapping = {/a \\
-    \"$fund_id:$round_id\": {\\
-        \"schema_id\": \"${fund_short_name}_${round_short_name}_assessment\",\\
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+    sed -i'' -e "/fund_round_to_assessment_mapping = {/a \\
+    \"$FUND_ID:$ROUND_ID\": {\\
+        \"schema_id\": \"${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}_assessment\",\\
         \"unscored_sections\": ${unscored_sections},\\
         \"scored_criteria\": ${scored_sections},\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i'' -e "/fund_round_data_key_mappings = {/a \\
-    \"${fund_short_name_uppercase}${round_short_name_uppercase}\": {\\
+    sed -i'' -e "/fund_round_data_key_mappings = {/a \\
+    \"${FUND_SHORT_NAME}${ROUND_SHORT_NAME}\": {\\
         \"location\": None,\\
         \"asset_type\": None,\\
         \"funding_one\": None,\\
         \"funding_two\": None,\\
     }," "$ASSESS_STORE_CONFIG_FILE"
 
-sed -i'' -e "/fund_round_mapping_config = {/a \\
-    \"${fund_short_name_uppercase}${round_short_name_uppercase}\": {\\
-        \"fund_id\": \"$fund_id\",\\
-        \"round_id\": \"$round_id\",\\
-        \"type_of_application\": \"$fund_short_name\",\\
+    sed -i'' -e "/fund_round_mapping_config = {/a \\
+    \"${FUND_SHORT_NAME}${ROUND_SHORT_NAME}\": {\\
+        \"fund_id\": \"$FUND_ID\",\\
+        \"round_id\": \"$ROUND_ID\",\\
+        \"type_of_application\": \"$FUND_SHORT_NAME\",\\
     }," "$ASSESS_STORE_CONFIG_FILE"
+else
+    sed -i '' -e "/fund_round_to_assessment_mapping = {/a \\
+    \"$FUND_ID:$ROUND_ID\": {\\
+        \"schema_id\": \"${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}_assessment\",\\
+        \"unscored_sections\": ${unscored_sections},\\
+        \"scored_criteria\": ${scored_sections},\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+
+    sed -i '' -e "/fund_round_data_key_mappings = {/a \\
+    \"${FUND_SHORT_NAME}${ROUND_SHORT_NAME}\": {\\
+        \"location\": None,\\
+        \"asset_type\": None,\\
+        \"funding_one\": None,\\
+        \"funding_two\": None,\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+
+    sed -i '' -e "/fund_round_mapping_config = {/a \\
+    \"${FUND_SHORT_NAME}${ROUND_SHORT_NAME}\": {\\
+        \"fund_id\": \"$FUND_ID\",\\
+        \"round_id\": \"$ROUND_ID\",\\
+        \"type_of_application\": \"$FUND_SHORT_NAME\",\\
+    }," "$ASSESS_STORE_CONFIG_FILE"
+fi
+
 
 print_message "Commit changes"
 commit_changes \
     "$APPS_DIR/funding-service-pre-award-stores" \
-    "Adding ${fund_short_name}-${round_short_name} config"
+    "Adding ${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE} config"
 
 print_prompt "Press [Enter] to continue."
 read
 
 print_header "Step 6: Working on 'funding-service-design-notification':"
-print_message "Create new branch if needed"
 create_git_branch \
     "$APPS_DIR/funding-service-design-notification" \
-    "run-$fund_short_name-$round_short_name"
+    "run-$FUND_SHORT_NAME_LOWERCASE-$ROUND_SHORT_NAME_LOWERCASE"
 
 NOTIFICATION_CONFIG_FILE="apps/funding-service-design-notification/config/envs/default.py"
 echo "Editing  $NOTIFICATION_CONFIG_FILE"
@@ -324,23 +357,24 @@ else
     email_id=$choice
 fi
 
-sed -i'' -e "/APPLICATION_RECORD_TEMPLATE_ID = {/a \\
-        \"${fund_id}\": {\\
-            \"fund_name\": \"${fund_short_name_uppercase}\",\\
-            \"template_id\": {\\
-                \"en\": \"$template_id\",\\
-                \"cy\": \"\"\\
-            }\\
-        }," "$NOTIFICATION_CONFIG_FILE"
-sed -i'' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
-        \"${contact_email}\": \"$email_id\",\\" "$NOTIFICATION_CONFIG_FILE"
+contact_email_exists="false"
+if ! grep $CONTACT_EMAIL $NOTIFICATION_CONFIG_FILE; then
+    if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        sed -i'' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
+        \"${CONTACT_EMAIL}\": \"$email_id\",\\" "$NOTIFICATION_CONFIG_FILE"
+    else
+        sed -i '' -e "/REPLY_TO_EMAILS_WITH_NOTIFY_ID = {/a \\
+        \"${CONTACT_EMAIL}\": \"$email_id\",\\" "$NOTIFICATION_CONFIG_FILE"
+    fi
 
-print_message "Commit changes"
-commit_changes \
-    "$APPS_DIR/funding-service-design-notification" \
-    "Adding ${fund_short_name}-${round_short_name} config"
+    print_message "Commit changes"
+    commit_changes \
+        "$APPS_DIR/funding-service-design-notification" \
+        "Adding ${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE} config"
+fi
+
 
 print_prompt "Press [Enter] to continue."
 read
 
-print_end "All steps completed successfully!"
+echo -e "\n\e[1;36mAll steps completed successfully!\e[0m"
