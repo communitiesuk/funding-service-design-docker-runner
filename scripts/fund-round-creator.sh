@@ -111,7 +111,7 @@ print_message "fund_store file: $FUND_STORE_FILE"
 print_prompt "Did you ruff formatted the form_runner? (1/0): "
 read -p "" confirm
 
-if [[ "$confirm" == "1" ]]; then
+if [[ "$confirm" == "0" ]]; then
     print_error "Exiting script. Come back after you ruff format the form_runner."
     exit 1
 fi
@@ -257,18 +257,18 @@ cp "$FUND_STORE_FILE" "$FUND_STORE_FILE_DEST"
 echo "Editing  $ASSESS_STORE_CONFIG_FILE"
 
 unscored_sections="[]"
-if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/mapping/unscored_sections.py" ]]; then
+if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store/unscored.py" ]]; then
     print_message "unscored_sections file found"
-    unscored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/mapping/unscored_sections.py")
+    unscored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store/unscored.py")
     unscored_sections=$(printf '%s' "$unscored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
 else
     print_message "No unscored_sections"
 fi
 
 scored_sections="[]"
-if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/mapping/scored_sections.py" ]]; then
+if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store/scored.py" ]]; then
     print_message "scored_sections file found"
-    scored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/mapping/scored_sections.py")
+    scored_sections=$(cat "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store/scored.py")
     scored_sections=$(printf '%s' "$scored_sections" | sed '1s/^//; 2,$s/^/        /; s/[\/&]/\\&/g; s/"/\\"/g; s/$/\\/')
 else
     print_message "No scored_sections"
