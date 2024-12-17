@@ -70,7 +70,7 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
       - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
     env_file: .awslocal.env
     ports:
@@ -109,7 +109,7 @@ services:
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
       - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
       - FLASK_DEBUG=1
@@ -185,7 +185,7 @@ services:
       - .awslocal.env
     environment:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-      - ACCOUNT_STORE_API_HOST=http://account-store:8080
+      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
       - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
