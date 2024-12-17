@@ -117,6 +117,7 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
       - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
+      - COOKIE_DOMAIN=.levellingup.gov.localhost
     env_file: .awslocal.env
     ports:
       - 3008:8080
