@@ -8,7 +8,20 @@ repo_root=$(dirname $(dirname $(realpath $0)))
 apps_dir="${repo_root}/apps"
 declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-authenticator" "funding-service-design-account-store" "funding-service-pre-award-frontend" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils" "funding-service-design-workflows")
 
-while getopts 'fml' OPTION; do
+show_help() {
+    echo "Usage: $(basename $0) [-f] [-m] [-l] [-h]"
+    echo
+    echo "Options:"
+    echo "  -f    Fresh clone of all repositories"
+    echo "  -m    Reset all repositories to main branch"
+    echo "  -l    Show latest commit hash for all repositories"
+    echo "  -h    Show this help message"
+    echo
+    echo "Repositories that will be managed:"
+    printf '* %s\n' "${repos[@]}"
+}
+
+while getopts 'fmlh' OPTION; do
     case "$OPTION" in
         f)
             echo -e "Will do a git clone of:"
@@ -23,12 +36,22 @@ while getopts 'fml' OPTION; do
             echo "Showing latest commit hash for all repos"
             git_log=true
             ;;
+        h)
+            show_help
+            exit 0
+            ;;
         ?)
-            echo "script usage: $(basename §$0) [-w -m -f -l]"
+            show_help
             exit 1
     esac
 done
 shift "$(($OPTIND -1))"
+
+# Show help if no options are provided
+if [ $OPTIND -eq 1 ]; then
+    show_help
+    exit 1
+fi
 
 echo ============================================
 echo Fresh clone repos: $fresh_clone
