@@ -65,7 +65,6 @@ for bucket in "$AWS_BUCKET_NAME" "$AWS_MSG_BUCKET_NAME"; do
   create_aws_bucket "$bucket"
 done
 
-create_sqs_queue "$AWS_SQS_IMPORT_APP_QUEUE_NAME" "$AWS_DLQ_IMPORT_APP_QUEUE_NAME" "$AWS_DLQ_MAX_RECEIVE_COUNT"
 create_sqs_queue "$AWS_SQS_NOTIFICATION_APP_QUEUE_NAME" "$AWS_DLQ_NOTIFICATION_APP_QUEUE_NAME"  "$AWS_DLQ_MAX_RECEIVE_COUNT"
 # <- Pre-award environment ->
 
