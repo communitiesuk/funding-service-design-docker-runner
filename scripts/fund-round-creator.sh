@@ -108,13 +108,8 @@ FUND_STORE_DIR="$FUND_ROUND_DIR/$FUND_ROUND/fund_store"
 FUND_STORE_FILE=$(find $FUND_STORE_DIR -maxdepth 1 -type f -print -quit)
 print_message "fund_store file: $FUND_STORE_FILE"
 
-print_prompt "Did you ruff formatted the form_runner? (1/0): "
-read -p "" confirm
-
-if [[ "$confirm" == "0" ]]; then
-    print_error "Exiting script. Come back after you ruff format the form_runner."
-    exit 1
-fi
+echo "Format fund_store file"
+uv tool run ruff format $FUND_STORE_DIR
 
 FUND_ID=$(grep -oP '"id": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
 FUND_SHORT_NAME=$(grep -oP '"short_name": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
@@ -255,6 +250,9 @@ mkdir -p "$FUND_STORE_DEST_DIR"
 cp "$FUND_STORE_FILE" "$FUND_STORE_FILE_DEST"
 
 echo "Editing  $ASSESS_STORE_CONFIG_FILE"
+
+echo "Format assessment_store files"
+uv tool run ruff format "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store"
 
 unscored_sections="[]"
 if [[ -f "$FUND_ROUND_DIR/$FUND_ROUND/assessment_store/unscored.py" ]]; then
