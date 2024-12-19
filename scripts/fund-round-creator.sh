@@ -174,7 +174,11 @@ create_git_branch \
 
 print_message "Clean up html file of empty html classes 'funding-service-pre-award-frontend'"
 for file in "$FUND_ROUND_DIR/$FUND_ROUND/html"/*; do
-    sed -i 's/ <li class="">/<li>/g' $file
+    if  [[ "$OSTYPE" == "linux-gnu" ]]; then
+        sed -i 's/ <li class="">/<li>/g' $file
+    else
+        sed -i '' -e 's/ <li class="">/<li>/g' $file
+    fi
 done
 
 print_message "Copy html files to 'funding-service-pre-award-frontend'"
