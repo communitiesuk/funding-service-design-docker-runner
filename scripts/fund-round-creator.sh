@@ -3,19 +3,19 @@
 set -e  # Exit on errors
 
 print_header() {
-    echo -e "\n\e[1;34m$1\e[0m"
+    echo -e "\n\033[1;34m$1\033[0m"
 }
 
 print_prompt() {
-    echo -e -n "\e[1;33m$1\e[0m"
+    echo -e -n "\033[1;33m$1\033[0m"
 }
 
 print_message() {
-    echo -e "\e[1;37m$1\e[0m"
+    echo -e "\033[1;37m$1\033[0m"
 }
 
 print_error() {
-    echo -e "\e[1;31m$1\e[0m"
+    echo -e "\033[1;31m$1\033[0m"
 }
 
 create_git_branch() {
@@ -111,33 +111,19 @@ print_message "fund_store file: $FUND_STORE_FILE"
 echo "Format fund_store file"
 uv tool run ruff format $FUND_STORE_DIR
 
-FUND_ID=$(grep -oP '"id": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
-FUND_SHORT_NAME=$(grep -oP '"short_name": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1)
-ROUND_ID=$(grep -oP '"id": "\K[^"]+' "$FUND_STORE_FILE" | tail -n 1)
-ROUND_SHORT_NAME=$(grep -oP '"short_name": "\K[^"]+' "$FUND_STORE_FILE" | tail -n 1)
-CONTACT_EMAIL=$(grep -oP '"contact_email": "\K[^"]+' "$FUND_STORE_FILE" | head -n 1 | sed "s/'contact_email': '\([^']*\)'/\1/")
+FUND_ID=$(sed -n 's/.*"fund_id": *"\([^"]*\)".*/\1/p' "$FUND_STORE_FILE")
+FUND_SHORT_NAME=$(sed -n 's/.*"short_name": *"\([^"]*\)".*/\1/p' "$FUND_STORE_FILE" | head -n 1)
+ROUND_ID=$(sed -n 's/.*"id": *"\([^"]*\)".*/\1/p' "$FUND_STORE_FILE" | tail -n 1)
+ROUND_SHORT_NAME=$(sed -n 's/.*"short_name": *"\([^"]*\)".*/\1/p' "$FUND_STORE_FILE" | tail -n 1)
+CONTACT_EMAIL=$(sed -n 's/.*"contact_email": *"\([^"]*\)".*/\1/p' "$FUND_STORE_FILE")
 FUND_SHORT_NAME_LOWERCASE=$(echo "$FUND_SHORT_NAME" | tr 'A-Z' 'a-z')
 ROUND_SHORT_NAME_LOWERCASE=$(echo "$ROUND_SHORT_NAME" | tr 'A-Z' 'a-z')
 
-echo -e "Fund ID: \e[32m$FUND_ID\e[0m"
-echo -e "Fund Short Name: \e[32m$FUND_SHORT_NAME\e[0m"
-echo -e "Round ID: \e[32m$ROUND_ID\e[0m"
-echo -e "Round Short Name: \e[32m$ROUND_SHORT_NAME\e[0m"
-echo -e "Contact email: \e[32m$CONTACT_EMAIL\e[0m"
-
-echo -e "Sections:"
-grep -oP '"section_name": \{[^}]*\}' "$FUND_STORE_FILE" | while read -r section_line; do
-    SECTION_NAME=$(echo "$section_line" | grep -oP '"en": "\K[^"]+')
-
-    echo -e "- \e[32m$SECTION_NAME\e[0m"
-done
-
-echo -e "Forms:"
-grep -oP '"form_name_json": \{[^}]*\}' "$FUND_STORE_FILE" | while read -r form_name_json_line; do
-    FORM_NAME=$(echo "$form_name_json_line" | grep -oP '"en": "\K[^"]+')
-
-    echo -e "- \e[32m$FORM_NAME\e[0m"
-done
+echo -e "Fund ID: \033[32m$FUND_ID\033[0m"
+echo -e "Fund Short Name: \033[32m$FUND_SHORT_NAME\033[0m"
+echo -e "Round ID: \033[32m$ROUND_ID\033[0m"
+echo -e "Round Short Name: \033[32m$ROUND_SHORT_NAME\033[0m"
+echo -e "Contact email: \033[32m$CONTACT_EMAIL\033[0m"
 
 print_prompt "Is this information correct? (1/0): "
 read -p "" confirm
@@ -375,4 +361,4 @@ fi
 print_prompt "Press [Enter] to continue."
 read
 
-echo -e "\n\e[1;36mAll steps completed successfully!\e[0m"
+echo -e "\n\033[1;36mAll steps completed successfully!\033[0m"
