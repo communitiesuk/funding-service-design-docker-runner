@@ -13,7 +13,7 @@ show_help() {
     echo
     echo "Options:"
     echo "  -f    Fresh clone of all repositories"
-    echo "  -m    Reset all repositories to main branch"
+    echo "  -m    For each repo, checkout the main branch and pull latest changes"
     echo "  -l    Show latest commit hash for all repositories"
     echo "  -h    Show this help message"
     echo
@@ -29,7 +29,7 @@ while getopts 'fmlh' OPTION; do
             fresh_clone=true
             ;;
         m)
-            echo Will reset all repos to main
+            echo "Will checkout the latest main branch on all repos"
             reset_to_main=true
             ;;
         l)
@@ -55,7 +55,7 @@ fi
 
 echo ============================================
 echo Fresh clone repos: $fresh_clone
-echo Reset all to main: $reset_to_main
+echo Pull latest main: $reset_to_main
 echo Show latest commit: $git_log
 echo ============================================
 
