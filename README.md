@@ -13,7 +13,7 @@
 1. Copy `.env.example` to `.env` and fill in any required missing values.
 2. Edit your `/etc/hosts` file and add the following line at the end:
   * `127.0.0.1    submit-monitoring-data.levellingup.gov.localhost find-monitoring-data.levellingup.gov.localhost authenticator.levellingup.gov.localhost assessment.levellingup.gov.localhost frontend.levellingup.gov.localhost localstack fund-application-builder.levellingup.gov.localhost`
-3. Run `./scripts/reset-all-repos.sh -f` to git clone all repos into `./apps`
+3. Run `./scripts/manage-repos.sh -f` to git clone all repos into `./apps`
 4. Run `./scripts/install-venv-all-repos.sh -v -p -s` to create and populate venvs in all repos and install pre-commit hooks.
   * Note: there are some pre-existing issues with the script sometimes not picking the correct python version, may need some manual finagling until that is addressed.
 5. Run `make certs` to install a root certificate authority and generate appropriate certificates for our localhost domains.
@@ -62,7 +62,7 @@ To run just the post-award services, execute `make post up`.
   * Example URL: https://submit-monitoring-data.levellingup.gov.localhost:4001/dashboard
 
 ## Troubleshooting
-* Check you have the `main` branch and latest revision of each repo checked out - see the `reset-all-repos` section below
+* Check you have the `main` branch and latest revision of each repo checked out - see the `manage-repos` section below
 * If dependencies have changed you may need to rebuild the docker images using `make build`
 * To run an individual app rather than all of them, run `docker compose up <appname>` where app name is the key defined under `services` in [docker-compose.yml](docker-compose.yml)
 * If you get an error about a database not existing, try running `make down`, `make clean-build,` followed by `make up`. This will remove and re-create any existing containers and volumes allowing the new databases to be created.
@@ -76,16 +76,16 @@ To run the e2e tests against the docker runner, set the following env vars:
         export TARGET_URL_FORM_RUNNER=https://form-runner.levellingup.gov.localhost:3009
 
 # Scripts
-## reset-all-repos
+## manage-repos
 ### Usage 1
 Shell script to bulk clone the core Funding Service git repositories from `https://github.com/communitiesuk`.
 
-        scripts/reset-all-repos.sh -f
+        scripts/manage-repos.sh -f
 
 ### Usage 2
 Also used to go through each repo in turn, checkout the `main` branch and execute `git pull`. This is useful when you want to run the docker runner with the latest of all apps.
 
-        scripts/reset-all-repos.sh -fml
+        scripts/manage-repos.sh -fml
 
 Where
 - f: if supplied, will do a git clone of FSD repos into the `apps` subdirectory.
