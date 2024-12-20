@@ -95,12 +95,19 @@ if [ "$git_log" = true ] ; then
 
     outfile=$(mktemp)
 
-    echo $'Repository\tBranch name\tCommit hash' > ${outfile}
+    echo $'Repository\tBranch name\tCommit hash\tUncommitted changes' > ${outfile}
 
     for repo in "${repos[@]}"
     do
     cd ${apps_dir}/$repo
-    echo -e "$repo\t$(git rev-parse --abbrev-ref HEAD)\t$(git rev-parse --short=8 HEAD)" >> ${outfile}
+
+    changes=$(git status --porcelain | wc -l | tr -d '[:space:]')
+    if [[ ${changes} -ne 0 ]]; then
+      changes="yes [${changes}]"
+    else
+      changes="no"
+    fi
+    echo -e "$repo\t$(git rev-parse --abbrev-ref HEAD)\t$(git rev-parse --short=8 HEAD)\t${changes}" >> ${outfile}
     done
     cd ${repo_root}
 
