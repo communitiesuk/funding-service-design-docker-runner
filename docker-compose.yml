@@ -63,7 +63,7 @@ services:
     volumes:
       - './apps/funding-service-pre-award-stores:/app'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    profiles: [ pre ]
+    profiles: [ pre, post ]
 
   pre-award-frontend:
     build:
@@ -91,23 +91,34 @@ services:
       - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
       - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
+      - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
       - FLASK_DEBUG=1
       - FLASK_ENV=development
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
       - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
+      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
+      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
+      - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
+      - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
+      - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
+      - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost
       - COOKIE_DOMAIN=.levellingup.gov.localhost
-    env_file: .awslocal.env
+    env_file:
+      - .env # For the AZURE_AD_* variables
+      - .awslocal.env
     ports:
       - 3008:8080
       - 3010:8080
+      - 4004:8080
       - 5688:5678
     networks:
       default:
         aliases:
           - frontend.levellingup.gov.localhost
           - assessment.levellingup.gov.localhost
-    profiles: [ pre ]
+          - authenticator.levellingup.gov.localhost
+    profiles: [ pre, post ]
 
   form-runner:
     depends_on:
@@ -144,39 +155,6 @@ services:
         aliases:
           - form-runner.levellingup.gov.localhost
     profiles: [ pre ]
-
-  authenticator:
-    build:
-      context: ./apps/funding-service-design-authenticator
-    volumes:
-      - './apps/funding-service-design-authenticator:/app'
-      - './certs:/app-certs'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: bash -c "python -m debugpy --listen 0.0.0.0:5678 -m flask run -p 8080 -h 0.0.0.0 --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
-    ports:
-      - 4004:8080
-      - 5684:5678
-    depends_on:
-      - localstack
-      - redis-data
-    env_file:
-      - .env # For the AZURE_AD_* variables
-      - .awslocal.env
-    environment:
-      - REDIS_INSTANCE_URI=redis://redis-data:6379
-      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
-      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
-      - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
-      - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
-      - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
-      - COOKIE_DOMAIN=.levellingup.gov.localhost
-    networks:
-      default:
-        aliases:
-          - authenticator.levellingup.gov.localhost
 
   notification:
     build:
