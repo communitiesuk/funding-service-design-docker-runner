@@ -38,22 +38,25 @@ services:
       context: ./apps/funding-service-pre-award-stores
     command: >
       bash -c "
+      cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
+      update-ca-certificates && \
       flask db upgrade && \
       python -m fund_store.scripts.load_all_fund_rounds && \
       python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --seed_all_funds True && \
       python -m invoke assessment.seed-local-assessment-store-db && \
       python -m invoke account.seed-local-account-store && \
-      python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 8080
+      python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 3012 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
       "
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
-      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
-      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
+      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/fund
+      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
+      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
     env_file: .awslocal.env
     ports:
-      - 3012:8080
+      - 3012:3012
       - 5692:5678
     depends_on:
       database:
@@ -62,7 +65,12 @@ services:
         condition: service_started
     volumes:
       - './apps/funding-service-pre-award-stores:/app'
+      - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
+    networks:
+      default:
+        aliases:
+          - api.levellingup.gov.localhost
     profiles: [ pre, post ]
 
   pre-award-frontend:
@@ -75,20 +83,26 @@ services:
       - './apps/funding-service-pre-award-frontend:/app'
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
+    command: > 
+      bash -c "
+        cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
+        update-ca-certificates && \
+        python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
+      "
     stdin_open: true
     tty: true
     depends_on:
       - redis-data
       - localstack
     environment:
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
       - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
+      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
+      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/fund
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
+      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
       - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
       - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
@@ -96,7 +110,7 @@ services:
       - FLASK_ENV=development
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
-      - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
+      - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/assessment
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
@@ -131,13 +145,16 @@ services:
     ports:
       - 3009:3009
       - 9228:9228
+    volumes:
+      - './certs:/app-certs'
     environment:
+      - NODE_EXTRA_CA_CERTS=/app-certs/rootCA.pem
       - LOG_LEVEL=debug
       - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=https://authenticator.levellingup.gov.localhost:4004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["pre-award-stores"]}'
+      - 'NODE_CONFIG={"safelist": ["pre-award-stores", "api.levellingup.gov.localhost"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
       - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
