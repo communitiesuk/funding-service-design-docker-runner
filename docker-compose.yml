@@ -43,7 +43,7 @@ services:
       python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --seed_all_funds True && \
       python -m invoke assessment.seed-local-assessment-store-db && \
       python -m invoke account.seed-local-account-store && \
-      flask run --host 0.0.0.0 --port 8080 --debug"
+      flask run --host 0.0.0.0 --port 8080 --debug --cert=/app-certs/cert.pem --key=/app-certs/key.pem"
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
@@ -60,7 +60,13 @@ services:
         condition: service_started
     volumes:
       - './apps/funding-service-pre-award-stores:/app'
+      - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
+    networks:
+      default:
+        aliases:
+          - api.levellingup.gov.localhost
+
     profiles: [ pre, post ]
 
   pre-award-frontend:
@@ -81,12 +87,12 @@ services:
       - localstack
     environment:
       - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=http://pre-award-stores:8080/application
-      - FUND_STORE_API_HOST=http://pre-award-stores:8080/fund
+      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
+      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/fund
       - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - ACCOUNT_STORE_API_HOST=http://pre-award-stores:8080/account
+      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
       - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
       - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
@@ -94,7 +100,7 @@ services:
       - FLASK_ENV=development
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
-      - ASSESSMENT_STORE_API_HOST=http://pre-award-stores:8080/assessment
+      - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/assessment
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
