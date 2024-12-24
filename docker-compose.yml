@@ -35,19 +35,22 @@ services:
         aliases:
           - fund-application-builder.levellingup.gov.localhost
 
-  pre-award-stores:
+  pre-award:
     build:
       context: ./apps/funding-service-pre-award-stores
+    stdin_open: true
+    tty: true
     command: >
       bash -c "
       cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
       update-ca-certificates && \
-      flask db upgrade && \
+      flask -A app:create_app db upgrade && \
+      python build.py && \
       python -m fund_store.scripts.load_all_fund_rounds && \
       python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --seed_all_funds True && \
       python -m invoke assessment.seed-local-assessment-store-db && \
       python -m invoke account.seed-local-account-store && \
-      python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 3012 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
+      python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 4004 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
       "
     env_file:
       - .env
@@ -55,17 +58,40 @@ services:
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
-      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/fund
-      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
-      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
+      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/fund
+      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/account
+      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/application
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - USE_LOCAL_DATA=False
+      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
+      - APPLY_HOST=frontend.levellingup.gov.localhost:3008
+      - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
+      - API_HOST=api.levellingup.gov.localhost:4004
+      - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
+      - FLASK_DEBUG=1
+      - REDIS_INSTANCE_URI=redis://redis-data:6379
+      - SECRET_KEY=dc_key
+      - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/assessment
+      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
+      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
+      - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
+      - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
+      - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
+      - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost
+      - COOKIE_DOMAIN=.levellingup.gov.localhost
     ports:
-      - 3012:3012
+      - 4004:4004
+      - 3008:4004
+      - 3010:4004
       - 5692:5678
     depends_on:
       database:
         condition: service_healthy
       localstack:
+        condition: service_started
+      redis-data:
         condition: service_started
     volumes:
       - './apps/funding-service-pre-award-stores:/app'
@@ -75,64 +101,6 @@ services:
       default:
         aliases:
           - api.levellingup.gov.localhost
-    profiles: [ pre, post ]
-
-  pre-award-frontend:
-    build:
-      context: ./apps/funding-service-pre-award-frontend
-      dockerfile: Dockerfile
-      args:
-        - USE_DEV_REQUIREMENTS=true
-    volumes:
-      - './apps/funding-service-pre-award-frontend:/app'
-      - './certs:/app-certs'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: >
-      bash -c "
-        cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
-        update-ca-certificates && \
-        python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
-      "
-    stdin_open: true
-    tty: true
-    depends_on:
-      - redis-data
-      - localstack
-    env_file:
-      - .env # For the AZURE_AD_* variables
-      - .awslocal.env
-    environment:
-      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-      - USE_LOCAL_DATA=False
-      - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
-      - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/fund
-      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
-      - APPLY_HOST=frontend.levellingup.gov.localhost:3008
-      - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
-      - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
-      - FLASK_DEBUG=1
-      - FLASK_ENV=development
-      - REDIS_INSTANCE_URI=redis://redis-data:6379
-      - SECRET_KEY=dc_key
-      - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/assessment
-      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
-      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
-      - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
-      - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
-      - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
-      - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost
-      - COOKIE_DOMAIN=.levellingup.gov.localhost
-    ports:
-      - 3008:8080
-      - 3010:8080
-      - 4004:8080
-      - 5688:5678
-    networks:
-      default:
-        aliases:
           - frontend.levellingup.gov.localhost
           - assessment.levellingup.gov.localhost
           - authenticator.levellingup.gov.localhost
