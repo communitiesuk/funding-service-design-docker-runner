@@ -83,7 +83,7 @@ services:
       - './apps/funding-service-pre-award-frontend:/app'
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: > 
+    command: >
       bash -c "
         cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
         update-ca-certificates && \
