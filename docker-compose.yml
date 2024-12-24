@@ -8,6 +8,8 @@ services:
       args:
         - USE_DEV_REQUIREMENTS=true
     command: [ "sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
+    env_file:
+      - .env
     environment:
       - FORM_RUNNER_INTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
       - FORM_RUNNER_EXTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
@@ -47,6 +49,9 @@ services:
       python -m invoke account.seed-local-account-store && \
       python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 3012 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
       "
+    env_file:
+      - .env
+      - .awslocal.env
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
@@ -54,7 +59,6 @@ services:
       - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/account
       - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:3012/application
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
-    env_file: .awslocal.env
     ports:
       - 3012:3012
       - 5692:5678
@@ -94,6 +98,9 @@ services:
     depends_on:
       - redis-data
       - localstack
+    env_file:
+      - .env # For the AZURE_AD_* variables
+      - .awslocal.env
     environment:
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
       - USE_LOCAL_DATA=False
@@ -118,9 +125,6 @@ services:
       - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
       - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost
       - COOKIE_DOMAIN=.levellingup.gov.localhost
-    env_file:
-      - .env # For the AZURE_AD_* variables
-      - .awslocal.env
     ports:
       - 3008:8080
       - 3010:8080
@@ -147,6 +151,9 @@ services:
       - 9228:9228
     volumes:
       - './certs:/app-certs'
+    env_file:
+      - .env # For the AZURE_AD_* variables
+      - .awslocal.env
     environment:
       - NODE_EXTRA_CA_CERTS=/app-certs/rootCA.pem
       - LOG_LEVEL=debug
@@ -166,7 +173,6 @@ services:
       - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
       - SINGLE_REDIS=true
       - FORM_RUNNER_ADAPTER_REDIS_INSTANCE_URI=redis://redis-data:6379
-    env_file: .awslocal.env
     networks:
       default:
         aliases:
@@ -185,7 +191,9 @@ services:
       - 5686:5678
     depends_on:
       - localstack
-    env_file: .awslocal.env
+    env_file:
+      - .env
+      - .awslocal.env
     environment:
       - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
       - FLASK_DEBUG=1
