@@ -6,7 +6,7 @@ fresh_clone=false
 git_log=false
 repo_root=$(dirname $(dirname $(realpath $0)))
 apps_dir="${repo_root}/apps"
-declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils" "funding-service-design-workflows")
+declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award" "funding-service-design-notification" "digital-form-builder-adapter" "funding-service-design-post-award-data-store" "funding-service-design-utils" "funding-service-design-workflows")
 
 show_help() {
     echo "Usage: $(basename $0) [-f] [-m] [-l] [-h]"

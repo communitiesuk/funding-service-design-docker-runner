@@ -223,16 +223,16 @@ print_prompt "Press [Enter] to continue."
 read
 
 #######################################
-#   Step 4: Working on 'funding-service-pre-award-stores'
+#   Step 4: Working on 'funding-service-pre-award'
 #######################################
 
-print_header "Step 4: Working on 'funding-service-pre-award-stores':"
-FUND_STORE_DEST_DIR="$APPS_DIR/funding-service-pre-award-stores/fund_store/config/fund_loader_config/FAB"
+print_header "Step 4: Working on 'funding-service-pre-award':"
+FUND_STORE_DEST_DIR="$APPS_DIR/funding-service-pre-award/fund_store/config/fund_loader_config/FAB"
 FUND_STORE_FILE_DEST="$FUND_STORE_DEST_DIR/${FUND_SHORT_NAME_LOWERCASE}_${ROUND_SHORT_NAME_LOWERCASE}.py"
-ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award-stores/assessment_store/config/mappings/assessment_mapping_fund_round.py"
+ASSESS_STORE_CONFIG_FILE="apps/funding-service-pre-award/assessment_store/config/mappings/assessment_mapping_fund_round.py"
 
 create_git_branch \
-    "$APPS_DIR/funding-service-pre-award-stores" \
+    "$APPS_DIR/funding-service-pre-award" \
     "run-$FUND_SHORT_NAME_LOWERCASE-$ROUND_SHORT_NAME_LOWERCASE"
 
 print_message "Copying form_runner files to $FUND_STORE_DEST_DIR"
@@ -311,7 +311,7 @@ fi
 
 print_message "Commit changes"
 commit_changes \
-    "$APPS_DIR/funding-service-pre-award-stores" \
+    "$APPS_DIR/funding-service-pre-award" \
     "Adding ${FUND_SHORT_NAME_LOWERCASE}-${ROUND_SHORT_NAME_LOWERCASE} config"
 
 print_prompt "Press [Enter] to continue."
