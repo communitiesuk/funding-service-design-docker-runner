@@ -5,7 +5,7 @@ build_static_files=false
 
 repo_root=$(dirname $(dirname $(realpath $0)))
 workspace_dir="${repo_root}/apps"
-declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-notification" "funding-service-design-post-award-data-store")
+declare -a repos=("funding-service-design-fund-application-builder" "funding-service-pre-award" "funding-service-design-notification" "funding-service-design-post-award-data-store")
 
 while getopts 'vps' OPTION; do
     case "$OPTION" in
@@ -18,7 +18,7 @@ while getopts 'vps' OPTION; do
             install_pre_commit=true
             ;;
         s)
-            echo "Will build static files(only for data-store, pre-award-stores, and FAB repos)"
+            echo "Will build static files(only for data-store, pre-award, and FAB repos)"
             build_static_files=true
             ;;
         ?)
@@ -56,7 +56,7 @@ do
     fi
 
     if [ "$build_static_files" = true ] ; then
-        static_repos_array=("funding-service-design-fund-application-builder" "funding-service-pre-award-stores" "funding-service-design-post-award-data-store")
+        static_repos_array=("funding-service-design-fund-application-builder" "funding-service-pre-award" "funding-service-design-post-award-data-store")
         if [[ " ${static_repos_array[*]} " =~ " $repo " ]]; then
             echo Building the static files...
             export FLASK_ENV=development

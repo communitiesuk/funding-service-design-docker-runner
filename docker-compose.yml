@@ -37,7 +37,7 @@ services:
 
   pre-award:
     build:
-      context: ./apps/funding-service-pre-award-stores
+      context: ./apps/funding-service-pre-award
     stdin_open: true
     tty: true
     command: >
@@ -94,7 +94,7 @@ services:
       redis-data:
         condition: service_started
     volumes:
-      - './apps/funding-service-pre-award-stores:/app'
+      - './apps/funding-service-pre-award:/app'
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
     networks:
@@ -129,7 +129,7 @@ services:
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=https://authenticator.levellingup.gov.localhost:4004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
-      - 'NODE_CONFIG={"safelist": ["pre-award-stores", "api.levellingup.gov.localhost"]}'
+      - 'NODE_CONFIG={"safelist": ["api.levellingup.gov.localhost"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
       - COOKIE_POLICY_URL=https://frontend.levellingup.gov.localhost:3008/cookie_policy
