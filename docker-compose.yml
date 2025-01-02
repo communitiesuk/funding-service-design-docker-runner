@@ -57,6 +57,7 @@ services:
       - .awslocal.env
     environment:
       - FLASK_ENV=development
+      - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
       - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
       - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/fund
       - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/account
