@@ -11,8 +11,8 @@ services:
     env_file:
       - .env
     environment:
-      - FORM_RUNNER_INTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - FORM_RUNNER_EXTERNAL_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORM_RUNNER_INTERNAL_HOST=https://form-runner.levellingup.gov.localhost:3009
+      - FORM_RUNNER_EXTERNAL_HOST=https://form-runner.levellingup.gov.localhost:3009
       - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store # pragma: allowlist secret
       - FLASK_DEBUG=1
       - FLASK_ENV=development
@@ -63,8 +63,8 @@ services:
       - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/application
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
       - USE_LOCAL_DATA=False
-      - FORMS_SERVICE_PUBLIC_HOST=http://form-runner.levellingup.gov.localhost:3009
-      - FORMS_SERVICE_PRIVATE_HOST=http://form-runner.levellingup.gov.localhost:3009
+      - FORMS_SERVICE_PUBLIC_HOST=https://form-runner.levellingup.gov.localhost:3009
+      - FORMS_SERVICE_PRIVATE_HOST=https://form-runner.levellingup.gov.localhost:3009
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - APPLY_HOST=frontend.levellingup.gov.localhost:3008
       - ASSESS_HOST=assessment.levellingup.gov.localhost:3010
@@ -106,6 +106,41 @@ services:
           - authenticator.levellingup.gov.localhost
     profiles: [ pre, post ]
 
+  form-designer:
+    depends_on:
+      - form-runner
+    build:
+      context: ./apps/digital-form-builder-adapter
+      dockerfile: ./designer/Dockerfile
+    command: yarn designer production
+    ports:
+      - 3000:3000
+    volumes:
+      - './certs:/app-certs'
+    env_file:
+      - .env # For the AZURE_AD_* variables
+      - .awslocal.env
+    environment:
+      - NODE_EXTRA_CA_CERTS=/app-certs/rootCA.pem
+      - SSL_KEY=/app-certs/key.pem
+      - SSL_CERT=/app-certs/cert.pem
+      - LOG_LEVEL=debug
+      - AUTH_ENABLED=true
+      - AUTH_COOKIE_NAME=fsd_user_token
+      - SSO_LOGIN_URL=/sso/login?return_app=form-designer
+      - SSO_LOGOUT_URL=/sessions/sign-out
+      - AUTH_SERVICE_URL=https://authenticator.levellingup.gov.localhost:4004
+      - NODE_ENV=production
+      - PREVIEW_URL=https://form-runner.levellingup.gov.localhost:3009
+      - PUBLISH_URL=https://form-runner.levellingup.gov.localhost:3009
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - 'NODE_CONFIG={"safelist": ["api.levellingup.gov.localhost"]}'
+    networks:
+      default:
+        aliases:
+          - form-designer.levellingup.gov.localhost
+    profiles: [ pre ]
+
   form-runner:
     depends_on:
       - redis-data
@@ -124,6 +159,8 @@ services:
       - .awslocal.env
     environment:
       - NODE_EXTRA_CA_CERTS=/app-certs/rootCA.pem
+      - SSL_KEY=/app-certs/key.pem
+      - SSL_CERT=/app-certs/cert.pem
       - LOG_LEVEL=debug
       - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
