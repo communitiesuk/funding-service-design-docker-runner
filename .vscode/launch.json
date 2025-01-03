@@ -124,6 +124,50 @@
                 }
             ]
         },
+        {
+            "name": "Docker Runner: Launch Form Designer",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/apps/digital-form-builder-adapter/designer",
+            "program": "${workspaceFolder}/apps/digital-form-builder-adapter/node_modules/nodemon/bin/nodemon.js",
+            "args": [
+                "--inspect=9229", 
+                "../designer/dist/server.js"
+            ],
+            "env": {
+                "NODE_ENV": "development",
+                "PREVIEW_MODE": "true",
+                "AUTH_ENABLED": "true"
+            },
+            "protocol": "inspector",
+            "internalConsoleOptions": "openOnSessionStart",
+            "port": 9229
+        },
+        {
+            "name": "Docker Runner: Launch Form Runner",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/apps/digital-form-builder-adapter/runner",
+            "program": "${workspaceFolder}/apps/digital-form-builder-adapter/node_modules/nodemon/bin/nodemon.js",
+            "args": ["--inspect=9228", "../runner/dist/digital-form-builder-adapter/runner/index.js"],
+            "env": {
+                "NODE_ENV": "development",
+                "PREVIEW_MODE": "true"
+            },
+            "protocol": "inspector",
+            "internalConsoleOptions": "openOnSessionStart",
+            "port": 9228
+        },
+        {
+            "name": "Docker Runner: Attach Form Runner",
+            "type": "node",
+            "request": "attach",
+            "address": "localhost",
+            "trace": true,
+            "port": 9228,
+            "localRoot": "${workspaceFolder}/apps/digital-form-builder-adapter/runner",
+            "remoteRoot": "/usr/src/app/digital-form-builder-adapter/runner"
+        },
     ],
     "compounds": [
         {
@@ -136,7 +180,10 @@
                 "Docker Runner: Pre-Award Frontend",
                 "Docker Runner: Fund Application Builder",
                 "Docker Runner: Notification",
-                "Docker Runner: Pre-Award Stores"
+                "Docker Runner: Pre-Award Stores",
+                "Docker Runner: Launch Form Runner",
+                "Docker Runner: Launch Form Designer",
+                "Docker Runner: Attach Form Runner"
             ],
             "stopAll": true
         }
