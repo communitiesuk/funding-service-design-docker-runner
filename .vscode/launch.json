@@ -131,7 +131,7 @@
             "cwd": "${workspaceFolder}/apps/digital-form-builder-adapter/designer",
             "program": "${workspaceFolder}/apps/digital-form-builder-adapter/node_modules/nodemon/bin/nodemon.js",
             "args": [
-                "--inspect=9229", 
+                "--inspect=9229",
                 "../designer/dist/server.js"
             ],
             "env": {
