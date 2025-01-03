@@ -112,13 +112,11 @@ services:
     build:
       context: ./apps/digital-form-builder-adapter
       dockerfile: ./designer/Dockerfile
-    command: yarn designer dev
+    command: yarn designer production
     ports:
       - 3000:3000
-      - 9229:9229
     volumes:
       - './certs:/app-certs'
-      - './apps/digital-form-builder-adapter/designer:/usr/src/app/digital-form-builder-adapter/designer'
     env_file:
       - .env # For the AZURE_AD_* variables
       - .awslocal.env
@@ -150,13 +148,12 @@ services:
     build:
       context: ./apps/digital-form-builder-adapter
       dockerfile: ./runner/Dockerfile
-    command: yarn runner dev
+    command: yarn runner production
     ports:
       - 3009:3009
       - 9228:9228
     volumes:
       - './certs:/app-certs'
-      - './apps/digital-form-builder-adapter/runner:/usr/src/app/digital-form-builder-adapter/runner'
     env_file:
       - .env # For the AZURE_AD_* variables
       - .awslocal.env
