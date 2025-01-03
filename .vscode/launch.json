@@ -110,6 +110,24 @@
             ]
         },
         {
+            "name": "Docker Runner: Form Runner",
+            "type": "node",
+            "request": "attach",
+            "address": "localhost",
+            "port": 9228,
+            "localRoot": "${workspaceFolder}/apps/digital-form-builder-adapter/runner",
+            "remoteRoot": "/usr/src/app/digital-form-builder-adapter/runner"
+        },
+        {
+            "name": "Docker Runner: Form Designer",
+            "type": "node",
+            "request": "attach",
+            "address": "localhost",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}/apps/digital-form-builder-adapter/designer",
+            "remoteRoot": "/usr/src/app/digital-form-builder-adapter/designer"
+        },
+        {
             "name": "Docker Runner: Pre-Award Stores",
             "type": "debugpy",
             "request": "attach",
@@ -123,7 +141,7 @@
                     "remoteRoot": "."
                 }
             ]
-        },
+        }
     ],
     "compounds": [
         {
@@ -136,7 +154,9 @@
                 "Docker Runner: Pre-Award Frontend",
                 "Docker Runner: Fund Application Builder",
                 "Docker Runner: Notification",
-                "Docker Runner: Pre-Award Stores"
+                "Docker Runner: Pre-Award Stores",
+                "Docker Runner: Form Runner",
+                "Docker Runner: Form Designer"
             ],
             "stopAll": true
         }
