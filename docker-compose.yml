@@ -113,9 +113,10 @@ services:
     build:
       context: ./apps/digital-form-builder-adapter
       dockerfile: ./designer/Dockerfile
-    command: yarn designer production
+    command: yarn designer dev
     ports:
       - 3000:3000
+      - 9229:9229
     volumes:
       - './certs:/app-certs'
     env_file:
@@ -149,7 +150,7 @@ services:
     build:
       context: ./apps/digital-form-builder-adapter
       dockerfile: ./runner/Dockerfile
-    command: yarn runner production
+    command: yarn runner dev
     ports:
       - 3009:3009
       - 9228:9228
