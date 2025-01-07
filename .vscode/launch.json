@@ -68,7 +68,7 @@
             "remoteRoot": "/usr/src/app/digital-form-builder-adapter/designer"
         },
         {
-            "name": "Docker Runner: Pre-Award Stores",
+            "name": "Docker Runner: Pre-Award",
             "type": "debugpy",
             "request": "attach",
             "connect": {
