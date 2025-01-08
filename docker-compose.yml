@@ -291,7 +291,7 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=password
-      - POSTGRES_MULTIPLE_DATABASES=assessment_store,account_store,data_store,data_store_test,fab_store,fab_store_test,pre_award_stores,pre_award_stores_test
+      - POSTGRES_MULTIPLE_DATABASES=data_store,data_store_test,fab_store,fab_store_test,pre_award_stores,pre_award_stores_test
     ports:
       - 5432:5432
     healthcheck:
