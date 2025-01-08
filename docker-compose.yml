@@ -322,6 +322,10 @@ services:
     volumes:
       - ./docker-localstack:/etc/localstack/init/ready.d
       - localstack:/var/lib/localstack
+    networks:
+      default:
+        aliases:
+          - localhost.localstack.cloud
 
 volumes:
   localstack: null
