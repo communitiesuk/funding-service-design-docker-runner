@@ -7,7 +7,14 @@ services:
       dockerfile: Dockerfile
       args:
         - USE_DEV_REQUIREMENTS=true
-    command: [ "sh", "-c", "python -m flask db upgrade && python -m build && python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem" ]
+    command: >
+      bash -c "
+      cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
+      update-ca-certificates && \
+      python -m flask db upgrade && \
+      python -m build && \
+      python -m debugpy --listen 0.0.0.0:5678 -m flask run --no-debugger --host 0.0.0.0 --port 8080 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
+      "
     env_file:
       - .env
     environment:
@@ -19,6 +26,7 @@ services:
       - SECRET_KEY=local
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
     ports:
       - 3011:8080
       - 5690:5678
