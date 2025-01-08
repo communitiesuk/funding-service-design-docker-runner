@@ -315,6 +315,7 @@ services:
       - SERVICES=s3,sqs
       - PERSISTENCE=1
       - LS_LOG=warn
+      - USE_SSL=1
     ports:
       - 4566:4566 # LocalStack endpoint
       - 4510-4559:4510-4559 # external services port range
