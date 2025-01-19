@@ -1,0 +1,41 @@
+{
+  "postCreateCommand": [
+    "./scripts/manage-repos.sh -fml"
+  ],
+  "customizations": {
+    "codespaces": {
+      "repositories": {
+        "communitiesuk/funding-service-pre-award": {
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "communitiesuk/funding-service-design-post-award-data-store": {
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "communitiesuk/funding-service-design-fund-application-builder": {
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "communitiesuk/funding-service-notification": {
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "communitiesuk/funding-service-design-workflows": {
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "communitiesuk/funding-service-design-utils": {
+          "permissions": {
+            "contents": "read"
+          }
+        }
+      }
+    }
+  }
+}
