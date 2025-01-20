@@ -52,12 +52,8 @@ services:
       bash -c "
       cp /app-certs/rootCA.pem /usr/local/share/ca-certificates/rootCA.crt && \
       update-ca-certificates && \
-      flask -A app:create_app db upgrade && \
       python build.py && \
-      python -m fund_store.scripts.load_all_fund_rounds && \
-      python -m fund_store.scripts.fund_round_loaders.load_fund_round_from_fab --seed_all_funds True && \
-      python -m invoke assessment.seed-assessment-store-db && \
-      python -m invoke account.seed-local-account-store && \
+      invoke common.full-bootstrap && \
       python -m debugpy --listen 0.0.0.0:5678 -m flask -A app:create_app run --host 0.0.0.0 --port 4004 --cert=/app-certs/cert.pem --key=/app-certs/key.pem
       "
     env_file:
