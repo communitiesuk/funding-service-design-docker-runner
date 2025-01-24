@@ -79,8 +79,8 @@ services:
       - REDIS_INSTANCE_URI=redis://redis-data:6379
       - SECRET_KEY=dc_key
       - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/assessment
-      - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
-      - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
+      - APPLICANT_FRONTEND_HOST=https://funding.communities.gov.localhost:3010
+      - ASSESSMENT_FRONTEND_HOST=https://funding.communities.gov.localhost:3010
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
       - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
       - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
@@ -109,6 +109,7 @@ services:
           - frontend.levellingup.gov.localhost
           - assessment.levellingup.gov.localhost
           - authenticator.levellingup.gov.localhost
+          - funding.communities.gov.localhost
     profiles: [ pre, post ]
 
   form-designer:
