@@ -7,7 +7,7 @@ SHELL := bash
 certs:
 	mkdir -p certs
 	CAROOT=certs mkcert -install
-	CAROOT=certs mkcert -cert-file certs/cert.pem -key-file certs/key.pem "*.levellingup.gov.localhost"
+	CAROOT=certs mkcert -cert-file certs/cert.pem -key-file certs/key.pem "funding.communities.gov.localhost"
 
 
 # <-- Janky block to allow `make up` / `make pre up` / `make post up`, and same for `make ... down` -->
