@@ -141,6 +141,7 @@ services:
       - PUBLISH_URL=https://form-runner.levellingup.gov.localhost:3009
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
       - 'NODE_CONFIG={"safelist": ["api.levellingup.gov.localhost"]}'
+      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally
     networks:
       default:
         aliases:
@@ -185,6 +186,7 @@ services:
       - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
       - SINGLE_REDIS=true
       - FORM_RUNNER_ADAPTER_REDIS_INSTANCE_URI=redis://redis-data:6379
+      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally
     networks:
       default:
         aliases:
