@@ -84,7 +84,7 @@ services:
       - POST_AWARD_FRONTEND_HOST=https://find-monitoring-data.levellingup.gov.localhost:4001
       - POST_AWARD_SUBMIT_HOST=https://submit-monitoring-data.levellingup.gov.localhost:4001
       - FUND_APPLICATION_BUILDER_HOST=https://fund-application-builder.levellingup.gov.localhost:3011
-      - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost
+      - FORM_DESIGNER_HOST=https://form-designer.levellingup.gov.localhost:3000
       - COOKIE_DOMAIN=.levellingup.gov.localhost
     ports:
       - 4004:4004
