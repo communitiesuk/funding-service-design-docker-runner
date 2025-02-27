@@ -35,21 +35,6 @@
             ]
         },
         {
-            "name": "Docker Runner: Notification",
-            "type": "debugpy",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5686
-            },
-            "pathMappings": [
-                {
-                    "localRoot": "${workspaceFolder}/apps/funding-service-design-notification",
-                    "remoteRoot": "."
-                }
-            ]
-        },
-        {
             "name": "Docker Runner: Form Runner",
             "type": "node",
             "request": "attach",
@@ -89,7 +74,6 @@
             "configurations": [
                 "Docker Runner: Data Store",
                 "Docker Runner: Fund Application Builder",
-                "Docker Runner: Notification",
                 "Docker Runner: Pre-Award",
                 "Docker Runner: Form Runner",
                 "Docker Runner: Form Designer"
