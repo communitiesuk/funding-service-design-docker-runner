@@ -193,28 +193,6 @@ services:
           - form-runner.levellingup.gov.localhost
     profiles: [ pre ]
 
-  notification:
-    build:
-      context: ./apps/funding-service-design-notification
-    volumes:
-      - './apps/funding-service-design-notification:/app'
-      - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
-    command: [ "sh", "-c", "python -m debugpy --listen 0.0.0.0:5678 -m wsgi" ]
-    ports:
-      - 3006:8080
-      - 5686:5678
-    depends_on:
-      - localstack
-    env_file:
-      - .env
-      - .awslocal.env
-    environment:
-      - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
-      - FLASK_DEBUG=1
-      - FLASK_ENV=development
-      - AWS_MSG_BUCKET_NAME=fsd-notification-bucket
-    profiles: [ pre ]
-
   data-store:
     # http://github.com/communitiesuk/funding-service-design-post-award-data-store
     build:
