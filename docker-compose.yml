@@ -23,9 +23,9 @@ services:
       - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store # pragma: allowlist secret
       - FLASK_DEBUG=1
       - FLASK_ENV=development
-      - SECRET_KEY=local
+      - SECRET_KEY=local # pragma: allowlist secret
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
-      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==" # pragma: allowlist secret
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
     ports:
       - 3011:8080
@@ -64,7 +64,7 @@ services:
     environment:
       - FLASK_ENV=development
       - GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY:?err}
-      - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores
+      - DATABASE_URL=postgresql://postgres:password@database:5432/pre_award_stores # pragma: allowlist secret
       - FUND_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/fund
       - ACCOUNT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/account
       - APPLICATION_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/application
@@ -79,7 +79,7 @@ services:
       - AUTH_HOST=authenticator.levellingup.gov.localhost:4004
       - FLASK_DEBUG=1
       - REDIS_INSTANCE_URI=redis://redis-data:6379
-      - SECRET_KEY=dc_key
+      - SECRET_KEY=dc_key # pragma: allowlist secret
       - ASSESSMENT_STORE_API_HOST=https://api.levellingup.gov.localhost:4004/assessment
       - APPLICANT_FRONTEND_HOST=https://frontend.levellingup.gov.localhost:3008
       - ASSESSMENT_FRONTEND_HOST=https://assessment.levellingup.gov.localhost:3010
@@ -147,9 +147,9 @@ services:
       - NODE_ENV=production
       - PREVIEW_URL=https://form-runner.levellingup.gov.localhost:3009
       - PUBLISH_URL=https://form-runner.levellingup.gov.localhost:3009
-      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==" # pragma: allowlist secret
       - 'NODE_CONFIG={"safelist": ["api.levellingup.gov.localhost"]}'
-      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally
+      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally # pragma: allowlist secret
     networks:
       default:
         aliases:
@@ -163,6 +163,8 @@ services:
     build:
       context: ./apps/digital-form-builder-adapter
       dockerfile: ./runner/Dockerfile
+      args:
+          INSTALL_NODEMON: "true"
     command: yarn runner dev
     ports:
       - 3009:3009
@@ -181,7 +183,7 @@ services:
       - JWT_AUTH_ENABLED=true
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=https://authenticator.levellingup.gov.localhost:4004/sessions/sign-out
-      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="
+      - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ==" # pragma: allowlist secret
       - 'NODE_CONFIG={"safelist": ["api.levellingup.gov.localhost"]}'
       - CONTACT_US_URL=https://frontend.levellingup.gov.localhost:3008/contact_us
       - FEEDBACK_LINK=https://frontend.levellingup.gov.localhost:3008/feedback
@@ -194,7 +196,7 @@ services:
       - ELIGIBILITY_RESULT_URL=https://frontend.levellingup.gov.localhost:3008/eligibility-result
       - SINGLE_REDIS=true
       - FORM_RUNNER_ADAPTER_REDIS_INSTANCE_URI=redis://redis-data:6379
-      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally
+      - SESSION_COOKIE_PASSWORD=12312lubv23vrg234ukv5bt3iu4trb3w4ortbc3q4orctbq34orvtb34tv  # random value for stable session encryption locally # pragma: allowlist secret
     networks:
       default:
         aliases:
@@ -226,7 +228,7 @@ services:
       - .awslocal.env
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
+      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store # pragma: allowlist secret
       - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
       - AUTHENTICATOR_HOST=https://authenticator.levellingup.gov.localhost:4004
@@ -265,7 +267,7 @@ services:
       - .awslocal.env
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store
+      - DATABASE_URL=postgresql://postgres:password@database:5432/data_store # pragma: allowlist secret
       - FIND_SERVICE_BASE_URL=https://find-monitoring-data.levellingup.gov.localhost:4001
       - REDIS_URL=redis://redis-data:6379/1
     stdin_open: true
@@ -284,7 +286,7 @@ services:
       - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
     restart: always
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=password # pragma: allowlist secret
       - POSTGRES_MULTIPLE_DATABASES=data_store,data_store_test,fab_store,fab_store_test,pre_award_stores,pre_award_stores_test
     ports:
       - 5432:5432
