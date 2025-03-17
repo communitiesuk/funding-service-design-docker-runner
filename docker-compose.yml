@@ -33,6 +33,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      pre-award:
+        condition: service_healthy
     volumes:
       - './apps/funding-service-design-fund-application-builder:/app'
       - './certs:/app-certs'
@@ -102,6 +104,12 @@ services:
       - './apps/funding-service-pre-award:/app'
       - './certs:/app-certs'
       - '/app/.venv' # Don't overwrite this directory with local .venv because uv links won't translate in the container
+    healthcheck:
+      test: curl --fail https://authenticator.levellingup.gov.localhost:4004/healthcheck || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       default:
         aliases:
