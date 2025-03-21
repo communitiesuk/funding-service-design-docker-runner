@@ -12,7 +12,7 @@
 ## Required setup
 1. Copy `.env.example` to `.env` and fill in any required missing values.
 2. Edit your `/etc/hosts` file and add the following line at the end:
-  * `127.0.0.1    submit-monitoring-data.levellingup.gov.localhost find-monitoring-data.levellingup.gov.localhost authenticator.levellingup.gov.localhost assessment.levellingup.gov.localhost frontend.levellingup.gov.localhost localstack fund-application-builder.levellingup.gov.localhost api.levellingup.gov.localhost form-runner.levellingup.gov.localhost`
+  * `127.0.0.1    submit-monitoring-data.communities.gov.localhost find-monitoring-data.communities.gov.localhost authenticator.communities.gov.localhost assessment.communities.gov.localhost frontend.communities.gov.localhost localstack fund-application-builder.communities.gov.localhost api.communities.gov.localhost form-runner.communities.gov.localhost`
 3. Run `./scripts/manage-repos.sh -f` to git clone all repos into `./apps`
 4. Run `./scripts/install-venv-all-repos.sh -v -p -s` to create and populate venvs in all repos and install pre-commit hooks.
   * Note: there are some pre-existing issues with the script sometimes not picking the correct python version, may need some manual finagling until that is addressed.
@@ -43,23 +43,23 @@ To run just the post-award services, execute `make post up`.
 
 ### Service domains:
 
-* Fund Application Builder (FAB): https://fund-application-builder.levellingup.gov.localhost:3011
-  * Example URL: https://fund-application-builder.levellingup.gov.localhost:3011
+* Fund Application Builder (FAB): https://fund-application-builder.communities.gov.localhost:3011
+  * Example URL: https://fund-application-builder.communities.gov.localhost:3011
 
-* Authenticator: https://authenticator.levellingup.gov.localhost:4004
-  * Example URL: https://authenticator.levellingup.gov.localhost:4004/service/magic-links/new?fund=cof&round=r2w3
+* Authenticator: https://authenticator.communities.gov.localhost:4004
+  * Example URL: https://authenticator.communities.gov.localhost:4004/service/magic-links/new?fund=cof&round=r2w3
 
-* Apply: https://frontend.levellingup.gov.localhost:3008
-  * Example URL: https://frontend.levellingup.gov.localhost:3008/funding-round/cof/r2w3
+* Apply: https://frontend.communities.gov.localhost:3008
+  * Example URL: https://frontend.communities.gov.localhost:3008/funding-round/cof/r2w3
 
-* Assess: https://assessment.levellingup.gov.localhost:3010
-  * Example URL: https://assessment.levellingup.gov.localhost:3010/assess/assessor_tool_dashboard/
+* Assess: https://assessment.communities.gov.localhost:3010
+  * Example URL: https://assessment.communities.gov.localhost:3010/assess/assessor_tool_dashboard/
 
-* Find: https://find-monitoring-data.levellingup.gov.localhost:4001
-  * Example URL: https://find-monitoring-data.levellingup.gov.localhost:4001/download
+* Find: https://find-monitoring-data.communities.gov.localhost:4001
+  * Example URL: https://find-monitoring-data.communities.gov.localhost:4001/download
 
-* Submit: https://submit-monitoring-data.levellingup.gov.localhost:4001
-  * Example URL: https://submit-monitoring-data.levellingup.gov.localhost:4001/dashboard
+* Submit: https://submit-monitoring-data.communities.gov.localhost:4001
+  * Example URL: https://submit-monitoring-data.communities.gov.localhost:4001/dashboard
 
 ## Troubleshooting
 * Check you have the `main` branch and latest revision of each repo checked out - see the `manage-repos` section below
@@ -71,9 +71,9 @@ To run just the post-award services, execute `make post up`.
 ## Running e2e tests
 To run the e2e tests against the docker runner, set the following env vars:
 
-        export TARGET_URL_FRONTEND=https://frontend.levellingup.gov.localhost:3008
-        export TARGET_URL_AUTHENTICATOR=https://authenticator.levellingup.gov.localhost:4004
-        export TARGET_URL_FORM_RUNNER=https://form-runner.levellingup.gov.localhost:3009
+        export TARGET_URL_FRONTEND=https://frontend.communities.gov.localhost:3008
+        export TARGET_URL_AUTHENTICATOR=https://authenticator.communities.gov.localhost:4004
+        export TARGET_URL_FORM_RUNNER=https://form-runner.communities.gov.localhost:3009
 
 # Scripts
 ## manage-repos
