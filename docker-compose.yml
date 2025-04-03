@@ -139,7 +139,7 @@ services:
       - SSL_KEY=/app-certs/key.pem
       - SSL_CERT=/app-certs/cert.pem
       - LOG_LEVEL=debug
-      - AUTH_ENABLED=true
+      - AUTH_ENABLED=false
       - AUTH_COOKIE_NAME=fsd_user_token
       - SSO_LOGIN_URL=/sso/login?return_app=form-designer
       - SSO_LOGOUT_URL=/sessions/sign-out
@@ -180,7 +180,7 @@ services:
       - SSL_KEY=/app-certs/key.pem
       - SSL_CERT=/app-certs/cert.pem
       - LOG_LEVEL=debug
-      - JWT_AUTH_ENABLED=true
+      - JWT_AUTH_ENABLED=false
       - JWT_AUTH_COOKIE_NAME=fsd_user_token
       - JWT_REDIRECT_TO_AUTHENTICATION_URL=https://authenticator.communities.gov.localhost:4004/sessions/sign-out
       - RSA256_PUBLIC_KEY_BASE64="LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZU1BMEdDU3FHU0liM0RRRUJBUVVBQTRHTUFEQ0JpQUtCZ0hHYnRGMXlWR1crckNBRk9JZGFrVVZ3Q2Z1dgp4SEUzOGxFL2kwS1dwTXdkU0haRkZMWW5IakJWT09oMTVFaWl6WXphNEZUSlRNdkwyRTRRckxwcVlqNktFNnR2CkhyaHlQL041ZnlwU3p0OHZDajlzcFo4KzBrRnVjVzl6eU1rUHVEaXNZdG1rV0dkeEJta2QzZ3RZcDNtT0k1M1YKVkRnS2J0b0lGVTNzSWs1TkFnTUJBQUU9Ci0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQ=="  # pragma: allowlist secret
