@@ -236,6 +236,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      localstack:
+        condition: service_started
     networks:
       default:
         aliases:
