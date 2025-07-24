@@ -66,6 +66,38 @@
                     "remoteRoot": "."
                 }
             ]
+        },
+        {
+            "name": "Docker Runner: FAB Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                // To run a specific test, uncomment the below line and change the test
+                // "tests/unit/app/blueprints/fund/test_routes.py::test_create_fund",
+                "-v",
+                "-s"
+            ],
+            "cwd": "${workspaceFolder}/apps/funding-service-design-fund-application-builder",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/apps/funding-service-design-fund-application-builder/.venv/bin/python"
+        },
+        {
+            "name": "Docker Runner: Pre-Award Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                // To run a specific test, uncomment the below line and change the test
+                // "tests/pre_award/apply_tests/test_tasklist.py::test_tasklist_route",
+                "-v",
+                "-s"
+            ],
+            "cwd": "${workspaceFolder}/apps/funding-service-pre-award",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "python": "${workspaceFolder}/apps/funding-service-pre-award/.venv/bin/python"
         }
     ],
     "compounds": [
