@@ -20,6 +20,7 @@ services:
     environment:
       - FORM_RUNNER_INTERNAL_HOST=https://form-runner.communities.gov.localhost:3009
       - FORM_RUNNER_EXTERNAL_HOST=https://form-runner.communities.gov.localhost:3009
+      - FORM_RUNNER_PUBLISH_URL=https://form-runner.communities.gov.localhost:3009/publish
       - DATABASE_URL=postgresql://postgres:password@database:5432/fab_store # pragma: allowlist secret
       - FLASK_DEBUG=1
       - FLASK_ENV=development
