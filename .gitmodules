@@ -1,0 +1,3 @@
+[submodule "sidecars/nginx-sidecar-basic-auth"]
+	path = sidecars/nginx-sidecar-basic-auth
+	url = https://github.com/communitiesuk/nginx-sidecar-basic-auth
